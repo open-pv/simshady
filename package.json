@@ -1,0 +1,40 @@
+{
+  "name": "@open-pv/simulation",
+  "version": "0.0.1",
+  "description": "Calculate PV yield on the GPU using raytracing",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "echo \"No tests yet\"",
+    "build": "tsup"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-pv/simulation.git"
+  },
+  "keywords": [
+    "solar"
+  ],
+  "author": "Konrad Heidler <k.heidler@tum.de>",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/open-pv/simulation/issues"
+  },
+  "homepage": "https://github.com/open-pv/simulation#readme",
+  "devDependencies": {
+    "@types/three": "^0.161.2",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "gl-matrix": "^3.4.3",
+    "suncalc": "^1.9.0",
+    "three": "^0.161.0"
+  }
+}
