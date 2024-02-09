@@ -1,7 +1,7 @@
 import { vec3 } from "gl-matrix"
 
-type ArrayType = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
-type Triangle = [vec3, vec3, vec3];
+export type ArrayType = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
+export type Triangle = [vec3, vec3, vec3];
 
 export function extractTriangle(positions: ArrayType, startIndex: number): Triangle {
     const i = startIndex;
@@ -50,4 +50,21 @@ export function subdivide(vertices: [vec3, vec3, vec3]): [Triangle, Triangle, Tr
       [v2, m20, m12],
       [m01, m12, m20],
     ];
+}
+
+export function midpoint(triangle: Triangle): [number, number, number] {
+    const [v0, v1, v2] = triangle;
+    return [
+        (v0[0] + v1[0] + v2[0]) / 3,
+        (v0[1] + v1[1] + v2[1]) / 3,
+        (v0[2] + v1[2] + v2[2]) / 3,
+    ];
+}
+
+export function flatten(triangles: Triangle[]): number[] {
+    return triangles.flatMap(tri => [
+        tri[0][0], tri[0][1], tri[0][2],
+        tri[1][0], tri[1][1], tri[1][2],
+        tri[2][0], tri[2][1], tri[2][2],
+    ]);
 }

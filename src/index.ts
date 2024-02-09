@@ -2,43 +2,84 @@ import { BufferGeometry, BufferAttribute } from "three";
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js"
 import * as BufferGeometryUtils from "three/examples/jsm/utils/BufferGeometryUtils.js"
 import { vec3 } from "gl-matrix"
-import * as triangleUtils from './triangleUtils';
+import * as triangleUtils from './triangleUtils.js';
+import { Triangle, ArrayType } from './triangleUtils.js';
+
+// @ts-ignore
+import { rayTracingWebGL } from './rayTracingWebGL.js';
 
 export default class Scene {
     geometries: Array<BufferGeometry>
     mergedGeometry: BufferGeometry | null
     radius: number
     center: [number, number]
+    numberSimulations: number
 
     constructor() {
         this.geometries = [];
         this.mergedGeometry = null;
         this.radius = 60;
         this.center = [0, 0];
+        this.numberSimulations = 80; // TODO: Make configurable
     }
-
-    addSTL(stlData: ArrayBuffer) {
-        // let response = await fetch(url);
+    
+    /**
+     * Adds an STL geometry to the scene
+     *
+     * @param {ArrayBuffer} stlData
+     * @memberof Scene
+     */
+    addSTL(stlData: ArrayBuffer) {        
         let geometry = new STLLoader().parse(stlData);
         // TODO: Offset calculations?
         this.addGeometry(geometry)
         console.log("stl added");
     }
 
+     /**
+     * Adds an arbitrary Three.js geometry to the scene
+     *
+     * @param {ArrayBuffer} stlData
+     * @memberof Scene
+     */
     addGeometry(geometry: BufferGeometry) {
         this.geometries.push(geometry);
         this.mergedGeometry = null;
     }
 
+    
+    /**
+     * Set the center point of the simulation
+     *
+     * @param {number} x x-coordinate of the center
+     * @param {number} y y-coordinate of the center
+     * @memberof Scene
+     */
     setCenter(x: number, y: number) {
         this.center = [x, y];
     }
 
+    
+    /**
+     * Set the radius of the simulation
+     *
+     * @param {number} radius Simulation radius in world units
+     * @memberof Scene
+     */
     setRadius(radius: number) {
         this.radius = radius;
     }
 
-    extractMesh(radius: number) {
+    
+    /**
+     * Build merged mesh from all scene geometries by extracting all surfaces that
+     * are at most `radius` units away from the center point.
+     *
+     * @param {number} radius 
+     * @return {*} {BufferGeometry} 
+     * @memberof Scene
+     */
+    extractMesh(radius: number): BufferGeometry {
         if(this.mergedGeometry === null) {
             this.mergedGeometry = BufferGeometryUtils.mergeGeometries(this.geometries);
         }
@@ -89,117 +130,103 @@ export default class Scene {
         return geometry;
     }
 
-    refineMesh(mesh: BufferGeometry) {
+    
+    /**
+     * Adaptively subdivide each triangle of `mesh` until all triangles have area of at most `maxArea`.
+     *
+     * @param {BufferGeometry} mesh
+     * @param {number} maxArea
+     * @return {*}  {BufferGeometry}
+     * @memberof Scene
+     */
+    refineMesh(mesh: BufferGeometry, maxArea: number): BufferGeometry {
         const positions = mesh.attributes.position.array.slice();
-        let newPositions = [];
+        const normals = mesh.attributes.position.array.slice();
+
+        let newTriangles: Triangle[] = [];
+        let newNormals: number[] = [];
         // Iterate over triangles
         for(let i = 0; positions.length; i += 9) {
-            const area = triangleUtils.area(positions, i);
-            let triangles = [];
-        }
-        const triangle = triangleUtils.extractTriangle(positions, i);
-        const subdividedTriangles = adaptiveSubdivideMesh(triangles, threshold)
-          
-            const newpos_update = []
-            for (const triangle of subdividedTriangles) {
-              newpos_update.push(...triangle)
+            let area = triangleUtils.area(positions, i);
+            let triangles = [triangleUtils.extractTriangle(positions, i)];
+            while(area > maxArea) {
+                triangles = triangles.flatMap(triangleUtils.subdivide);
+                area /= 4;
             }
-            return newpos_update          
+            newTriangles = newTriangles.concat(triangles);
+            const ni = i / 3;
+            // copy normal for each subdivided triangle
+            newNormals = newNormals.concat(triangles.flatMap(_ => [normals[ni], normals[ni+1], normals[ni+2]]));
+        }
+
+        let geometry = new BufferGeometry()
+        geometry.setAttribute(
+          "position",
+          new BufferAttribute(new Float32Array(triangleUtils.flatten(newTriangles)), 3)
+        );
+        geometry.setAttribute(
+            "normal",
+            new BufferAttribute(new Float32Array(newNormals), 3)
+        );
+        geometry.attributes.position.needsUpdate = true;
+        geometry.attributes.normal.needsUpdate = true;
+    
+        return geometry;
     }
 
-    calculate() {
-        let innerGeometry = this.extractMesh(this.radius);
+    
+    /**
+     * Run the simulation.
+     *
+     * @return {*} 
+     * @memberof Scene
+     */
+    async calculate() {
         let outerGeometry = this.extractMesh(3 * this.radius); // TODO: make configurable
+        let innerGeometry = this.extractMesh(this.radius);
+        innerGeometry = this.refineMesh(innerGeometry, 0.1); // TODO: make configurable
 
-        const mesh_vectors = raytracingGeometry.attributes.position.array
-        const points = innerGeometry.attributes.position.array
-        const normals = innerGeometry.attributes.normal.array
-      
-        const status_elem = document.getElementById("status")
-        status_elem.textContent = "Simulating"
-        status_elem.hasChanged = true
-      
-        let uniquePoints = []
-        let uniqueNormals = []
-      
-        // Create an object to hold point/normal pairs, where the key is a string representation of the point
-        const uniquePairs = {}
-      
-        for (let i = 0; i < points.length; i += 3) {
-          const point = [points[i], points[i + 1], points[i + 2]].map((value) =>
-            parseFloat(value.toFixed(6))
-          ) // limit precision
-          const pointKey = JSON.stringify(point)
-      
-          if (!uniquePairs.hasOwnProperty(pointKey)) {
-            uniquePairs[pointKey] = i / 3
-            uniquePoints.push(points[i], points[i + 1], points[i + 2])
-            uniqueNormals.push(normals[i], normals[i + 1], normals[i + 2])
-          }
+        const meshArray = <Float32Array> outerGeometry.attributes.position.array;
+        const points = innerGeometry.attributes.position.array;
+        const normals = innerGeometry.attributes.normal.array;
+        
+        let midpoints: number[] = [];
+        for(let i = 0; i < normals.length; i += 9) {
+            const triangle = triangleUtils.extractTriangle(points, i);
+            const midpoint = triangleUtils.midpoint(triangle);
+            midpoints = midpoints.concat(midpoint);
         }
       
-        const uniquePointsArray = new Float32Array(uniquePoints.slice())
-        const uniqueNormalsArray = new Float32Array(uniqueNormals.slice())
-      
-        const laserPointsRadius = 0.5
-        const laserPointsMinDistance = 1.0
+        const midpointsArray = new Float32Array(midpoints.slice())
+        const normalsArray = new Float32Array(normals.slice())
       
         // Compute unique intensities
-        const uniqueIntensities = await rayTracingPointsWebGL(
-          uniquePointsArray,
-          mesh_vectors,
-          uniqueNormalsArray,
-          laserPoints,
-          laserPointsRadius,
-          laserPointsMinDistance,
-          window.numSimulations,
-          loc
-        )
-        if (uniqueIntensities === null) {
-          window.setLoading(false)
-          return null
+        const intensities = await this.rayTrace(
+          midpointsArray,
+          normalsArray,
+          meshArray,
+        );
+        
+        if (intensities === null) {
+          throw new Error("Error raytracing in WebGL.");
         }
-        // Store unique intensities in uniquePairs
-        for (let i = 0; i < uniqueIntensities.length; i++) {
-          const point = [
-            uniquePoints[i * 3],
-            uniquePoints[i * 3 + 1],
-            uniquePoints[i * 3 + 2],
-          ].map((value) => parseFloat(value.toFixed(6))) // limit precision
-          const pointKey = JSON.stringify(point)
-      
-          if (uniquePairs.hasOwnProperty(pointKey)) {
-            uniquePairs[pointKey] = uniqueIntensities[i]
-          } else {
-            console.error(`Couldn't find indices for pointKey ${pointKey}`)
-          }
-        }
-      
-        // Generate final intensities array
-        let intensities_array = new Array(points.length / 3).fill(0)
-      
-        for (let i = 0; i < points.length; i += 3) {
-          const point = [points[i], points[i + 1], points[i + 2]].map((value) =>
-            parseFloat(value.toFixed(6))
-          ) // limit precision
-          const pointKey = JSON.stringify(point)
-      
-          if (uniquePairs.hasOwnProperty(pointKey)) {
-            intensities_array[i / 3] = uniquePairs[pointKey]
-          }
-        }
-      
-        const intensities = new Float32Array(intensities_array)
-      
-        status_elem.textContent = "Simulation Done"
-        status_elem.hasChanged = true
-        window.setLoading(false)
-        showMeshIntensities(intensities, laserPoints, resetCamera)
-      
+        
+        // TODO: Currently: one intensity per triangle, do we need one for each point instead?
+        return intensities;
     }
-}
-
-
-export function add(a: number, b: number): number {
-    return a + b;
+    
+    
+    /**
+     * Call ray-tracing shader to calculate intensities for each midpoint based on the given normals and mesh 
+     *
+     * @param {Float32Array} midpoints midpoints of triangles for which to calculate intensities
+     * @param {Float32Array} normals normals for each midpoint
+     * @param {Float32Array} meshArray array of vertices for the shading mesh
+     * @return {*} 
+     * @memberof Scene
+     */
+    async rayTrace(midpoints: Float32Array, normals: Float32Array, meshArray: Float32Array,
+    ) {
+        return rayTracingWebGL(midpoints, normals, meshArray, this.numberSimulations, [null, null]); // TODO: loc
+    }
 }
