@@ -1,4 +1,4 @@
-import {describe, expect, test} from '@jest/globals';
+import {describe, expect, test} from 'vitest';
 import * as triangleUtils from './triangleUtils.js';
 import { vec3 } from "gl-matrix";
 
@@ -7,6 +7,6 @@ const firstTriangle = [vec3.fromValues(0.,0.,0.), vec3.fromValues(1.,0.,0.), vec
 
 describe('Triangle Util functions: ', () => {
     test('ectract triangle from array', () => {
-      expect(triangleUtils.extractTriangle(triangleArray, 0)).toBe(firstTriangle);
+      expect(triangleUtils.extractTriangle(triangleArray, 0)).toStrictEqual(firstTriangle);
     });
   });
