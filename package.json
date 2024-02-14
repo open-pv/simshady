@@ -10,7 +10,7 @@
     "dist"
   ],
   "scripts": {
-    "test": "jest",
+    "test": "vitest",
     "build": "tsup"
   },
   "repository": {
@@ -28,12 +28,14 @@
   "homepage": "https://github.com/open-pv/simulation#readme",
   "devDependencies": {
     "@jest/globals": "^29.7.0",
+    "@types/suncalc": "^1.9.2",
     "@types/three": "^0.161.2",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "tsup": "^8.0.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
   },
   "dependencies": {
     "gl-matrix": "^3.4.3",
