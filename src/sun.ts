@@ -21,7 +21,3 @@ export function getRandomSunVectors(Ndates: number, lat: number, lon: number): F
 function getRandomDate(start: Date, end: Date): Date {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
     }
-
-// function getSunPosition(date: Date, lat: number, lon: number): [number, number, number] {
-//    return [3,3,3]   //TODO
-//    }

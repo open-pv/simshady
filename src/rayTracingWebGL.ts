@@ -1,15 +1,22 @@
+import { TypedArray } from "three";
+
+function addToArray(ar1: Float32Array, ar2: Float32Array) {
+    for (var i = 0; i < ar1.length; i++) {
+        ar1[i] += ar2[i]
+    }
+}
+
 export function rayTracingWebGL(
-    pointsArray,
-    normals,
-    trianglesArray,
-    num_dates,
-    loc 
-) {
+    pointsArray: TypedArray,
+    normals: TypedArray,
+    trianglesArray: TypedArray,
+    sunDirections: Float32Array,
+    ) {
     const N_TRIANGLES = trianglesArray.length / 9
     const width = pointsArray.length / 3 // Change this to the number of horizontal points in the grid
     const N_POINTS = width
 
-    const gl = document.createElement("canvas").getContext("webgl");
+    const gl = document.createElement("canvas").getContext("webgl2");
     if (!gl) {
         throw new Error('Browser does not support WebGL2');
     }
@@ -116,10 +123,8 @@ export function rayTracingWebGL(
         fragmentShaderSource
     )
 
-    const program = createProgram(gl, vertexShader, fragmentShader, ["outColor"])
-    if (program === "abortSimulation") {
-        return null
-    }
+    
+    const program = createProgram(gl, vertexShader, fragmentShader, ["outColor"]);
 
     const vao = gl.createVertexArray()
     gl.bindVertexArray(vao)
@@ -199,23 +204,23 @@ export function rayTracingWebGL(
 
     var colorCodedArray = null
     var isShadowedArray = null
-    for (var i = 0; i < num_dates; i++) {
+    for (var i = 0; i < sunDirections.length; i+=3) {
+        // TODO: Iterate over sunDirection
         let sunDirectionUniformLocation = gl.getUniformLocation(
         program,
         "u_sun_direction"
         )
-        let sunDirection = retrieveRandomSunDirections(1, loc.lat, loc.lon)
-        gl.uniform3fv(sunDirectionUniformLocation, sunDirection)
+        gl.uniform3fv(sunDirectionUniformLocation, [sunDirections[i], sunDirections[i+1], sunDirections[i+2]]);
 
         drawArraysWithTransformFeedback(gl, tf, gl.POINTS, N_POINTS)
 
         if (isShadowedArray == null) {
-        colorCodedArray = getResults(gl, colorBuffer, "shading", N_POINTS)
+        colorCodedArray = getResults(gl, colorBuffer, N_POINTS)
         isShadowedArray = colorCodedArray.filter(
             (_, index) => (index + 1) % 4 === 0
         )
         } else {
-        colorCodedArray = getResults(gl, colorBuffer, "shading", N_POINTS)
+        colorCodedArray = getResults(gl, colorBuffer, N_POINTS)
         addToArray(
             isShadowedArray,
             colorCodedArray.filter((_, index) => (index + 1) % 4 === 0)
@@ -231,4 +236,110 @@ export function rayTracingWebGL(
     gl.deleteTransformFeedback(tf)
     gl.deleteBuffer(colorBuffer)
     return isShadowedArray
+}
+
+function getResults(gl: WebGL2RenderingContext, buffer: WebGLBuffer | null, N_POINTS: number) {
+    let results = new Float32Array(N_POINTS * 4)
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+    gl.getBufferSubData(
+      gl.ARRAY_BUFFER,
+      0, // byte offset into GPU buffer,
+      results
+    )
+  
+    gl.bindBuffer(gl.ARRAY_BUFFER, null) // productBuffer was still bound to ARRAY_BUFFER so unbind it
+    return results
+  }
+
+function createShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader | null {
+    const shader = gl.createShader(type)
+    if(shader === null) {
+        return null;
+    }
+    gl.shaderSource(shader, source)
+    gl.compileShader(shader)
+    const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS)
+    if (success) {
+      return shader;
+    }
+    console.error(gl.getShaderInfoLog(shader))
+    gl.deleteShader(shader)
+    return null
+}
+  
+function createProgram(
+    gl: WebGL2RenderingContext,
+    vertexShader: WebGLShader | null,
+    fragmentShader: WebGLShader | null,
+    variables_of_interest: Iterable<string>
+  ): WebGLProgram {
+    const program = gl.createProgram();
+    
+    if (program === null || vertexShader === null || fragmentShader === null) {
+      throw new Error("abortSimulation");
+    } else {
+      gl.attachShader(program, vertexShader)
+      gl.attachShader(program, fragmentShader)
+      gl.transformFeedbackVaryings(
+        program,
+        variables_of_interest,
+        gl.SEPARATE_ATTRIBS
+      )
+      gl.linkProgram(program)
+      const success = gl.getProgramParameter(program, gl.LINK_STATUS)
+      if (success) {
+        return program
+      }
+      console.error(gl.getProgramInfoLog(program))
+      gl.deleteProgram(program)
+    }
+    throw new Error("Program compilation error.");
+}
+  
+function makeBuffer(gl: WebGL2RenderingContext, sizeOrData: BufferSource | number) {
+    const buf = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+    //@ts-ignore
+    gl.bufferData(gl.ARRAY_BUFFER, sizeOrData, gl.DYNAMIC_DRAW)
+    return buf
+}
+  
+function makeTransformFeedback(gl: WebGL2RenderingContext, buffer: WebGLBuffer | null) {
+    const tf = gl.createTransformFeedback()
+    gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, tf)
+    gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, buffer)
+    return tf
+}
+  
+function makeBufferAndSetAttribute(gl: WebGL2RenderingContext, data: ArrayBuffer, loc: number): WebGLBuffer | null {
+    const buf = makeBuffer(gl, data)
+    // setup our attributes to tell WebGL how to pull
+    // the data from the buffer above to the attribute
+    gl.enableVertexAttribArray(loc)
+    gl.vertexAttribPointer(
+      loc,
+      3, // size (num components)
+      gl.FLOAT, // type of data in buffer
+      false, // normalize
+      0, // stride (0 = auto)
+      0 // offset
+    );
+    return buf;
+}
+  
+function drawArraysWithTransformFeedback(gl: WebGL2RenderingContext, tf: WebGLTransformFeedback | null, primitiveType: number, count: number) {
+    // turn of using the fragment shader
+    gl.enable(gl.RASTERIZER_DISCARD)
+  
+    gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, tf)
+    gl.beginTransformFeedback(gl.POINTS)
+    gl.drawArrays(primitiveType, 0, count)
+    gl.endTransformFeedback()
+    gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null)
+  
+    // unbind the buffer from the TRANFORM_FEEDBACK_BUFFER
+    gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null)
+  
+    // turn on using fragment shaders again
+    gl.disable(gl.RASTERIZER_DISCARD)
 }

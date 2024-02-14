@@ -995,6 +995,11 @@
     fflate "~0.6.10"
     meshoptimizer "~0.18.1"
 
+"@types/webgl2@^0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@types/webgl2/-/webgl2-0.0.11.tgz#a54d56775816c86725cc9fefdc3c90619eabce5a"
+  integrity sha512-LFa4je4lUbqDVRNeC2W1ZRM8dOgsGsm23MZO7m/EllCVg07yB65W3eUF4MAM+0LU9X6x/0NTrvXxAW0pmipNdw==
+
 "@types/webxr@*":
   version "0.5.14"
   resolved "https://registry.yarnpkg.com/@types/webxr/-/webxr-0.5.14.tgz#9a03121a4912ea113b31e5c9c17f164d4fff8a1f"

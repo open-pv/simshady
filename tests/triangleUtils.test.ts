@@ -1,5 +1,5 @@
 import {describe, expect, test} from 'vitest';
-import * as triangleUtils from './triangleUtils.js';
+import * as triangleUtils from '../src/triangleUtils.js';
 import { vec3 } from "gl-matrix";
 
 const triangleArray = new Float32Array([0.,0.,0.,1.,0.,0.,0.,1.,0.]); 
@@ -10,3 +10,8 @@ describe('Triangle Util functions: ', () => {
       expect(triangleUtils.extractTriangle(triangleArray, 0)).toStrictEqual(firstTriangle);
     });
   });
+
+// TODO:
+// * Test area
+// * Test normals
+// * Test subdivision
