@@ -61,10 +61,10 @@ export function midpoint(triangle: Triangle): [number, number, number] {
     ];
 }
 
-export function flatten(triangles: Triangle[]): number[] {
-    return triangles.flatMap(tri => [
+export function flatten(triangles: Triangle[]): Float32Array {
+    return new Float32Array(triangles.flatMap(tri => [
         tri[0][0], tri[0][1], tri[0][2],
         tri[1][0], tri[1][1], tri[1][2],
         tri[2][0], tri[2][1], tri[2][2],
-    ]);
+    ]));
 }
