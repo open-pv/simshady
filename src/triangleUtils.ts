@@ -21,7 +21,7 @@ export function normalAndArea(positions: ArrayType, startIndex: number): [vec3, 
     vec3.cross(ar, d1, d2);
     const area = vec3.len(ar) / 2;
     let normal = vec3.create();
-    vec3.scale(normal, ar, 2 / area);
+    vec3.scale(normal, ar, 0.5 / area);
     return [normal, area];
 }
 

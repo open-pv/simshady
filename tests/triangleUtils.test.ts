@@ -7,13 +7,17 @@ const firstTriangle = [vec3.fromValues(0.,0.,0.), vec3.fromValues(1.,0.,0.), vec
 const secondTriangle = [vec3.fromValues(1.,1.,1.), vec3.fromValues(1.,3.,1.), vec3.fromValues(1.,3.,6.)]
 
 describe('Triangle Util functions: ', () => {
-    test('ectract triangle from array', () => {
+    test('Ectract triangle from array', () => {
       expect(triangleUtils.extractTriangle(triangleArray, 0)).toStrictEqual(firstTriangle);
       expect(triangleUtils.extractTriangle(triangleArray, 9)).toStrictEqual(secondTriangle);
     });
-    test('calculate area of triangles', () => {
+    test('Calculate area of triangles', () => {
       expect(triangleUtils.area(triangleArray,0)).to.equal(0.5);
       expect(triangleUtils.area(triangleArray,9)).to.equal(5);
+    });
+    test('Calculate normal of triangles', () => {
+      expect(triangleUtils.normal(triangleArray,0)).toStrictEqual(vec3.fromValues(0.,0.,1.));
+      expect(triangleUtils.normal(triangleArray,9)).toStrictEqual(vec3.fromValues(1.,0.,0.));
     });
   });
 
