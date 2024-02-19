@@ -33,7 +33,7 @@ export function area(positions: ArrayType, startIndex: number): number {
     return normalAndArea(positions, startIndex)[1];
 }
 
-export function subdivide(vertices: [vec3, vec3, vec3]): [Triangle, Triangle, Triangle, Triangle] {
+export function subdivide(vertices: Triangle): [Triangle, Triangle, Triangle, Triangle] {
     const [v0, v1, v2] = vertices;
 
     const m01 = vec3.clone(v0);
