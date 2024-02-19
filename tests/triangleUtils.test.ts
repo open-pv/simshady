@@ -36,6 +36,9 @@ describe('Triangle Util functions: ', () => {
       expect(triangleUtils.midpoint(secondTriangle)[1]).to.be.closeTo(7/3, 0.01);
       expect(triangleUtils.midpoint(secondTriangle)[2]).to.be.closeTo(8/3, 0.01);
     });
+    test('Flatten triangles', () => {
+      expect(triangleUtils.flatten([firstTriangle, secondTriangle])).toStrictEqual(triangleArray);
+    });
   });
 
 
