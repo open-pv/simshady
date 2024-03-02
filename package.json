@@ -14,7 +14,8 @@
     "test-continuous": "vitest",
     "format": "prettier --write .",
     "build": "tsup",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docs": "typedoc src/index.ts --plugin typedoc-plugin-mdn-links --plugin typedoc-plugin-coverage --plugin typedoc-plugin-rename-defaults --entryPointStrategy expand"
   },
   "repository": {
     "type": "git",
@@ -40,6 +41,10 @@
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "tsup": "^8.0.1",
+    "typedoc": "^0.25.9",
+    "typedoc-plugin-coverage": "^3.1.0",
+    "typedoc-plugin-mdn-links": "^3.1.17",
+    "typedoc-plugin-rename-defaults": "^0.7.0",
     "typescript": "^5.3.3",
     "vitest": "^1.2.2"
   },

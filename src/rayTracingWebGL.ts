@@ -11,7 +11,7 @@ export function rayTracingWebGL(
   normals: TypedArray,
   trianglesArray: TypedArray,
   sunDirections: Float32Array,
-) {
+): Float32Array | null {
   const N_TRIANGLES = trianglesArray.length / 9;
   const width = pointsArray.length / 3; // Change this to the number of horizontal points in the grid
   const N_POINTS = width;

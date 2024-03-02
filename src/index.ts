@@ -82,7 +82,7 @@ export default class Scene {
   /**
    * Run the simulation.
    *
-   * @return {*}
+   * @return
    * @memberof Scene
    */
   async calculate(numberSimulations: number = 80) {
@@ -117,10 +117,10 @@ export default class Scene {
   /**
    * Call ray-tracing shader to calculate intensities for each midpoint based on the given normals and mesh
    *
-   * @param {Float32Array} midpoints midpoints of triangles for which to calculate intensities
-   * @param {Float32Array} normals normals for each midpoint
-   * @param {Float32Array} meshArray array of vertices for the shading mesh
-   * @return {*}
+   * @param midpoints midpoints of triangles for which to calculate intensities
+   * @param normals normals for each midpoint
+   * @param meshArray array of vertices for the shading mesh
+   * @return
    * @memberof Scene
    */
   async rayTrace(midpoints: Float32Array, normals: TypedArray, meshArray: Float32Array, numberSimulations: number) {
