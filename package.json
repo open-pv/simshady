@@ -10,7 +10,9 @@
     "dist"
   ],
   "scripts": {
-    "test": "vitest",
+    "test": "vitest run",
+    "test-continuous": "vitest",
+    "format": "prettier --write .",
     "build": "tsup",
     "prepare": "husky"
   },
@@ -34,6 +36,7 @@
     "@types/webgl2": "^0.0.11",
     "husky": "^9.0.11",
     "jest": "^29.7.0",
+    "prettier": "^3.2.5",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "tsup": "^8.0.1",

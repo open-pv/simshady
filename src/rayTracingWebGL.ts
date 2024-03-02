@@ -1,28 +1,28 @@
-import { TypedArray } from "three";
+import { TypedArray } from 'three';
 
 function addToArray(ar1: Float32Array, ar2: Float32Array) {
-    for (var i = 0; i < ar1.length; i++) {
-        ar1[i] += ar2[i]
-    }
+  for (var i = 0; i < ar1.length; i++) {
+    ar1[i] += ar2[i];
+  }
 }
 
 export function rayTracingWebGL(
-    pointsArray: TypedArray,
-    normals: TypedArray,
-    trianglesArray: TypedArray,
-    sunDirections: Float32Array,
-    ) {
-    const N_TRIANGLES = trianglesArray.length / 9
-    const width = pointsArray.length / 3 // Change this to the number of horizontal points in the grid
-    const N_POINTS = width
+  pointsArray: TypedArray,
+  normals: TypedArray,
+  trianglesArray: TypedArray,
+  sunDirections: Float32Array,
+) {
+  const N_TRIANGLES = trianglesArray.length / 9;
+  const width = pointsArray.length / 3; // Change this to the number of horizontal points in the grid
+  const N_POINTS = width;
 
-    const gl = document.createElement("canvas").getContext("webgl2");
-    if (!gl) {
-        throw new Error('Browser does not support WebGL2');
-    }
+  const gl = document.createElement('canvas').getContext('webgl2');
+  if (!gl) {
+    throw new Error('Browser does not support WebGL2');
+  }
 
-    // Vertex shader code
-    const vertexShaderSource = `#version 300 es
+  // Vertex shader code
+  const vertexShaderSource = `#version 300 es
         #define INFINITY         1000000.0
         precision highp float;
 
@@ -107,239 +107,209 @@ export function rayTracingWebGL(
                         outColor = vec4(intensity, intensity, intensity, intensity); // Not shadowed
                     }
 
-        }`
+        }`;
 
-    // Fragment shader code
-    const fragmentShaderSource = `#version 300 es
+  // Fragment shader code
+  const fragmentShaderSource = `#version 300 es
         precision highp float;
         void main() {
         }
-        `
+        `;
 
-    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
-    const fragmentShader = createShader(
-        gl,
-        gl.FRAGMENT_SHADER,
-        fragmentShaderSource
-    )
+  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
 
-    
-    const program = createProgram(gl, vertexShader, fragmentShader, ["outColor"]);
+  const program = createProgram(gl, vertexShader, fragmentShader, ['outColor']);
 
-    const vao = gl.createVertexArray()
-    gl.bindVertexArray(vao)
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
 
-    var maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE)
+  var maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
 
-    var textureWidth = Math.min(
-        3 * N_TRIANGLES,
-        Math.floor(maxTextureSize / 9) * 9
-    )
-    var textureHeight = Math.ceil((3 * N_TRIANGLES) / textureWidth)
-    console.log("Max Texture Size", maxTextureSize, textureWidth, textureHeight)
+  var textureWidth = Math.min(3 * N_TRIANGLES, Math.floor(maxTextureSize / 9) * 9);
+  var textureHeight = Math.ceil((3 * N_TRIANGLES) / textureWidth);
+  console.log('Max Texture Size', maxTextureSize, textureWidth, textureHeight);
 
-    const colorBuffer = makeBuffer(gl, N_POINTS * 16)
-    const tf = makeTransformFeedback(gl, colorBuffer)
-    // gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    // gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
+  const colorBuffer = makeBuffer(gl, N_POINTS * 16);
+  const tf = makeTransformFeedback(gl, colorBuffer);
+  // gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+  // gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
 
-    gl.useProgram(program)
+  gl.useProgram(program);
 
-    var texture = gl.createTexture()
-    gl.bindTexture(gl.TEXTURE_2D, texture)
+  var texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
 
-    var alignedTrianglesArray
-    if (textureHeight == 1) {
-        alignedTrianglesArray = trianglesArray
+  var alignedTrianglesArray;
+  if (textureHeight == 1) {
+    alignedTrianglesArray = trianglesArray;
+  } else {
+    alignedTrianglesArray = new Float32Array(textureWidth * textureHeight * 3);
+
+    for (var i = 0; i < 3 * N_TRIANGLES; i++) {
+      var x = (3 * i) % textureWidth;
+      var y = Math.floor((3 * i) / textureWidth);
+      var index = y * textureWidth + x;
+      for (var j = 0; j < 3; j++) {
+        alignedTrianglesArray[index + j] = trianglesArray[3 * i + j];
+      }
+    }
+  }
+
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB32F, textureWidth, textureHeight, 0, gl.RGB, gl.FLOAT, alignedTrianglesArray);
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+
+  var u_trianglesLocation = gl.getUniformLocation(program, 'u_triangles');
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.uniform1i(u_trianglesLocation, 0);
+
+  var u_textureWidth = gl.getUniformLocation(program, 'textureWidth');
+  gl.uniform1i(u_textureWidth, textureWidth);
+
+  const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
+  const normalAttributeLocation = gl.getAttribLocation(program, 'a_normal');
+
+  const positionBuffer = makeBufferAndSetAttribute(gl, pointsArray, positionAttributeLocation);
+  const normalBuffer = makeBufferAndSetAttribute(gl, normals, normalAttributeLocation);
+
+  var colorCodedArray = null;
+  var isShadowedArray = null;
+  for (var i = 0; i < sunDirections.length; i += 3) {
+    // TODO: Iterate over sunDirection
+    let sunDirectionUniformLocation = gl.getUniformLocation(program, 'u_sun_direction');
+    gl.uniform3fv(sunDirectionUniformLocation, [sunDirections[i], sunDirections[i + 1], sunDirections[i + 2]]);
+
+    drawArraysWithTransformFeedback(gl, tf, gl.POINTS, N_POINTS);
+
+    if (isShadowedArray == null) {
+      colorCodedArray = getResults(gl, colorBuffer, N_POINTS);
+      isShadowedArray = colorCodedArray.filter((_, index) => (index + 1) % 4 === 0);
     } else {
-        alignedTrianglesArray = new Float32Array(textureWidth * textureHeight * 3)
-
-        for (var i = 0; i < 3 * N_TRIANGLES; i++) {
-        var x = (3 * i) % textureWidth
-        var y = Math.floor((3 * i) / textureWidth)
-        var index = y * textureWidth + x
-        for (var j = 0; j < 3; j++) {
-            alignedTrianglesArray[index + j] = trianglesArray[3 * i + j]
-        }
-        }
+      colorCodedArray = getResults(gl, colorBuffer, N_POINTS);
+      addToArray(
+        isShadowedArray,
+        colorCodedArray.filter((_, index) => (index + 1) % 4 === 0),
+      );
     }
-
-    gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGB32F,
-        textureWidth,
-        textureHeight,
-        0,
-        gl.RGB,
-        gl.FLOAT,
-        alignedTrianglesArray
-    )
-
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-    gl.bindTexture(gl.TEXTURE_2D, null)
-
-    var u_trianglesLocation = gl.getUniformLocation(program, "u_triangles")
-    gl.activeTexture(gl.TEXTURE0)
-    gl.bindTexture(gl.TEXTURE_2D, texture)
-    gl.uniform1i(u_trianglesLocation, 0)
-
-    var u_textureWidth = gl.getUniformLocation(program, "textureWidth")
-    gl.uniform1i(u_textureWidth, textureWidth)
-
-    const positionAttributeLocation = gl.getAttribLocation(program, "a_position")
-    const normalAttributeLocation = gl.getAttribLocation(program, "a_normal")
-
-    const positionBuffer = makeBufferAndSetAttribute(
-        gl,
-        pointsArray,
-        positionAttributeLocation
-    )
-    const normalBuffer = makeBufferAndSetAttribute(
-        gl,
-        normals,
-        normalAttributeLocation
-    )
-
-    var colorCodedArray = null
-    var isShadowedArray = null
-    for (var i = 0; i < sunDirections.length; i+=3) {
-        // TODO: Iterate over sunDirection
-        let sunDirectionUniformLocation = gl.getUniformLocation(
-        program,
-        "u_sun_direction"
-        )
-        gl.uniform3fv(sunDirectionUniformLocation, [sunDirections[i], sunDirections[i+1], sunDirections[i+2]]);
-
-        drawArraysWithTransformFeedback(gl, tf, gl.POINTS, N_POINTS)
-
-        if (isShadowedArray == null) {
-        colorCodedArray = getResults(gl, colorBuffer, N_POINTS)
-        isShadowedArray = colorCodedArray.filter(
-            (_, index) => (index + 1) % 4 === 0
-        )
-        } else {
-        colorCodedArray = getResults(gl, colorBuffer, N_POINTS)
-        addToArray(
-            isShadowedArray,
-            colorCodedArray.filter((_, index) => (index + 1) % 4 === 0)
-        )
-        }
-    }
-    gl.deleteTexture(texture)
-    gl.deleteShader(vertexShader)
-    gl.deleteShader(fragmentShader)
-    gl.deleteProgram(program)
-    gl.deleteBuffer(positionBuffer)
-    gl.deleteBuffer(normalBuffer)
-    gl.deleteTransformFeedback(tf)
-    gl.deleteBuffer(colorBuffer)
-    return isShadowedArray
+  }
+  gl.deleteTexture(texture);
+  gl.deleteShader(vertexShader);
+  gl.deleteShader(fragmentShader);
+  gl.deleteProgram(program);
+  gl.deleteBuffer(positionBuffer);
+  gl.deleteBuffer(normalBuffer);
+  gl.deleteTransformFeedback(tf);
+  gl.deleteBuffer(colorBuffer);
+  return isShadowedArray;
 }
 
 function getResults(gl: WebGL2RenderingContext, buffer: WebGLBuffer | null, N_POINTS: number) {
-    let results = new Float32Array(N_POINTS * 4)
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-    gl.getBufferSubData(
-      gl.ARRAY_BUFFER,
-      0, // byte offset into GPU buffer,
-      results
-    )
-  
-    gl.bindBuffer(gl.ARRAY_BUFFER, null) // productBuffer was still bound to ARRAY_BUFFER so unbind it
-    return results
-  }
+  let results = new Float32Array(N_POINTS * 4);
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.getBufferSubData(
+    gl.ARRAY_BUFFER,
+    0, // byte offset into GPU buffer,
+    results,
+  );
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, null); // productBuffer was still bound to ARRAY_BUFFER so unbind it
+  return results;
+}
 
 function createShader(gl: WebGL2RenderingContext, type: number, source: string): WebGLShader | null {
-    const shader = gl.createShader(type)
-    if(shader === null) {
-        return null;
-    }
-    gl.shaderSource(shader, source)
-    gl.compileShader(shader)
-    const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS)
-    if (success) {
-      return shader;
-    }
-    console.error(gl.getShaderInfoLog(shader))
-    gl.deleteShader(shader)
-    return null
+  const shader = gl.createShader(type);
+  if (shader === null) {
+    return null;
+  }
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  const success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+  if (success) {
+    return shader;
+  }
+  console.error(gl.getShaderInfoLog(shader));
+  gl.deleteShader(shader);
+  return null;
 }
-  
+
 function createProgram(
-    gl: WebGL2RenderingContext,
-    vertexShader: WebGLShader | null,
-    fragmentShader: WebGLShader | null,
-    variables_of_interest: Iterable<string>
-  ): WebGLProgram {
-    const program = gl.createProgram();
-    
-    if (program === null || vertexShader === null || fragmentShader === null) {
-      throw new Error("abortSimulation");
-    } else {
-      gl.attachShader(program, vertexShader)
-      gl.attachShader(program, fragmentShader)
-      gl.transformFeedbackVaryings(
-        program,
-        variables_of_interest,
-        gl.SEPARATE_ATTRIBS
-      )
-      gl.linkProgram(program)
-      const success = gl.getProgramParameter(program, gl.LINK_STATUS)
-      if (success) {
-        return program
-      }
-      console.error(gl.getProgramInfoLog(program))
-      gl.deleteProgram(program)
+  gl: WebGL2RenderingContext,
+  vertexShader: WebGLShader | null,
+  fragmentShader: WebGLShader | null,
+  variables_of_interest: Iterable<string>,
+): WebGLProgram {
+  const program = gl.createProgram();
+
+  if (program === null || vertexShader === null || fragmentShader === null) {
+    throw new Error('abortSimulation');
+  } else {
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.transformFeedbackVaryings(program, variables_of_interest, gl.SEPARATE_ATTRIBS);
+    gl.linkProgram(program);
+    const success = gl.getProgramParameter(program, gl.LINK_STATUS);
+    if (success) {
+      return program;
     }
-    throw new Error("Program compilation error.");
+    console.error(gl.getProgramInfoLog(program));
+    gl.deleteProgram(program);
+  }
+  throw new Error('Program compilation error.');
 }
-  
+
 function makeBuffer(gl: WebGL2RenderingContext, sizeOrData: BufferSource | number) {
-    const buf = gl.createBuffer()
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf)
-    //@ts-ignore
-    gl.bufferData(gl.ARRAY_BUFFER, sizeOrData, gl.DYNAMIC_DRAW)
-    return buf
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  //@ts-ignore
+  gl.bufferData(gl.ARRAY_BUFFER, sizeOrData, gl.DYNAMIC_DRAW);
+  return buf;
 }
-  
+
 function makeTransformFeedback(gl: WebGL2RenderingContext, buffer: WebGLBuffer | null) {
-    const tf = gl.createTransformFeedback()
-    gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, tf)
-    gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, buffer)
-    return tf
+  const tf = gl.createTransformFeedback();
+  gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, tf);
+  gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, buffer);
+  return tf;
 }
-  
+
 function makeBufferAndSetAttribute(gl: WebGL2RenderingContext, data: ArrayBuffer, loc: number): WebGLBuffer | null {
-    const buf = makeBuffer(gl, data)
-    // setup our attributes to tell WebGL how to pull
-    // the data from the buffer above to the attribute
-    gl.enableVertexAttribArray(loc)
-    gl.vertexAttribPointer(
-      loc,
-      3, // size (num components)
-      gl.FLOAT, // type of data in buffer
-      false, // normalize
-      0, // stride (0 = auto)
-      0 // offset
-    );
-    return buf;
+  const buf = makeBuffer(gl, data);
+  // setup our attributes to tell WebGL how to pull
+  // the data from the buffer above to the attribute
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(
+    loc,
+    3, // size (num components)
+    gl.FLOAT, // type of data in buffer
+    false, // normalize
+    0, // stride (0 = auto)
+    0, // offset
+  );
+  return buf;
 }
-  
-function drawArraysWithTransformFeedback(gl: WebGL2RenderingContext, tf: WebGLTransformFeedback | null, primitiveType: number, count: number) {
-    // turn of using the fragment shader
-    gl.enable(gl.RASTERIZER_DISCARD)
-  
-    gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, tf)
-    gl.beginTransformFeedback(gl.POINTS)
-    gl.drawArrays(primitiveType, 0, count)
-    gl.endTransformFeedback()
-    gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null)
-  
-    // unbind the buffer from the TRANFORM_FEEDBACK_BUFFER
-    gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null)
-  
-    // turn on using fragment shaders again
-    gl.disable(gl.RASTERIZER_DISCARD)
+
+function drawArraysWithTransformFeedback(
+  gl: WebGL2RenderingContext,
+  tf: WebGLTransformFeedback | null,
+  primitiveType: number,
+  count: number,
+) {
+  // turn of using the fragment shader
+  gl.enable(gl.RASTERIZER_DISCARD);
+
+  gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, tf);
+  gl.beginTransformFeedback(gl.POINTS);
+  gl.drawArrays(primitiveType, 0, count);
+  gl.endTransformFeedback();
+  gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null);
+
+  // unbind the buffer from the TRANFORM_FEEDBACK_BUFFER
+  gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null);
+
+  // turn on using fragment shaders again
+  gl.disable(gl.RASTERIZER_DISCARD);
 }
