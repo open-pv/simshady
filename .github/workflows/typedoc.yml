@@ -19,9 +19,9 @@ jobs:
       # Generate your TypeDoc documentation
       - run: yarn docs
       # https://github.com/actions/upload-pages-artifact
+      - run: tar cfz github-pages ./docs
       - uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./docs # This should be your TypeDoc "out" path.
+
   deploy:
     runs-on: ubuntu-latest
     environment:
