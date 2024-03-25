@@ -1,3 +1,2 @@
 yarn test
 yarn format
-git add .

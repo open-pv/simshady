@@ -12,7 +12,7 @@
   "scripts": {
     "test": "vitest run",
     "test-continuous": "vitest",
-    "format": "prettier --write .",
+    "format": "lint-staged",
     "build": "tsup",
     "prepare": "husky",
     "docs": "typedoc src/index.ts --plugin typedoc-plugin-mdn-links --plugin typedoc-plugin-coverage --plugin typedoc-plugin-rename-defaults --entryPointStrategy expand"
@@ -37,6 +37,7 @@
     "@types/webgl2": "^0.0.11",
     "husky": "^9.0.11",
     "jest": "^29.7.0",
+    "lint-staged": "^15.2.2",
     "prettier": "^3.2.5",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
@@ -53,5 +54,9 @@
     "jsdoc": "^4.0.2",
     "suncalc": "^1.9.0",
     "three": "^0.161.0"
+  },
+  "lint-staged": {
+      "*.js": ["eslint", "prettier --write"],
+      "*.ts": ["eslint", "prettier --write"]
   }
 }
