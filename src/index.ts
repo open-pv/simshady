@@ -3,6 +3,8 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import * as triangleUtils from './triangleUtils.js';
 import { Triangle, ArrayType } from './triangleUtils.js';
 import { getRandomSunVectors } from './sun';
+import { viridis } from './colormaps';
+import * as THREE from 'three';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
@@ -86,9 +88,14 @@ export default class Scene {
    * @memberof Scene
    */
   async calculate(numberSimulations: number = 80) {
+    console.log('Simulation package was called to calculate, and package was updated');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
-    simulationGeometry = this.refineMesh(simulationGeometry, 0.1); // TODO: make configurable
+    // TODO: This breaks everything, why?
+    // simulationGeometry = this.refineMesh(simulationGeometry, 0.1); // TODO: make configurable
+
+    console.log('Number of simulation triangles:', simulationGeometry.attributes.position.count / 3);
+    console.log('Number of shading triangles:', shadingGeometry.attributes.position.count / 3);
 
     const meshArray = <Float32Array>shadingGeometry.attributes.position.array;
     const points = simulationGeometry.attributes.position.array;
@@ -103,15 +110,69 @@ export default class Scene {
 
     const midpointsArray = new Float32Array(midpoints.slice());
 
+    console.log('Checking for NaNs...');
+    for (let i = 0; i < midpointsArray.length; i++) {
+      if (isNaN(midpointsArray[i])) {
+        console.log(`midpoint ${i} is nan`);
+      }
+    }
+    for (let i = 0; i < normalsArray.length; i++) {
+      if (isNaN(normalsArray[i])) {
+        console.log(`normals ${i} is nan`);
+      }
+    }
+    for (let i = 0; i < meshArray.length; i++) {
+      if (isNaN(meshArray[i])) {
+        console.log(`mesh ${i} is nan`);
+      }
+    }
     // Compute unique intensities
     const intensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, numberSimulations);
 
     if (intensities === null) {
       throw new Error('Error raytracing in WebGL.');
     }
+    for (let i = 0; i < intensities.length; i++) {
+      if (isNaN(intensities[i])) {
+        console.log(`intensities ${i} is nan`);
+      }
+    }
 
-    // TODO: Currently: one intensity per triangle, do we need one for each point instead?
-    return intensities;
+    console.log('Simulation package successfully calculated something');
+    console.log(intensities);
+
+    // Normalize intensities by number of simulations
+    for (let i = 0; i < intensities.length; i++) {
+      intensities[i] /= numberSimulations;
+    }
+
+    return this.show(simulationGeometry, intensities);
+  }
+
+  show(subdividedGeometry: BufferGeometry, intensities: Float32Array) {
+    const Npoints = subdividedGeometry.attributes.position.array.length / 9;
+    console.log('Npoints', Npoints);
+    var newColors = new Float32Array(Npoints * 9);
+    for (var i = 0; i < Npoints; i++) {
+      const col = viridis(Math.min(1, intensities[i] / 0.6));
+      //The 0.6 comes from looking at a rooftop facing south with good angle.
+      for (let j = 0; j < 9; j += 3) {
+        newColors[9 * i + j] = col[0];
+        newColors[9 * i + j + 1] = col[1];
+        newColors[9 * i + j + 2] = col[2];
+      }
+    }
+
+    subdividedGeometry.setAttribute('color', new THREE.Float32BufferAttribute(newColors, 3));
+    var material = new THREE.MeshStandardMaterial({
+      vertexColors: true,
+      side: THREE.DoubleSide,
+      // shininess: 0, // TODO: typescript rejects this, do we need it?
+      roughness: 1,
+    });
+    var mesh = new THREE.Mesh(subdividedGeometry, material);
+
+    return mesh;
   }
 
   /**
