@@ -54,27 +54,44 @@ export default class Scene {
    */
   refineMesh(mesh: BufferGeometry, maxArea: number): BufferGeometry {
     const positions = mesh.attributes.position.array.slice();
-    const normals = mesh.attributes.position.array.slice();
+    const normals = mesh.attributes.normal.array.slice();
 
     let newTriangles: Triangle[] = [];
     let newNormals: number[] = [];
     // Iterate over triangles
-    for (let i = 0; positions.length; i += 9) {
-      let area = triangleUtils.area(positions, i);
+    for (let i = 0; i < positions.length; i += 9) {
+      let [normal, area] = triangleUtils.normalAndArea(positions, i);
+      if (normal[2] < -0.9) {
+        // Triangle is facing down, we can skip this
+        continue;
+      }
       let triangles = [triangleUtils.extractTriangle(positions, i)];
-      while (area > maxArea) {
+      while (!(area <= maxArea)) {
         triangles = triangles.flatMap(triangleUtils.subdivide);
         area /= 4;
       }
       newTriangles = newTriangles.concat(triangles);
-      const ni = i / 3;
       // copy normal for each subdivided triangle
-      newNormals = newNormals.concat(triangles.flatMap((_) => [normals[ni], normals[ni + 1], normals[ni + 2]]));
+      newNormals = newNormals.concat(
+        triangles.flatMap((_) => [
+          normal[0],
+          normal[1],
+          normal[2],
+          normal[0],
+          normal[1],
+          normal[2],
+          normal[0],
+          normal[1],
+          normal[2],
+        ]),
+      );
     }
 
     let geometry = new BufferGeometry();
-    geometry.setAttribute('position', new BufferAttribute(new Float32Array(triangleUtils.flatten(newTriangles)), 3));
-    geometry.setAttribute('normal', new BufferAttribute(new Float32Array(newNormals), 3));
+    const normalsArray = new Float32Array(newNormals);
+    const positionArray = new Float32Array(triangleUtils.flatten(newTriangles));
+    geometry.setAttribute('position', new BufferAttribute(positionArray, 3));
+    geometry.setAttribute('normal', new BufferAttribute(normalsArray, 3));
     geometry.attributes.position.needsUpdate = true;
     geometry.attributes.normal.needsUpdate = true;
 
@@ -88,11 +105,11 @@ export default class Scene {
    * @memberof Scene
    */
   async calculate(numberSimulations: number = 80) {
-    console.log('Simulation package was called to calculate, and package was updated');
+    console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
     // TODO: This breaks everything, why?
-    // simulationGeometry = this.refineMesh(simulationGeometry, 0.1); // TODO: make configurable
+    simulationGeometry = this.refineMesh(simulationGeometry, 0.5); // TODO: make configurable
 
     console.log('Number of simulation triangles:', simulationGeometry.attributes.position.count / 3);
     console.log('Number of shading triangles:', shadingGeometry.attributes.position.count / 3);
@@ -110,7 +127,6 @@ export default class Scene {
 
     const midpointsArray = new Float32Array(midpoints.slice());
 
-    console.log('Checking for NaNs...');
     for (let i = 0; i < midpointsArray.length; i++) {
       if (isNaN(midpointsArray[i])) {
         console.log(`midpoint ${i} is nan`);
@@ -151,7 +167,6 @@ export default class Scene {
 
   show(subdividedGeometry: BufferGeometry, intensities: Float32Array) {
     const Npoints = subdividedGeometry.attributes.position.array.length / 9;
-    console.log('Npoints', Npoints);
     var newColors = new Float32Array(Npoints * 9);
     for (var i = 0; i < Npoints; i++) {
       const col = viridis(Math.min(1, intensities[i] / 0.6));
