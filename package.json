@@ -1,7 +1,7 @@
 {
-  "name": "@open-pv/simshady",
-  "version": "0.0.1",
-  "description": "Calculate PV yield on the GPU using raytracing",
+  "name": "@openpv/simshady",
+  "version": "0.0.1a1",
+  "description": "Simulating Shadows for PV Potential Analysis on 3D Data on the GPU.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "type": "module",
@@ -25,7 +25,7 @@
     "solar"
   ],
   "author": "Konrad Heidler <k.heidler@tum.de>",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/open-pv/simulation/issues"
   },
