@@ -4,6 +4,11 @@
 SimShady is a package for shading simulation and PV yield estimation based on 3D meshes. It runs on the GPU using WebGL. See it in action at [openpv.de](https://openpv.de).
 
 ## Installation
+To install the package, run
+
+```
+npm i @openpv/simshady
+```
 
 ## Usage
 
