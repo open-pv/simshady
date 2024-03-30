@@ -16,6 +16,6 @@ jobs:
           scope: '@openpv'
       - run: yarn install --dev
       - run: yarn build
-      - run: yarn publish --tag alpha --access public
+      - run: yarn publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
