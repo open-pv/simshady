@@ -14,6 +14,7 @@ jobs:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@openpv'
+      - run: yarn install --dev
       - run: yarn build
       - run: yarn publish --tag alpha
         env:
