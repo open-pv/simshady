@@ -1,5 +1,4 @@
-![Tests](https://github.com/open-pv/simshady/actions/workflows/tests.yml/badge.svg) ![Docs](https://github.com/open-pv/simshady/actions/workflows/typedoc.yml/badge.svg) 
-
+![Tests](https://github.com/open-pv/simshady/actions/workflows/tests.yml/badge.svg) ![Docs](https://github.com/open-pv/simshady/actions/workflows/typedoc.yml/badge.svg) [![NPM Version](https://img.shields.io/npm/v/@openpv/simshady)](https://www.npmjs.com/package/@openpv/simshady) [![NPM Downloads](https://img.shields.io/npm/dm/@openpv/simshady)](https://npmtrends.com/@openpv/simshady)
 # SimShady
 SimShady is a package for shading simulation and PV yield estimation based on 3D meshes. It runs on the GPU using WebGL. See it in action at [openpv.de](https://openpv.de).
 
