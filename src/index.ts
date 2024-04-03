@@ -52,44 +52,27 @@ export default class Scene {
    * @return {*}  {BufferGeometry}
    * @memberof Scene
    */
-  refineMesh(mesh: BufferGeometry, maxArea: number): BufferGeometry {
+  refineMesh(mesh: BufferGeometry, maxLength: number): BufferGeometry {
     const positions = mesh.attributes.position.array.slice();
-    const normals = mesh.attributes.normal.array.slice();
 
-    let newTriangles: Triangle[] = [];
+    let newTriangles: number[] = [];
     let newNormals: number[] = [];
     // Iterate over triangles
     for (let i = 0; i < positions.length; i += 9) {
-      let [normal, area] = triangleUtils.normalAndArea(positions, i);
+      let normal = triangleUtils.normal(positions, i);
       if (normal[2] < -0.9) {
         // Triangle is facing down, we can skip this
         continue;
       }
-      let triangles = [triangleUtils.extractTriangle(positions, i)];
-      while (!(area <= maxArea)) {
-        triangles = triangles.flatMap(triangleUtils.subdivide);
-        area /= 4;
-      }
+      let triangles = triangleUtils.subdivide(positions, i, maxLength);
       newTriangles = newTriangles.concat(triangles);
       // copy normal for each subdivided triangle
-      newNormals = newNormals.concat(
-        triangles.flatMap((_) => [
-          normal[0],
-          normal[1],
-          normal[2],
-          normal[0],
-          normal[1],
-          normal[2],
-          normal[0],
-          normal[1],
-          normal[2],
-        ]),
-      );
+      newNormals = newNormals.concat(triangles.map((_, i) => normal[i % 3]));
     }
 
     let geometry = new BufferGeometry();
     const normalsArray = new Float32Array(newNormals);
-    const positionArray = new Float32Array(triangleUtils.flatten(newTriangles));
+    const positionArray = new Float32Array(newTriangles);
     geometry.setAttribute('position', new BufferAttribute(positionArray, 3));
     geometry.setAttribute('normal', new BufferAttribute(normalsArray, 3));
     geometry.attributes.position.needsUpdate = true;
@@ -120,10 +103,10 @@ export default class Scene {
 
     let midpoints: number[] = [];
     for (let i = 0; i < normalsArray.length; i += 9) {
+      const midpoint = triangleUtils.midpoint(points, i);
       for (let j = 0; j < 3; j++) {
-        const m = (points[i + j] + points[i + j + 3] + points[i + j + 6]) / 3 + normalsArray[i + j] * 0.05;
-        midpoints.push(m);
-        if (isNaN(m)) {
+        midpoints.push(midpoint[j] + normalsArray[i + j] * 0.05);
+        if (isNaN(midpoint[j])) {
           console.log(`midpoint ${i} is nan`);
         }
         if (isNaN(normalsArray[i])) {

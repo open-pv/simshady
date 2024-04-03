@@ -1,5 +1,3 @@
-import { vec3 } from 'gl-matrix';
-
 export type ArrayType =
   | Int8Array
   | Uint8Array
@@ -9,32 +7,32 @@ export type ArrayType =
   | Int32Array
   | Uint32Array
   | Float32Array
-  | Float64Array;
-export type Triangle = [vec3, vec3, vec3];
+  | Float64Array
+  | number[];
 
-export function extractTriangle(positions: ArrayType, startIndex: number): Triangle {
-  const i = startIndex;
-  const v0 = vec3.fromValues(positions[i], positions[i + 1], positions[i + 2]);
-  const v1 = vec3.fromValues(positions[i + 3], positions[i + 4], positions[i + 5]);
-  const v2 = vec3.fromValues(positions[i + 6], positions[i + 7], positions[i + 8]);
-  return [v0, v1, v2];
-}
+export type Triangle = [number, number, number, number, number, number, number, number, number];
 
-export function normalAndArea(positions: ArrayType, startIndex: number): [vec3, number] {
-  const [v0, v1, v2] = extractTriangle(positions, startIndex);
-  let d1 = vec3.create();
-  vec3.sub(d1, v1, v0);
-  let d2 = vec3.create();
-  vec3.sub(d2, v2, v0);
-  let ar = vec3.create();
-  vec3.cross(ar, d1, d2);
-  const area = vec3.len(ar) / 2;
-  let normal = vec3.create();
-  vec3.scale(normal, ar, 0.5 / area);
+export function normalAndArea(positions: ArrayType, startIndex: number): [[number, number, number], number] {
+  const [x0, y0, z0, x1, y1, z1, x2, y2, z2] = positions.slice(startIndex, startIndex + 9);
+
+  const d01x = x1 - x0;
+  const d01y = y1 - y0;
+  const d01z = z1 - z0;
+  const d02x = x2 - x0;
+  const d02y = y2 - y0;
+  const d02z = z2 - z0;
+
+  const crsx = d01y * d02z - d01z * d02y;
+  const crsy = d01z * d02x - d01x * d02z;
+  const crsz = d01x * d02y - d01y * d02x;
+
+  const crs_norm = Math.sqrt(crsx * crsx + crsy * crsy + crsz * crsz);
+  const area = crs_norm / 2;
+  const normal: [number, number, number] = [crsx / crs_norm, crsy / crs_norm, crsz / crs_norm];
   return [normal, area];
 }
 
-export function normal(positions: ArrayType, startIndex: number): vec3 {
+export function normal(positions: ArrayType, startIndex: number): [number, number, number] {
   return normalAndArea(positions, startIndex)[0];
 }
 
@@ -42,42 +40,61 @@ export function area(positions: ArrayType, startIndex: number): number {
   return normalAndArea(positions, startIndex)[1];
 }
 
-export function subdivide(vertices: Triangle): [Triangle, Triangle, Triangle, Triangle] {
-  const [v0, v1, v2] = vertices;
+export function subdivide(positions: ArrayType, startIndex: number, threshold: number): number[] {
+  const triangle = positions.slice(startIndex, startIndex + 9);
+  const [x0, y0, z0, x1, y1, z1, x2, y2, z2] = triangle;
 
-  const m01 = vec3.clone(v0);
-  const m12 = vec3.clone(v1);
-  const m20 = vec3.clone(v2);
+  const d01x = x1 - x0;
+  const d01y = y1 - y0;
+  const d01z = z1 - z0;
+  const d02x = x2 - x0;
+  const d02y = y2 - y0;
+  const d02z = z2 - z0;
+  const d12x = x2 - x1;
+  const d12y = y2 - y1;
+  const d12z = z2 - z1;
 
-  vec3.lerp(m01, v0, v1, 0.5);
-  vec3.lerp(m12, v1, v2, 0.5);
-  vec3.lerp(m20, v2, v0, 0.5);
+  const l01 = d01x * d01x + d01y * d01y + d01z * d01z;
+  const l02 = d02x * d02x + d02y * d02y + d02z * d02z;
+  const l12 = d12x * d12x + d12y * d12y + d12z * d12z;
 
-  return [
-    [v0, m01, m20],
-    [v1, m12, m01],
-    [v2, m20, m12],
-    [m01, m12, m20],
-  ];
+  const longest = Math.max(l01, l02, l12);
+  if (longest <= threshold * threshold) {
+    return Array.from(triangle);
+  }
+  if (l01 == longest) {
+    const xm = (x0 + x1) / 2;
+    const ym = (y0 + y1) / 2;
+    const zm = (z0 + z1) / 2;
+
+    const tri1 = [x0, y0, z0, xm, ym, zm, x2, y2, z2];
+    const tri2 = [x1, y1, z1, x2, y2, z2, xm, ym, zm];
+
+    return subdivide(tri1, 0, threshold).concat(subdivide(tri2, 0, threshold));
+  } else if (l02 == longest) {
+    const xm = (x0 + x2) / 2;
+    const ym = (y0 + y2) / 2;
+    const zm = (z0 + z2) / 2;
+
+    const tri1 = [x0, y0, z0, x1, y1, z1, xm, ym, zm];
+    const tri2 = [x1, y1, z1, x2, y2, z2, xm, ym, zm];
+
+    return subdivide(tri1, 0, threshold).concat(subdivide(tri2, 0, threshold));
+  } else if (l12 == longest) {
+    const xm = (x1 + x2) / 2;
+    const ym = (y1 + y2) / 2;
+    const zm = (z1 + z2) / 2;
+
+    const tri1 = [x0, y0, z0, x1, y1, z1, xm, ym, zm];
+    const tri2 = [x2, y2, z2, x0, y0, z0, xm, ym, zm];
+
+    return subdivide(tri1, 0, threshold).concat(subdivide(tri2, 0, threshold));
+  } else {
+    throw new Error("No edge is longest, this shouldn't happen");
+  }
 }
 
-export function midpoint(triangle: Triangle): [number, number, number] {
-  const [v0, v1, v2] = triangle;
-  return [(v0[0] + v1[0] + v2[0]) / 3, (v0[1] + v1[1] + v2[1]) / 3, (v0[2] + v1[2] + v2[2]) / 3];
-}
-
-export function flatten(triangles: Triangle[]): Float32Array {
-  return new Float32Array(
-    triangles.flatMap((tri) => [
-      tri[0][0],
-      tri[0][1],
-      tri[0][2],
-      tri[1][0],
-      tri[1][1],
-      tri[1][2],
-      tri[2][0],
-      tri[2][1],
-      tri[2][2],
-    ]),
-  );
+export function midpoint(positions: ArrayType, startIndex: number): [number, number, number] {
+  const [x0, y0, z0, x1, y1, z1, x2, y2, z2] = positions.slice(startIndex, startIndex + 9);
+  return [(x0 + x1 + x2) / 3, (y0 + y1 + y2) / 3, (z0 + z1 + z2) / 3];
 }
