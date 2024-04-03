@@ -121,7 +121,7 @@ export default class Scene {
     let midpoints: number[] = [];
     for (let i = 0; i < normalsArray.length; i += 9) {
       for (let j = 0; j < 3; j++) {
-        const m = (points[i + j] + points[i + j + 3] + points[i + j + 6]) / 3;
+        const m = (points[i + j] + points[i + j + 3] + points[i + j + 6]) / 3 + normalsArray[i + j] * 0.05;
         midpoints.push(m);
         if (isNaN(m)) {
           console.log(`midpoint ${i} is nan`);
