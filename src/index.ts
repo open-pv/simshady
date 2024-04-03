@@ -120,23 +120,20 @@ export default class Scene {
 
     let midpoints: number[] = [];
     for (let i = 0; i < normalsArray.length; i += 9) {
-      const triangle = triangleUtils.extractTriangle(points, i);
-      const midpoint = triangleUtils.midpoint(triangle);
-      midpoints = midpoints.concat(midpoint);
+      for (let j = 0; j < 3; j++) {
+        const m = (points[i + j] + points[i + j + 3] + points[i + j + 6]) / 3;
+        midpoints.push(m);
+        if (isNaN(m)) {
+          console.log(`midpoint ${i} is nan`);
+        }
+        if (isNaN(normalsArray[i])) {
+          console.log(`normals ${i} is nan`);
+        }
+      }
     }
 
     const midpointsArray = new Float32Array(midpoints.slice());
 
-    for (let i = 0; i < midpointsArray.length; i++) {
-      if (isNaN(midpointsArray[i])) {
-        console.log(`midpoint ${i} is nan`);
-      }
-    }
-    for (let i = 0; i < normalsArray.length; i++) {
-      if (isNaN(normalsArray[i])) {
-        console.log(`normals ${i} is nan`);
-      }
-    }
     for (let i = 0; i < meshArray.length; i++) {
       if (isNaN(meshArray[i])) {
         console.log(`mesh ${i} is nan`);
