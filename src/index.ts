@@ -1,20 +1,33 @@
-import { BufferGeometry, BufferAttribute, TypedArray } from 'three';
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import * as triangleUtils from './triangleUtils.js';
-import { Triangle, ArrayType } from './triangleUtils.js';
-import { getRandomSunVectors } from './sun';
-import { viridis } from './colormaps';
 import * as THREE from 'three';
+import { BufferAttribute, BufferGeometry, TypedArray } from 'three';
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { viridis } from './colormaps';
+import { getRandomSunVectors } from './sun';
+import * as triangleUtils from './triangleUtils.js';
+import { ArrayType, Triangle } from './triangleUtils.js';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
 
+/**
+ * This class holds all information about the scene that is simulated.
+ * A scene is typically equipped with the following attributes:
+ * * A pair of coordinates to locate the scene
+ * * Simulation geometries, where the PV potential is calculated
+ * * Shading geometries, where no PV potential is calculated but which are
+ *   responsible for shading
+ */
 export default class Scene {
   simulationGeometries: Array<BufferGeometry>;
   shadingGeometries: Array<BufferGeometry>;
   latitude: number;
   longitude: number;
 
+  /**
+   *
+   * @param latitude Latitude of the midpoint of the scene.
+   * @param longitude Longitude of the midpoint of the scene.
+   */
   constructor(latitude: number, longitude: number) {
     this.simulationGeometries = [];
     this.shadingGeometries = [];
@@ -26,7 +39,7 @@ export default class Scene {
    * Adds a geometry as a target for the shading simulation.
    * For these geometries, the PV potential will be simulated.
    *
-   * @param {BufferGeometry} geometry: Arbitrary Three.js geometry
+   * @param geometry Arbitrary Three.js geometry
    * @memberof Scene
    */
   addSimulationGeometry(geometry: BufferGeometry) {
@@ -37,21 +50,14 @@ export default class Scene {
    * Adds a geometry as an outer geometry for the shading simulation.
    * These geometries are responsible for shading.
    *
-   * @param {BufferGeometry} geometry: Arbitrary Three.js geometry
+   * @param geometry Arbitrary Three.js geometry
    * @memberof Scene
    */
   addShadingGeometry(geometry: BufferGeometry) {
     this.shadingGeometries.push(geometry);
   }
 
-  /**
-   * Adaptively subdivide each triangle of `mesh` until all triangles have area of at most `maxArea`.
-   *
-   * @param {BufferGeometry} mesh
-   * @param {number} maxArea
-   * @return {*}  {BufferGeometry}
-   * @memberof Scene
-   */
+  /** @ignore */
   refineMesh(mesh: BufferGeometry, maxLength: number): BufferGeometry {
     const positions = mesh.attributes.position.array.slice();
 
@@ -82,10 +88,11 @@ export default class Scene {
   }
 
   /**
-   * Run the simulation.
-   *
-   * @return
-   * @memberof Scene
+   * This function is called as a last step, after the scene is fully build.
+   * It runs the shading simulation and returns a THREE.js colored mesh.
+   * The colors are chosen from the viridis colormap.
+   * @param numberSimulations Number of random sun positions that are used to calculate the PV yield
+   * @returns
    */
   async calculate(numberSimulations: number = 80) {
     console.log('Simulation package was called to calculate');
@@ -144,7 +151,7 @@ export default class Scene {
 
     return this.show(simulationGeometry, intensities);
   }
-
+  /** @ignore */
   show(subdividedGeometry: BufferGeometry, intensities: Float32Array) {
     const Npoints = subdividedGeometry.attributes.position.array.length / 9;
     var newColors = new Float32Array(Npoints * 9);
@@ -170,7 +177,7 @@ export default class Scene {
     return mesh;
   }
 
-  /**
+  /** @ignore
    * Call ray-tracing shader to calculate intensities for each midpoint based on the given normals and mesh
    *
    * @param midpoints midpoints of triangles for which to calculate intensities
