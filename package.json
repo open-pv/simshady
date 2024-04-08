@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/open-pv/simulation.git"
+    "url": "git+https://github.com/open-pv/simshady.git"
   },
   "keywords": [
     "solar"
@@ -27,9 +27,9 @@
   "author": "Konrad Heidler <k.heidler@tum.de>",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/open-pv/simulation/issues"
+    "url": "https://github.com/open-pv/simshady/issues"
   },
-  "homepage": "https://github.com/open-pv/simulation#readme",
+  "homepage": "open-pv.github.io/simshady/",
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "@types/suncalc": "^1.9.2",
