@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import { BufferAttribute, BufferGeometry, TypedArray } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { viridis } from './colormaps';
+import * as elevation from './elevation';
 import { getRandomSunVectors } from './sun';
 import * as triangleUtils from './triangleUtils.js';
-import { ArrayType, Triangle } from './triangleUtils.js';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
@@ -20,7 +20,8 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
 export default class Scene {
   simulationGeometries: Array<BufferGeometry>;
   shadingGeometries: Array<BufferGeometry>;
-  elevationRasters: Array<Array<number[]>>;
+  elevationRasters: Array<number[]>;
+  elevationRasterMidpoint: elevation.Point;
   latitude: number;
   longitude: number;
 
@@ -33,6 +34,7 @@ export default class Scene {
     this.simulationGeometries = [];
     this.shadingGeometries = [];
     this.elevationRasters = [];
+    this.elevationRasterMidpoint = { x: 0, y: 0 };
     this.latitude = latitude;
     this.longitude = longitude;
   }
@@ -59,8 +61,9 @@ export default class Scene {
     this.shadingGeometries.push(geometry);
   }
 
-  addElevationRaster(raster: number[][]) {
-    this.elevationRasters.push(raster);
+  addElevationRaster(raster: number[][], midpoint: elevation.Point) {
+    this.elevationRasters = raster;
+    this.elevationRasterMidpoint = midpoint;
   }
 
   /** @ignore */
@@ -104,6 +107,19 @@ export default class Scene {
     console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
+    if (this.elevationRasters.length > 0) {
+      let shadingElevationAngles = elevation.getMaxElevationAngles(
+        this.elevationRasters,
+        {
+          x: Math.round(this.elevationRasters.length - 1 / 2),
+          y: Math.round(this.elevationRasters[0].length - 1 / 2),
+        },
+        [this.elevationRasters[this.elevationRasterMidpoint.x][this.elevationRasterMidpoint.y]],
+        // TODO: Right now this only includes one z value taken from the Midpoint, this can be extended
+        // to multiple z points
+      );
+    }
+
     // TODO: This breaks everything, why?
     simulationGeometry = this.refineMesh(simulationGeometry, 0.5); // TODO: make configurable
 
