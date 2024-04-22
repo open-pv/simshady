@@ -107,18 +107,6 @@ export default class Scene {
     console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
-    if (this.elevationRasters.length > 0) {
-      let shadingElevationAngles = elevation.getMaxElevationAngles(
-        this.elevationRasters,
-        {
-          x: Math.round(this.elevationRasters.length - 1 / 2),
-          y: Math.round(this.elevationRasters[0].length - 1 / 2),
-        },
-        [this.elevationRasters[this.elevationRasterMidpoint.x][this.elevationRasterMidpoint.y]],
-        // TODO: Right now this only includes one z value taken from the Midpoint, this can be extended
-        // to multiple z points
-      );
-    }
 
     // TODO: This breaks everything, why?
     simulationGeometry = this.refineMesh(simulationGeometry, 0.5); // TODO: make configurable
@@ -210,6 +198,31 @@ export default class Scene {
    */
   async rayTrace(midpoints: Float32Array, normals: TypedArray, meshArray: Float32Array, numberSimulations: number) {
     let sunDirections = getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
+    if (this.elevationRasters.length > 0) {
+      let shadingElevationAngles = elevation.getMaxElevationAngles(
+        this.elevationRasters,
+        {
+          x: Math.round(this.elevationRasters.length - 1 / 2),
+          y: Math.round(this.elevationRasters[0].length - 1 / 2),
+        },
+        [this.elevationRasters[this.elevationRasterMidpoint.x][this.elevationRasterMidpoint.y]],
+        // TODO: Right now this only includes one z value taken from the Midpoint, this can be extended
+        // to multiple z points
+      );
+      for (let i = 0; i < sunDirections.spherical.length; i += 2) {
+        const shadingElevationAnglesIndex = Math.round(
+          (sunDirections.spherical[i + 1] / 2 / Math.PI) * shadingElevationAngles.length,
+        );
+        if (shadingElevationAngles[0][shadingElevationAnglesIndex] >= sunDirections.spherical[i]) {
+          sunDirections.cartesian = new Float32Array([
+            ...sunDirections.cartesian.slice(0, i),
+            ...sunDirections.cartesian.slice(i + 3),
+          ]);
+          console.log('One ray was shaded by a nearby mountain.');
+        }
+      }
+    }
+
     return rayTracingWebGL(midpoints, normals, meshArray, sunDirections);
   }
 }
