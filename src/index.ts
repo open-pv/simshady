@@ -20,6 +20,7 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
 export default class Scene {
   simulationGeometries: Array<BufferGeometry>;
   shadingGeometries: Array<BufferGeometry>;
+  elevationRasters: Array<Array<number[]>>;
   latitude: number;
   longitude: number;
 
@@ -31,6 +32,7 @@ export default class Scene {
   constructor(latitude: number, longitude: number) {
     this.simulationGeometries = [];
     this.shadingGeometries = [];
+    this.elevationRasters = [];
     this.latitude = latitude;
     this.longitude = longitude;
   }
@@ -55,6 +57,10 @@ export default class Scene {
    */
   addShadingGeometry(geometry: BufferGeometry) {
     this.shadingGeometries.push(geometry);
+  }
+
+  addElevationRaster(raster: number[][]) {
+    this.elevationRasters.push(raster);
   }
 
   /** @ignore */
