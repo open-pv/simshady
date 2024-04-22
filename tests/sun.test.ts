@@ -22,7 +22,6 @@ describe('Test functionalities from sun.ts: ', () => {
       let altitude = vectors.spherical[2 * i];
       expect(z).toBeGreaterThan(0);
       expect(altitude).toBeGreaterThan(0);
-      expect;
     }
   });
 });
