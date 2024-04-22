@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import { BufferAttribute, BufferGeometry, TypedArray } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { viridis } from './colormaps';
-import { getRandomSunVectors } from './sun';
+import { convertSpericalToEuclidian, fetchIrradiance, getRandomSunVectors } from './sun';
 import * as triangleUtils from './triangleUtils.js';
-import { ArrayType, Triangle } from './triangleUtils.js';
+import { isValidUrl } from './utils';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
@@ -94,7 +94,7 @@ export default class Scene {
    * @param numberSimulations Number of random sun positions that are used to calculate the PV yield
    * @returns
    */
-  async calculate(numberSimulations: number = 80) {
+  async calculate(numberSimulations: number = 80, irradianceUrl: string | undefined) {
     console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
@@ -130,7 +130,7 @@ export default class Scene {
       }
     }
     // Compute unique intensities
-    const intensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, numberSimulations);
+    const intensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, numberSimulations, irradianceUrl);
 
     if (intensities === null) {
       throw new Error('Error raytracing in WebGL.');
@@ -183,11 +183,26 @@ export default class Scene {
    * @param midpoints midpoints of triangles for which to calculate intensities
    * @param normals normals for each midpoint
    * @param meshArray array of vertices for the shading mesh
+   * @param numberSimulations number of random sun positions that are used for the simulation. Either numberSimulations or irradianceUrl need to be given.
+   * @param irradianceUrl url where a 2D json of irradiance values lies. To generate such a json, visit https://github.com/open-pv/irradiance
    * @return
    * @memberof Scene
    */
-  async rayTrace(midpoints: Float32Array, normals: TypedArray, meshArray: Float32Array, numberSimulations: number) {
-    let sunDirections = getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
-    return rayTracingWebGL(midpoints, normals, meshArray, sunDirections);
+  async rayTrace(
+    midpoints: Float32Array,
+    normals: TypedArray,
+    meshArray: Float32Array,
+    numberSimulations: number | undefined,
+    irradianceUrl: string | undefined = undefined,
+  ) {
+    if (typeof irradianceUrl === 'string' && isValidUrl(irradianceUrl)) {
+      const irradiance = await fetchIrradiance(irradianceUrl, this.latitude, this.longitude);
+      return convertSpericalToEuclidian(irradiance);
+    } else if (typeof numberSimulations === 'undefined') {
+      throw new Error('Either number simulations or a valid irradianceUrl must be given.');
+    } else {
+      let sunDirections = getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
+      return rayTracingWebGL(midpoints, normals, meshArray, sunDirections);
+    }
   }
 }
