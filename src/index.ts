@@ -197,7 +197,8 @@ export default class Scene {
   ) {
     if (typeof irradianceUrl === 'string' && isValidUrl(irradianceUrl)) {
       const irradiance = await fetchIrradiance(irradianceUrl, this.latitude, this.longitude);
-      return convertSpericalToEuclidian(irradiance);
+      const sunDirections = convertSpericalToEuclidian(irradiance);
+      return rayTracingWebGL(midpoints, normals, meshArray, sunDirections);
     } else if (typeof numberSimulations === 'undefined') {
       throw new Error('Either number simulations or a valid irradianceUrl must be given.');
     } else {
