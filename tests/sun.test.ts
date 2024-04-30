@@ -28,10 +28,17 @@ describe('Test functionalities from sun.ts: ', () => {
   });
   test('ConvertSpericalToEuclidian works right.', () => {
     const tolerance = 0.00001;
+    console.log(tolerance);
     const calculatedIrradianceEuclidian = sun.convertSpericalToEuclidian(irradianceSpherical);
-    const allClose =
-      irradianceSpherical.length === irradianceEuclidian.length &&
-      calculatedIrradianceEuclidian.every((value, index) => Math.abs(value - irradianceEuclidian[index]) <= tolerance);
+    console.log(calculatedIrradianceEuclidian);
+    const allClose = calculatedIrradianceEuclidian.every(
+      (value, index) => Math.abs(value - irradianceEuclidian[index]) <= tolerance,
+    );
     expect(allClose).toBe(true);
+  });
+  test('Fetch irradiance json from openpv url.', async () => {
+    const data = await sun.fetchIrradiance('https://www.openpv.de/data/irradiance', 50.0, 11.0);
+
+    expect(data.length).toBeGreaterThan(5);
   });
 });
