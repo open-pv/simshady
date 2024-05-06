@@ -180,7 +180,7 @@ export function rayTracingWebGL(
   var colorCodedArray = null;
   var isShadowedArray = null;
   for (var i = 0; i < sunDirections.length; i += 3) {
-    progressCallback(i, sunDirections.length);
+    progressCallback(i, sunDirections.length/3);
     // TODO: Iterate over sunDirection
     let sunDirectionUniformLocation = gl.getUniformLocation(program, 'u_sun_direction');
     gl.uniform3fv(sunDirectionUniformLocation, [sunDirections[i], sunDirections[i + 1], sunDirections[i + 2]]);
