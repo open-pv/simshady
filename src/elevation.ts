@@ -1,53 +1,88 @@
 export type Point = {
   x: number;
   y: number;
+  z: number;
 };
 
-function calculateDistance(p1: Point, p2: Point): number {
-  return Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+export type SphericalPoint = {
+  altitude: number;
+  azimuth: number;
+};
+
+export function fillMissingAltitudes(maxAngles: SphericalPoint[]): void {
+  // First copy the maxAngles to a newAngles list, so that changes
+  // in the list do not affect the algorithm
+  let newAngles = maxAngles.map((angle) => ({ ...angle }));
+  for (let i = 0; i < newAngles.length; i++) {
+    if (newAngles[i].altitude != -Infinity) {
+      continue;
+    }
+    let distance = 1;
+    while (true) {
+      let prevIndex = (i - distance + newAngles.length) % newAngles.length;
+      let nextIndex = (i + distance) % newAngles.length;
+
+      if (maxAngles[nextIndex].altitude !== -Infinity) {
+        newAngles[i].altitude = maxAngles[nextIndex].altitude;
+        break;
+      } else if (maxAngles[prevIndex].altitude !== -Infinity) {
+        newAngles[i].altitude = maxAngles[prevIndex].altitude;
+        break;
+      } else distance++;
+    }
+  }
+  // Overwrite the maxAngles to make changes in this vector global
+  for (let i = 0; i < maxAngles.length; i++) {
+    maxAngles[i] = newAngles[i];
+  }
 }
 
-function calculateElevationAngle(elevationDifference: number, distance: number): number {
-  return Math.atan2(elevationDifference, distance);
+/**
+ *
+ * @param start
+ * @param end
+ * @returns azimuth from 0 to 2*PI and altitude from 0 to PI/2, where altitude = 0 is facing directly upwards
+ */
+export function calculateSphericalCoordinates(start: Point, end: Point): { azimuth: number; altitude: number } {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const dz = end.z - start.z;
+
+  const r = Math.sqrt(dx * dx + dy * dy + dz * dz);
+  const altitude = Math.acos(dz / r);
+  let azimuth = Math.atan2(dy, dx);
+
+  if (azimuth < 0) {
+    azimuth += 2 * Math.PI; // Adjust azimuth to be from 0 to 2PI
+  }
+
+  return { azimuth, altitude };
 }
 
 /**
  * Calculates the maximum heights visible from an observer in a set of directions.
- * Returns a 2D array. The first dimension is over all Z-values (heights) of the observer, the second dimension
- * is over the number of theta directions defined with numDirections.
- * @param grid 2D array of elevations, in the current implementation it needs to be a NxN grid where N is uneven!
+ * Returns a list of spherical points of length numDirections.
+ * @param elevation list of points with x,y,z component
  * @param observer Point of interest, given as the indexes from the grid: [10,10] means that grid[10][10] is the point for
  * which the elevation angles are calculated.
- * @param observerZ List of height values of the observer. This will replace the grid[observer] values.
  * @param numDirections Length of the returned list.
  * @returns
  */
-export function getMaxElevationAngles(
-  grid: number[][],
-  observer: Point,
-  observerZ: number[],
-  numDirections: number = 360,
-): number[][] {
-  const maxAngles: number[][] = Array.from({ length: observerZ.length }, () => Array(numDirections).fill(-Infinity));
-  const numRows = grid.length;
-  const numCols = grid[0].length;
+export function getMaxElevationAngles(elevation: Point[], observer: Point, numDirections: number = 360): SphericalPoint[] {
+  let maxAngles: SphericalPoint[] = Array.from({ length: numDirections }, (_, index) => ({
+    azimuth: index * ((2 * Math.PI) / numDirections),
+    altitude: -Infinity,
+  }));
 
-  for (let row = 0; row < numRows; row++) {
-    for (let col = 0; col < numCols; col++) {
-      if (row === observer.y && col === observer.x) continue;
-      const targetPoint: Point = { x: col, y: row };
-      const distance = calculateDistance(observer, targetPoint);
-      const angleToTarget = (Math.atan2(targetPoint.y - observer.y, targetPoint.x - observer.x) * 180) / Math.PI;
-      const adjustedAngle = angleToTarget < 0 ? angleToTarget + 360 : angleToTarget;
-      const thetaIndex = Math.floor(adjustedAngle / (360 / numDirections));
-      for (let zIndex = 0; zIndex < observerZ.length; zIndex++) {
-        let elevationDifference = grid[row][col] - observerZ[zIndex];
-        let elevationAngle = calculateElevationAngle(elevationDifference, distance);
-        if (elevationAngle > maxAngles[zIndex][thetaIndex]) {
-          maxAngles[zIndex][thetaIndex] = elevationAngle;
-        }
-      }
+  for (let point of elevation) {
+    const { azimuth, altitude } = calculateSphericalCoordinates(observer, point);
+    console.log(azimuth, altitude);
+    const closestIndex = Math.round(azimuth / ((2 * Math.PI) / numDirections)) % numDirections;
+
+    if (altitude > maxAngles[closestIndex].altitude) {
+      maxAngles[closestIndex].altitude = altitude;
     }
   }
+  fillMissingAltitudes(maxAngles);
   return maxAngles;
 }
