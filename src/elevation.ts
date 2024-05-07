@@ -63,9 +63,8 @@ export function calculateSphericalCoordinates(start: Point, end: Point): { azimu
  * Calculates the maximum heights visible from an observer in a set of directions.
  * Returns a list of spherical points of length numDirections.
  * @param elevation list of points with x,y,z component
- * @param observer Point of interest, given as the indexes from the grid: [10,10] means that grid[10][10] is the point for
- * which the elevation angles are calculated.
- * @param numDirections Length of the returned list.
+ * @param observer Point of interest for which the elevation angles are calculated.
+ * @param numDirections Number of steps for the azimuth angle.
  * @returns
  */
 export function getMaxElevationAngles(elevation: Point[], observer: Point, numDirections: number = 360): SphericalPoint[] {
