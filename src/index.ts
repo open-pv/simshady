@@ -20,7 +20,7 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
 export default class Scene {
   simulationGeometries: Array<BufferGeometry>;
   shadingGeometries: Array<BufferGeometry>;
-  elevationRasters: Array<number[]>;
+  elevationRaster: Array<elevation.Point>;
   elevationRasterMidpoint: elevation.Point;
   latitude: number;
   longitude: number;
@@ -33,8 +33,8 @@ export default class Scene {
   constructor(latitude: number, longitude: number) {
     this.simulationGeometries = [];
     this.shadingGeometries = [];
-    this.elevationRasters = [];
-    this.elevationRasterMidpoint = { x: 0, y: 0 };
+    this.elevationRaster = [];
+    this.elevationRasterMidpoint = { x: 0, y: 0, z: 0 };
     this.latitude = latitude;
     this.longitude = longitude;
   }
@@ -61,8 +61,8 @@ export default class Scene {
     this.shadingGeometries.push(geometry);
   }
 
-  addElevationRaster(raster: number[][], midpoint: elevation.Point) {
-    this.elevationRasters = raster;
+  addElevationRaster(raster: elevation.Point[], midpoint: elevation.Point) {
+    this.elevationRaster = raster;
     this.elevationRasterMidpoint = midpoint;
   }
 
@@ -198,31 +198,14 @@ export default class Scene {
    */
   async rayTrace(midpoints: Float32Array, normals: TypedArray, meshArray: Float32Array, numberSimulations: number) {
     let sunDirections = getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
-    if (this.elevationRasters.length > 0) {
+    if (this.elevationRaster.length > 0) {
       let shadingElevationAngles = elevation.getMaxElevationAngles(
-        this.elevationRasters,
-        {
-          x: Math.round(this.elevationRasters.length - 1 / 2),
-          y: Math.round(this.elevationRasters[0].length - 1 / 2),
-        },
-        [this.elevationRasters[this.elevationRasterMidpoint.x][this.elevationRasterMidpoint.y]],
-        // TODO: Right now this only includes one z value taken from the Midpoint, this can be extended
-        // to multiple z points
+        this.elevationRaster,
+        this.elevationRasterMidpoint,
+        numberSimulations,
       );
-      for (let i = 0; i < sunDirections.spherical.length; i += 2) {
-        const shadingElevationAnglesIndex = Math.round(
-          (sunDirections.spherical[i + 1] / 2 / Math.PI) * shadingElevationAngles.length,
-        );
-        if (shadingElevationAngles[0][shadingElevationAnglesIndex] >= sunDirections.spherical[i]) {
-          sunDirections.cartesian = new Float32Array([
-            ...sunDirections.cartesian.slice(0, i),
-            ...sunDirections.cartesian.slice(i + 3),
-          ]);
-          console.log('One ray was shaded by a nearby mountain.');
-        }
-      }
     }
-
+    //TODO: add shading of elevation here
     return rayTracingWebGL(midpoints, normals, meshArray, sunDirections);
   }
 }
