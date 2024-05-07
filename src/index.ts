@@ -103,7 +103,11 @@ export default class Scene {
    * @param numberSimulations Number of random sun positions that are used to calculate the PV yield
    * @returns
    */
-  async calculate(numberSimulations: number = 80) {
+  async calculate(
+    numberSimulations: number = 80,
+    progressCallback: (progress: number, total: number) => void = (progress, total) =>
+      console.log(`Progress: ${progress}/${total}%`),
+  ) {
     console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
@@ -140,7 +144,7 @@ export default class Scene {
       }
     }
     // Compute unique intensities
-    const intensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, numberSimulations);
+    const intensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, numberSimulations, progressCallback);
 
     if (intensities === null) {
       throw new Error('Error raytracing in WebGL.');
@@ -197,7 +201,13 @@ export default class Scene {
    * @return
    * @memberof Scene
    */
-  async rayTrace(midpoints: Float32Array, normals: TypedArray, meshArray: Float32Array, numberSimulations: number) {
+  async rayTrace(
+    midpoints: Float32Array,
+    normals: TypedArray,
+    meshArray: Float32Array,
+    numberSimulations: number,
+    progressCallback: (progress: number, total: number) => void,
+  ) {
     let sunDirections = getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
     if (this.elevationRaster.length > 0) {
       let shadingElevationAngles = elevation.getMaxElevationAngles(
@@ -207,6 +217,7 @@ export default class Scene {
       );
     }
     //TODO: add shading of elevation here
-    return rayTracingWebGL(midpoints, normals, meshArray, sunDirections);
+    return rayTracingWebGL(midpoints, normals, meshArray, sunDirections, progressCallback);
+
   }
 }
