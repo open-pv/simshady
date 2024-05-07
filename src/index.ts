@@ -193,6 +193,7 @@ export default class Scene {
    * @param midpoints midpoints of triangles for which to calculate intensities
    * @param normals normals for each midpoint
    * @param meshArray array of vertices for the shading mesh
+   * @param numberSimulations
    * @return
    * @memberof Scene
    */
@@ -202,7 +203,7 @@ export default class Scene {
       let shadingElevationAngles = elevation.getMaxElevationAngles(
         this.elevationRaster,
         this.elevationRasterMidpoint,
-        numberSimulations,
+        sunDirections.spherical.length / 2,
       );
     }
     //TODO: add shading of elevation here
