@@ -21,6 +21,7 @@ export type SolarIrradianceData = {
   }>;
 };
 export type SphericalPoint = {
+  radius: number;
   altitude: number;
   azimuth: number;
 };

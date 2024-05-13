@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import * as elevation from '../src/elevation';
+import { Point, SphericalPoint } from '../src/utils';
 
 describe('calculateSphericalCoordinates', () => {
   test('should calculate the correct spherical coordinates', () => {
@@ -26,13 +27,13 @@ describe('calculateSphericalCoordinates', () => {
 
 describe('fillMissingAltitudes', () => {
   test('should fill negative infinity altitude with the nearest non-negative infinity altitude', () => {
-    const points: elevation.SphericalPoint[] = [
-      { altitude: -Infinity, azimuth: 0 },
-      { altitude: 10, azimuth: 90 },
-      { altitude: -Infinity, azimuth: 180 },
-      { altitude: -Infinity, azimuth: 230 },
-      { altitude: -Infinity, azimuth: 240 },
-      { altitude: 20, azimuth: 270 },
+    const points: SphericalPoint[] = [
+      { radius: 1, altitude: -Infinity, azimuth: 0 },
+      { radius: 1, altitude: 10, azimuth: 90 },
+      { radius: 1, altitude: -Infinity, azimuth: 180 },
+      { radius: 1, altitude: -Infinity, azimuth: 230 },
+      { radius: 1, altitude: -Infinity, azimuth: 240 },
+      { radius: 1, altitude: 20, azimuth: 270 },
     ];
 
     elevation.fillMissingAltitudes(points);
@@ -46,15 +47,15 @@ describe('fillMissingAltitudes', () => {
 
 describe('getMaxElevationAngles', () => {
   test('should correctly calculate the maximum elevation angles for given elevation points and observer', () => {
-    const elevations: elevation.Point[] = [
+    const elevations: Point[] = [
       { x: 1, y: 1, z: 2 },
       { x: 1, y: -1, z: 4 },
       { x: -1, y: -1, z: 6 },
       { x: -1, y: 1, z: 8 },
     ];
-    const observer: elevation.Point = { x: 0, y: 0, z: 0 };
+    const observer: Point = { x: 0, y: 0, z: 0 };
     const numDirections = 20;
-    const result: elevation.SphericalPoint[] = elevation.getMaxElevationAngles(elevations, observer, numDirections);
+    const result: SphericalPoint[] = elevation.getMaxElevationAngles(elevations, observer, numDirections);
     console.log(result);
     expect(result).to.be.an('array').that.has.lengthOf(numDirections);
   });

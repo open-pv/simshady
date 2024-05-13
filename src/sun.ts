@@ -1,5 +1,5 @@
 import { getPosition } from 'suncalc';
-import { SolarIrradianceData, SphericalPoint } from './utils';
+import { Point, SolarIrradianceData, SphericalPoint } from './utils';
 
 /**
  * Creates arrays of sun vectors. "cartesian" is a vector of length 3*Ndates where every three entries make up one vector.
@@ -14,29 +14,34 @@ export function getRandomSunVectors(
   lat: number,
   lon: number,
 ): {
-  cartesian: Float32Array;
-  spherical: Float32Array;
+  cartesian: Point[];
+  spherical: SphericalPoint[];
 } {
-  const sunVectors = new Float32Array(Ndates * 3);
-  const sunVectorsSpherical = new Float32Array(Ndates * 2);
+  const sunVectors: Point[] = [];
+  const sunVectorsSpherical: SphericalPoint[] = [];
   var i = 0;
   while (i < Ndates) {
     let date = getRandomDate(new Date(2023, 1, 1), new Date(2023, 12, 31));
 
-    const posSperical = getPosition(date, lat, lon);
+    const posSpherical = getPosition(date, lat, lon);
     // pos.altitude: sun altitude above the horizon in radians,
     //   e.g. 0 at the horizon and PI/2 at the zenith (straight over your head)
     // pos. azimuth: sun azimuth in radians (direction along the horizon, measured
     //   from south to west), e.g. 0 is south and Math.PI * 3/4 is northwest
 
-    if (posSperical.altitude < 0.1 || posSperical.altitude == Number.NaN) {
+    if (posSpherical.altitude < 0.1 || isNaN(posSpherical.altitude)) {
       continue;
     }
-    sunVectors[3 * i] = -Math.cos(posSperical.altitude) * Math.sin(posSperical.azimuth);
-    sunVectors[3 * i + 1] = -Math.cos(posSperical.altitude) * Math.cos(posSperical.azimuth);
-    sunVectors[3 * i + 2] = Math.sin(posSperical.altitude);
-    sunVectorsSpherical[2 * i] = posSperical.altitude;
-    sunVectorsSpherical[2 * i + 1] = posSperical.azimuth;
+    sunVectors.push({
+      x: -Math.cos(posSpherical.altitude) * Math.sin(posSpherical.azimuth),
+      y: -Math.cos(posSpherical.altitude) * Math.cos(posSpherical.azimuth),
+      z: Math.sin(posSpherical.altitude),
+    });
+    sunVectorsSpherical.push({
+      radius: 1,
+      altitude: posSpherical.altitude,
+      azimuth: posSpherical.azimuth,
+    });
     i += 1;
   }
   return { cartesian: sunVectors, spherical: sunVectorsSpherical };

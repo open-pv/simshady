@@ -5,7 +5,7 @@ import { viridis } from './colormaps';
 import * as elevation from './elevation';
 import * as sun from './sun';
 import * as triangleUtils from './triangleUtils.js';
-import { Point, SphericalPoint, isValidUrl } from './utils';
+import { Point, isValidUrl } from './utils';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';

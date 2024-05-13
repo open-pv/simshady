@@ -53,21 +53,21 @@ describe('Test functionalities from sun.ts: ', () => {
   const N = 50;
   let vectors = sun.getRandomSunVectors(N, 0, 0);
   test('Get Correct number of positions for cartesian coordiantes.', () => {
-    expect(vectors.cartesian.length).toStrictEqual(3 * N);
+    expect(vectors.cartesian.length).toStrictEqual(N);
   });
   test('Get Correct number of positions for spherical coordiantes.', () => {
-    expect(vectors.spherical.length).toStrictEqual(2 * N);
+    expect(vectors.spherical.length).toStrictEqual(N);
   });
   test('Get normalized sun vectors.', () => {
-    for (let i = 0; i < N / 3; i++) {
-      let length = vectors.cartesian[3 * i] ** 2 + vectors.cartesian[3 * i + 1] ** 2 + vectors.cartesian[3 * i + 2] ** 2;
+    for (let obj of vectors.cartesian) {
+      let length = obj.x ** 2 + obj.y ** 2 + obj.z ** 2;
       expect(length).to.closeTo(1, 0.001);
     }
   });
   test('Sun is always above the horizon.', () => {
     for (let i = 0; i < N / 3; i++) {
-      let z = vectors.cartesian[3 * i + 2];
-      let altitude = vectors.spherical[2 * i];
+      let z = vectors.cartesian[i].z;
+      let altitude = vectors.spherical[i].altitude;
       expect(z).toBeGreaterThan(0);
       expect(altitude).toBeGreaterThan(0);
     }
