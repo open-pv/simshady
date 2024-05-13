@@ -107,7 +107,7 @@ export default class Scene {
 
   async calculate(
     numberSimulations: number = 80,
-    irradianceUrl: string | undefined
+    irradianceUrl: string | undefined,
     progressCallback: (progress: number, total: number) => void = (progress, total) =>
       console.log(`Progress: ${progress}/${total}%`),
   ) {
@@ -148,7 +148,14 @@ export default class Scene {
     }
     // Compute unique intensities
 
-    const intensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, numberSimulations, irradianceUrl, progressCallback);
+    const intensities = await this.rayTrace(
+      midpointsArray,
+      normalsArray,
+      meshArray,
+      numberSimulations,
+      irradianceUrl,
+      progressCallback,
+    );
 
     if (intensities === null) {
       throw new Error('Error raytracing in WebGL.');

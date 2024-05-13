@@ -183,7 +183,7 @@ export function rayTracingWebGL(
   var isShadowedArray = null;
 
   for (var i = 0; i < directRadiance.length; i += 1) {
-    progressCallback(i, sunDirections.length);
+    progressCallback(i, directRadiance.length);
 
     // TODO: Iterate over sunDirection
     let sunDirectionUniformLocation = gl.getUniformLocation(program, 'u_sun_direction');
