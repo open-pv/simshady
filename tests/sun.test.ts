@@ -1,10 +1,51 @@
 import { describe, expect, test } from 'vitest';
 import * as sun from '../src/sun';
 
-const irradianceSpherical: number[][] = [
-  [1, 2, 3, 4],
-  [1, 2, 3, 4],
-];
+const irradianceSpherical = {
+  metadata: { description: '', latitude: 0, longitude: 0, samples_phi: 0, samples_theta: 0 },
+  data: [
+    {
+      theta: 0,
+      phi: 0,
+      radiance: 1,
+    },
+    {
+      theta: 0,
+      phi: Math.PI / 2,
+      radiance: 2,
+    },
+    {
+      theta: 0,
+      phi: Math.PI,
+      radiance: 3,
+    },
+    {
+      theta: 0,
+      phi: (Math.PI * 3) / 2,
+      radiance: 4,
+    },
+    {
+      theta: Math.PI / 2,
+      phi: 0,
+      radiance: 1,
+    },
+    {
+      theta: Math.PI / 2,
+      phi: Math.PI / 2,
+      radiance: 2,
+    },
+    {
+      theta: Math.PI / 2,
+      phi: Math.PI,
+      radiance: 3,
+    },
+    {
+      theta: Math.PI / 2,
+      phi: (Math.PI * 3) / 2,
+      radiance: 4,
+    },
+  ],
+};
 
 const irradianceEuclidian = new Float32Array([0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 1, 0, 0, 0, 2, 0, -3, 0, 0, 0, -4, 0]);
 

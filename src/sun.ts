@@ -1,5 +1,20 @@
 import { getPosition } from 'suncalc';
 
+type SolarIrradianceData = {
+  metadata: {
+    description: string;
+    latitude: number;
+    longitude: number;
+    samples_phi: number;
+    samples_theta: number;
+  };
+  data: Array<{
+    theta: number;
+    phi: number;
+    radiance: number;
+  }>;
+};
+
 /**
  * Creates arrays of sun vectors. "cartesian" is a vector of length 3*Ndates where every three entries make up one vector.
  * "spherical" is a vector of length 2*Ndates, where pairs of entries are altitude, azimuth.
@@ -50,25 +65,19 @@ function getRandomDate(start: Date, end: Date): Date {
  * @param irradiance Vector of shape N_altitude x N_azimuth
  * @returns Vector of shape 3 x  N_altitude x N_azimuth
  */
-export function convertSpericalToEuclidian(irradiance: number[][]): Float32Array {
-  const altitudeSamples = irradiance.length;
-  const azimuthSamples = irradiance[0].length;
-  const altitudeStepSize = altitudeSamples > 1 ? Math.PI / 2 / (altitudeSamples - 1) : Math.PI / 2;
-  const azimuthStepSize = (Math.PI * 2) / azimuthSamples;
-  const sunVectors = new Float32Array(altitudeSamples * azimuthSamples * 3);
+export function convertSpericalToEuclidian(irradiance: SolarIrradianceData): Float32Array {
+  const sunVectors = new Float32Array(irradiance.metadata.samples_phi * irradiance.metadata.samples_theta * 3);
   let index = 0;
-  for (let i = 0; i < altitudeSamples; i++) {
-    for (let j = 0; j < azimuthSamples; j++) {
-      sunVectors[index] = irradiance[i][j] * Math.sin(i * altitudeStepSize) * Math.cos(j * azimuthStepSize);
-      sunVectors[index + 1] = irradiance[i][j] * Math.sin(i * altitudeStepSize) * Math.sin(j * azimuthStepSize);
-      sunVectors[index + 2] = irradiance[i][j] * Math.cos(i * altitudeStepSize);
-      index += 3;
-    }
+  for (let obj of irradiance.data) {
+    sunVectors[index] = obj.radiance * Math.sin(obj.theta) * Math.cos(obj.phi);
+    sunVectors[index + 1] = obj.radiance * Math.sin(obj.theta) * Math.sin(obj.phi);
+    sunVectors[index + 2] = obj.radiance * Math.cos(obj.theta);
+    index += 3;
   }
   return sunVectors;
 }
 
-export async function fetchIrradiance(baseUrl: string, lat: number, lon: number): Promise<{ [key: string]: any }> {
+export async function fetchIrradiance(baseUrl: string, lat: number, lon: number): Promise<SolarIrradianceData> {
   //TODO: Implement fullURL from url, lat, lon
   const url = baseUrl + '/' + lat.toFixed(1) + '/' + lon.toFixed(1) + '.json';
   try {
