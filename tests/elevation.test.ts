@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import * as elevation from '../src/elevation';
-import { Point, SphericalPoint } from '../src/utils';
+import { CartesianPoint, SphericalPoint } from '../src/utils';
 
 describe('calculateSphericalCoordinates', () => {
   test('should calculate the correct spherical coordinates', () => {
@@ -47,13 +47,13 @@ describe('fillMissingAltitudes', () => {
 
 describe('getMaxElevationAngles', () => {
   test('should correctly calculate the maximum elevation angles for given elevation points and observer', () => {
-    const elevations: Point[] = [
+    const elevations: CartesianPoint[] = [
       { x: 1, y: 1, z: 2 },
       { x: 1, y: -1, z: 4 },
       { x: -1, y: -1, z: 6 },
       { x: -1, y: 1, z: 8 },
     ];
-    const observer: Point = { x: 0, y: 0, z: 0 };
+    const observer: CartesianPoint = { x: 0, y: 0, z: 0 };
     const numDirections = 20;
     const result: SphericalPoint[] = elevation.getMaxElevationAngles(elevations, observer, numDirections);
     console.log(result);

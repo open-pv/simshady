@@ -1,4 +1,4 @@
-import { Point, SphericalPoint } from './utils';
+import { CartesianPoint, SphericalPoint } from './utils';
 
 export function fillMissingAltitudes(maxAngles: SphericalPoint[]): void {
   // First copy the maxAngles to a newAngles list, so that changes
@@ -34,7 +34,7 @@ export function fillMissingAltitudes(maxAngles: SphericalPoint[]): void {
  * @param end
  * @returns azimuth from 0 to 2*PI and altitude from 0 to PI/2, where altitude = 0 is facing directly upwards
  */
-export function calculateSphericalCoordinates(start: Point, end: Point): { azimuth: number; altitude: number } {
+export function calculateSphericalCoordinates(start: CartesianPoint, end: CartesianPoint): { azimuth: number; altitude: number } {
   const dx = end.x - start.x;
   const dy = end.y - start.y;
   const dz = end.z - start.z;
@@ -58,7 +58,11 @@ export function calculateSphericalCoordinates(start: Point, end: Point): { azimu
  * @param numDirections Number of steps for the azimuth angle.
  * @returns
  */
-export function getMaxElevationAngles(elevation: Point[], observer: Point, numDirections: number = 360): SphericalPoint[] {
+export function getMaxElevationAngles(
+  elevation: CartesianPoint[],
+  observer: CartesianPoint,
+  numDirections: number = 360,
+): SphericalPoint[] {
   let maxAngles: SphericalPoint[] = Array.from({ length: numDirections }, (_, index) => ({
     radius: 1,
     azimuth: index * ((2 * Math.PI) / numDirections),

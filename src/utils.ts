@@ -25,8 +25,14 @@ export type SphericalPoint = {
   altitude: number;
   azimuth: number;
 };
-export type Point = {
+
+export type CartesianPoint = {
   x: number;
   y: number;
   z: number;
+};
+
+export type Point = {
+  cartesian: CartesianPoint;
+  spherical: SphericalPoint;
 };

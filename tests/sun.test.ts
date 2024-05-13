@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import * as sun from '../src/sun';
+import { CartesianPoint } from '../src/utils';
 
 const irradianceSpherical = {
   metadata: { description: '', latitude: 0, longitude: 0, samples_phi: 0, samples_theta: 0 },
@@ -47,38 +48,81 @@ const irradianceSpherical = {
   ],
 };
 
-const irradianceEuclidian = new Float32Array([0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 0, 4, 1, 0, 0, 0, 2, 0, -3, 0, 0, 0, -4, 0]);
+const irradianceEuclidian: CartesianPoint[] = [
+  {
+    x: 0,
+    y: 0,
+    z: 1,
+  },
+  {
+    x: 0,
+    y: 0,
+    z: 2,
+  },
+  {
+    x: 0,
+    y: 0,
+    z: 3,
+  },
+  {
+    x: 0,
+    y: 0,
+    z: 4,
+  },
+  {
+    x: 1,
+    y: 0,
+    z: 0,
+  },
+  {
+    x: 0,
+    y: 2,
+    z: 0,
+  },
+  {
+    x: -3,
+    y: 0,
+    z: 0,
+  },
+  {
+    x: 0,
+    y: -4,
+    z: 0,
+  },
+];
 
 describe('Test functionalities from sun.ts: ', () => {
   const N = 50;
   let vectors = sun.getRandomSunVectors(N, 0, 0);
   test('Get Correct number of positions for cartesian coordiantes.', () => {
-    expect(vectors.cartesian.length).toStrictEqual(N);
+    expect(vectors.length).toStrictEqual(N);
   });
   test('Get Correct number of positions for spherical coordiantes.', () => {
-    expect(vectors.spherical.length).toStrictEqual(N);
+    expect(vectors.length).toStrictEqual(N);
   });
   test('Get normalized sun vectors.', () => {
-    for (let obj of vectors.cartesian) {
-      let length = obj.x ** 2 + obj.y ** 2 + obj.z ** 2;
+    for (let obj of vectors) {
+      let length = obj.cartesian.x ** 2 + obj.cartesian.y ** 2 + obj.cartesian.z ** 2;
       expect(length).to.closeTo(1, 0.001);
     }
   });
   test('Sun is always above the horizon.', () => {
     for (let i = 0; i < N / 3; i++) {
-      let z = vectors.cartesian[i].z;
-      let altitude = vectors.spherical[i].altitude;
+      let z = vectors[i].cartesian.z;
+      let altitude = vectors[i].spherical.altitude;
       expect(z).toBeGreaterThan(0);
       expect(altitude).toBeGreaterThan(0);
     }
   });
   test('ConvertSpericalToEuclidian works right.', () => {
     const tolerance = 0.00001;
-    console.log(tolerance);
     const calculatedIrradianceEuclidian = sun.convertSpericalToEuclidian(irradianceSpherical);
     console.log(calculatedIrradianceEuclidian);
     const allClose = calculatedIrradianceEuclidian.every(
-      (value, index) => Math.abs(value - irradianceEuclidian[index]) <= tolerance,
+      (point, index) =>
+        Math.abs(point.cartesian.x - irradianceEuclidian[index].x) <= tolerance &&
+        Math.abs(point.cartesian.y - irradianceEuclidian[index].y) <= tolerance &&
+        Math.abs(point.cartesian.z - irradianceEuclidian[index].z) <= tolerance,
     );
     expect(allClose).toBe(true);
   });

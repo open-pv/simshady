@@ -5,7 +5,7 @@ import { viridis } from './colormaps';
 import * as elevation from './elevation';
 import * as sun from './sun';
 import * as triangleUtils from './triangleUtils.js';
-import { Point, isValidUrl } from './utils';
+import { CartesianPoint, Point, SphericalPoint, isValidUrl } from './utils';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
@@ -21,8 +21,8 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
 export default class Scene {
   simulationGeometries: Array<BufferGeometry>;
   shadingGeometries: Array<BufferGeometry>;
-  elevationRaster: Array<Point>;
-  elevationRasterMidpoint: Point;
+  elevationRaster: Array<CartesianPoint>;
+  elevationRasterMidpoint: CartesianPoint;
   latitude: number;
   longitude: number;
 
@@ -62,7 +62,7 @@ export default class Scene {
     this.shadingGeometries.push(geometry);
   }
 
-  addElevationRaster(raster: Point[], midpoint: Point) {
+  addElevationRaster(raster: CartesianPoint[], midpoint: CartesianPoint) {
     this.elevationRaster = raster;
     this.elevationRasterMidpoint = midpoint;
   }
@@ -195,7 +195,7 @@ export default class Scene {
    * @param normals normals for each midpoint
    * @param meshArray array of vertices for the shading mesh
    * @param numberSimulations number of random sun positions that are used for the simulation. Either numberSimulations or irradianceUrl need to be given.
-   * @param irradianceUrl url where a 2D json of irradiance values lies. To generate such a json, visit https://github.com/open-pv/irradiance
+   * @param diffuseIrradianceUrl url where a 2D json of irradiance values lies. To generate such a json, visit https://github.com/open-pv/irradiance
    * @return
    * @memberof Scene
    */
@@ -203,26 +203,28 @@ export default class Scene {
     midpoints: Float32Array,
     normals: TypedArray,
     meshArray: Float32Array,
-    numberSimulations: number | undefined,
-    irradianceUrl: string | undefined = undefined,
+    numberSimulations: number,
+    diffuseIrradianceUrl: string | undefined = undefined,
   ) {
-    let sunDirections: any;
-    if (typeof irradianceUrl === 'string' && isValidUrl(irradianceUrl)) {
-      const irradiance = await sun.fetchIrradiance(irradianceUrl, this.latitude, this.longitude);
-      sunDirections = sun.convertSpericalToEuclidian(irradiance);
-    } else if (typeof numberSimulations === 'undefined') {
-      throw new Error('Either number simulations or a valid irradianceUrl must be given.');
-    } else {
-      sunDirections = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
+    let directIrradiance: Point[] = [];
+    let diffuseIrradiance: Point[] = [];
+    let shadingElevationAngles: SphericalPoint[] = [];
+
+    if (typeof diffuseIrradianceUrl === 'string' && isValidUrl(diffuseIrradianceUrl)) {
+      const diffuseIrradianceSpherical = await sun.fetchIrradiance(diffuseIrradianceUrl, this.latitude, this.longitude);
+      diffuseIrradiance = sun.convertSpericalToEuclidian(diffuseIrradianceSpherical);
+    } else if (typeof diffuseIrradianceUrl != 'undefined') {
+      throw new Error('The given url for diffuse Irradiance is not valid.');
     }
+    directIrradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
     if (this.elevationRaster.length > 0) {
-      const shadingElevationAngles = elevation.getMaxElevationAngles(
-        this.elevationRaster,
-        this.elevationRasterMidpoint,
-        sunDirections.spherical.length / 2,
-      );
+      shadingElevationAngles = elevation.getMaxElevationAngles(this.elevationRaster, this.elevationRasterMidpoint, 360);
+      directIrradiance = sun.shadeIrradianceFromElevation(directIrradiance, shadingElevationAngles);
+      if (diffuseIrradiance.length > 0) {
+        diffuseIrradiance = sun.shadeIrradianceFromElevation(diffuseIrradiance, shadingElevationAngles);
+      }
     }
-    //TODO: add shading of elevation here
-    return rayTracingWebGL(midpoints, normals, meshArray, sunDirections);
+
+    return rayTracingWebGL(midpoints, normals, meshArray, directIrradiance);
   }
 }
