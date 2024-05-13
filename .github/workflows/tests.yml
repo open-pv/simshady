@@ -2,27 +2,28 @@ name: Unit tests
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
 
     strategy:
       matrix:
         node-version: [18.x, 20.x]
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
 
-    - name: Install dependencies
-      run: yarn install
+      - name: Install dependencies
+        run: yarn install
 
-    - name: Run Vitest
-      run: yarn test
+      - name: Run Vitest
+        run: yarn test
