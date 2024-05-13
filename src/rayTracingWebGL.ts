@@ -11,7 +11,8 @@ export function rayTracingWebGL(
   pointsArray: TypedArray,
   normals: TypedArray,
   trianglesArray: TypedArray,
-  sunDirections: Point[],
+  directRadiance: Point[],
+  diffuseRadiance: Point[],
 ): Float32Array | null {
   const N_TRIANGLES = trianglesArray.length / 9;
   const width = pointsArray.length / 3; // Change this to the number of horizontal points in the grid
@@ -179,14 +180,14 @@ export function rayTracingWebGL(
 
   var colorCodedArray = null;
   var isShadowedArray = null;
-  for (var i = 0; i < sunDirections.length; i += 1) {
-    console.log('Simulating sun position #', i, '/', sunDirections.length);
+  for (var i = 0; i < directRadiance.length; i += 1) {
+    console.log('Simulating sun position #', i, '/', directRadiance.length);
     // TODO: Iterate over sunDirection
     let sunDirectionUniformLocation = gl.getUniformLocation(program, 'u_sun_direction');
     gl.uniform3fv(sunDirectionUniformLocation, [
-      sunDirections[i].cartesian.x,
-      sunDirections[i].cartesian.y,
-      sunDirections[i].cartesian.z,
+      directRadiance[i].cartesian.x,
+      directRadiance[i].cartesian.y,
+      directRadiance[i].cartesian.z,
     ]);
 
     drawArraysWithTransformFeedback(gl, tf, gl.POINTS, N_POINTS);
