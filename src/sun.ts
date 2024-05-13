@@ -1,5 +1,5 @@
 import { getPosition } from 'suncalc';
-import { CartesianPoint, Point, SolarIrradianceData, SphericalPoint } from './utils';
+import { Point, SolarIrradianceData, SphericalPoint } from './utils';
 
 /**
  * Creates arrays of sun vectors. "cartesian" is a vector of length 3*Ndates where every three entries make up one vector.
@@ -82,6 +82,4 @@ export async function fetchIrradiance(baseUrl: string, lat: number, lon: number)
   }
 }
 
-export function shadeIrradianceFromElevation(directIrradiance: Point[], shadingElevationAngles: SphericalPoint[]): Point[] {
-  throw new Error('Function not implemented.');
-}
+export function shadeIrradianceFromElevation(directIrradiance: Point[], shadingElevationAngles: SphericalPoint[]): void {}

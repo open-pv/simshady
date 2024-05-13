@@ -219,12 +219,12 @@ export default class Scene {
     directIrradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
     if (this.elevationRaster.length > 0) {
       shadingElevationAngles = elevation.getMaxElevationAngles(this.elevationRaster, this.elevationRasterMidpoint, 360);
-      directIrradiance = sun.shadeIrradianceFromElevation(directIrradiance, shadingElevationAngles);
+      sun.shadeIrradianceFromElevation(directIrradiance, shadingElevationAngles);
       if (diffuseIrradiance.length > 0) {
-        diffuseIrradiance = sun.shadeIrradianceFromElevation(diffuseIrradiance, shadingElevationAngles);
+        sun.shadeIrradianceFromElevation(diffuseIrradiance, shadingElevationAngles);
       }
     }
 
-    return rayTracingWebGL(midpoints, normals, meshArray, directIrradiance);
+    return rayTracingWebGL(midpoints, normals, meshArray, directIrradiance, diffuseIrradiance);
   }
 }
