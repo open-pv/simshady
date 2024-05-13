@@ -5,7 +5,7 @@ import { viridis } from './colormaps';
 import * as elevation from './elevation';
 import * as sun from './sun';
 import * as triangleUtils from './triangleUtils.js';
-import { isValidUrl } from './utils';
+import { Point, SphericalPoint, isValidUrl } from './utils';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
@@ -21,8 +21,8 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
 export default class Scene {
   simulationGeometries: Array<BufferGeometry>;
   shadingGeometries: Array<BufferGeometry>;
-  elevationRaster: Array<elevation.Point>;
-  elevationRasterMidpoint: elevation.Point;
+  elevationRaster: Array<Point>;
+  elevationRasterMidpoint: Point;
   latitude: number;
   longitude: number;
 
@@ -62,7 +62,7 @@ export default class Scene {
     this.shadingGeometries.push(geometry);
   }
 
-  addElevationRaster(raster: elevation.Point[], midpoint: elevation.Point) {
+  addElevationRaster(raster: Point[], midpoint: Point) {
     this.elevationRaster = raster;
     this.elevationRasterMidpoint = midpoint;
   }
