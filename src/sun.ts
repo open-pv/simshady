@@ -78,7 +78,6 @@ export function convertSpericalToEuclidian(irradiance: SolarIrradianceData): Flo
 }
 
 export async function fetchIrradiance(baseUrl: string, lat: number, lon: number): Promise<SolarIrradianceData> {
-  //TODO: Implement fullURL from url, lat, lon
   const url = baseUrl + '/' + lat.toFixed(1) + '/' + lon.toFixed(1) + '.json';
   try {
     const response = await fetch(url);
