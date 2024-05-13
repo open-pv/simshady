@@ -42,8 +42,8 @@ describe('Test functionalities from sun.ts: ', () => {
     expect(allClose).toBe(true);
   });
   test('Fetch irradiance json from openpv url.', async () => {
-    const data = await sun.fetchIrradiance('https://www.openpv.de/data/irradiance', 50.0, 11.0);
+    const result = await sun.fetchIrradiance('https://www.openpv.de/data/irradiance', 50.0, 11.0);
 
-    expect(data.length).toBeGreaterThan(5);
+    expect(result.data.length).toBeGreaterThan(5);
   });
 });

@@ -68,7 +68,7 @@ export function convertSpericalToEuclidian(irradiance: number[][]): Float32Array
   return sunVectors;
 }
 
-export async function fetchIrradiance(baseUrl: string, lat: number, lon: number): Promise<number[][]> {
+export async function fetchIrradiance(baseUrl: string, lat: number, lon: number): Promise<{ [key: string]: any }> {
   //TODO: Implement fullURL from url, lat, lon
   const url = baseUrl + '/' + lat.toFixed(1) + '/' + lon.toFixed(1) + '.json';
   try {

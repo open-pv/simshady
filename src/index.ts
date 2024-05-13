@@ -209,7 +209,7 @@ export default class Scene {
     let sunDirections: any;
     if (typeof irradianceUrl === 'string' && isValidUrl(irradianceUrl)) {
       const irradiance = await sun.fetchIrradiance(irradianceUrl, this.latitude, this.longitude);
-      sunDirections = sun.convertSpericalToEuclidian(irradiance);
+      sunDirections = sun.convertSpericalToEuclidian(irradiance.data);
     } else if (typeof numberSimulations === 'undefined') {
       throw new Error('Either number simulations or a valid irradianceUrl must be given.');
     } else {
