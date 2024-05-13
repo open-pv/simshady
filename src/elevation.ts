@@ -60,6 +60,7 @@ export function calculateSphericalCoordinates(start: Point, end: Point): { azimu
  */
 export function getMaxElevationAngles(elevation: Point[], observer: Point, numDirections: number = 360): SphericalPoint[] {
   let maxAngles: SphericalPoint[] = Array.from({ length: numDirections }, (_, index) => ({
+    radius: 1,
     azimuth: index * ((2 * Math.PI) / numDirections),
     altitude: -Infinity,
   }));
