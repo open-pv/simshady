@@ -1,13 +1,4 @@
-export type Point = {
-  x: number;
-  y: number;
-  z: number;
-};
-
-export type SphericalPoint = {
-  altitude: number;
-  azimuth: number;
-};
+import { Point, SphericalPoint } from './utils';
 
 export function fillMissingAltitudes(maxAngles: SphericalPoint[]): void {
   // First copy the maxAngles to a newAngles list, so that changes

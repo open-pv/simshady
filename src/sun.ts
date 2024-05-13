@@ -1,19 +1,5 @@
 import { getPosition } from 'suncalc';
-
-type SolarIrradianceData = {
-  metadata: {
-    description: string;
-    latitude: number;
-    longitude: number;
-    samples_phi: number;
-    samples_theta: number;
-  };
-  data: Array<{
-    theta: number;
-    phi: number;
-    radiance: number;
-  }>;
-};
+import { SolarIrradianceData, SphericalPoint } from './utils';
 
 /**
  * Creates arrays of sun vectors. "cartesian" is a vector of length 3*Ndates where every three entries make up one vector.
