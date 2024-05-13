@@ -13,6 +13,7 @@ export function rayTracingWebGL(
   trianglesArray: TypedArray,
   directRadiance: Point[],
   diffuseRadiance: Point[],
+  progressCallback: (progress: number, total: number) => void,
 ): Float32Array | null {
   const N_TRIANGLES = trianglesArray.length / 9;
   const width = pointsArray.length / 3; // Change this to the number of horizontal points in the grid
@@ -180,8 +181,10 @@ export function rayTracingWebGL(
 
   var colorCodedArray = null;
   var isShadowedArray = null;
+
   for (var i = 0; i < directRadiance.length; i += 1) {
-    console.log('Simulating sun position #', i, '/', directRadiance.length);
+    progressCallback(i, sunDirections.length);
+
     // TODO: Iterate over sunDirection
     let sunDirectionUniformLocation = gl.getUniformLocation(program, 'u_sun_direction');
     gl.uniform3fv(sunDirectionUniformLocation, [

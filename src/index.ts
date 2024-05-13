@@ -104,7 +104,13 @@ export default class Scene {
    * @param numberSimulations Number of random sun positions that are used to calculate the PV yield
    * @returns
    */
-  async calculate(numberSimulations: number = 80, irradianceUrl: string | undefined) {
+
+  async calculate(
+    numberSimulations: number = 80,
+    irradianceUrl: string | undefined
+    progressCallback: (progress: number, total: number) => void = (progress, total) =>
+      console.log(`Progress: ${progress}/${total}%`),
+  ) {
     console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
@@ -141,7 +147,8 @@ export default class Scene {
       }
     }
     // Compute unique intensities
-    const intensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, numberSimulations, irradianceUrl);
+
+    const intensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, numberSimulations, irradianceUrl, progressCallback);
 
     if (intensities === null) {
       throw new Error('Error raytracing in WebGL.');
@@ -205,6 +212,7 @@ export default class Scene {
     meshArray: Float32Array,
     numberSimulations: number,
     diffuseIrradianceUrl: string | undefined = undefined,
+    progressCallback: (progress: number, total: number) => void,
   ) {
     let directIrradiance: Point[] = [];
     let diffuseIrradiance: Point[] = [];
@@ -225,6 +233,6 @@ export default class Scene {
       }
     }
 
-    return rayTracingWebGL(midpoints, normals, meshArray, directIrradiance, diffuseIrradiance);
+    return rayTracingWebGL(midpoints, normals, meshArray, directIrradiance, diffuseIrradiance, progressCallback);
   }
 }
