@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { BufferAttribute, BufferGeometry, TypedArray } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { viridis } from './colormaps';
-import { convertSpericalToEuclidian, fetchIrradiance, getRandomSunVectors } from './sun';
+import * as elevation from './elevation';
+import * as sun from './sun';
 import * as triangleUtils from './triangleUtils.js';
 import { isValidUrl } from './utils';
 
@@ -20,6 +21,8 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
 export default class Scene {
   simulationGeometries: Array<BufferGeometry>;
   shadingGeometries: Array<BufferGeometry>;
+  elevationRaster: Array<elevation.Point>;
+  elevationRasterMidpoint: elevation.Point;
   latitude: number;
   longitude: number;
 
@@ -31,6 +34,8 @@ export default class Scene {
   constructor(latitude: number, longitude: number) {
     this.simulationGeometries = [];
     this.shadingGeometries = [];
+    this.elevationRaster = [];
+    this.elevationRasterMidpoint = { x: 0, y: 0, z: 0 };
     this.latitude = latitude;
     this.longitude = longitude;
   }
@@ -55,6 +60,11 @@ export default class Scene {
    */
   addShadingGeometry(geometry: BufferGeometry) {
     this.shadingGeometries.push(geometry);
+  }
+
+  addElevationRaster(raster: elevation.Point[], midpoint: elevation.Point) {
+    this.elevationRaster = raster;
+    this.elevationRasterMidpoint = midpoint;
   }
 
   /** @ignore */
@@ -98,6 +108,7 @@ export default class Scene {
     console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
+
     // TODO: This breaks everything, why?
     simulationGeometry = this.refineMesh(simulationGeometry, 0.5); // TODO: make configurable
 
@@ -195,15 +206,23 @@ export default class Scene {
     numberSimulations: number | undefined,
     irradianceUrl: string | undefined = undefined,
   ) {
+    let sunDirections: any;
     if (typeof irradianceUrl === 'string' && isValidUrl(irradianceUrl)) {
-      const irradiance = await fetchIrradiance(irradianceUrl, this.latitude, this.longitude);
-      const sunDirections = convertSpericalToEuclidian(irradiance);
-      return rayTracingWebGL(midpoints, normals, meshArray, sunDirections);
+      const irradiance = await sun.fetchIrradiance(irradianceUrl, this.latitude, this.longitude);
+      sunDirections = sun.convertSpericalToEuclidian(irradiance);
     } else if (typeof numberSimulations === 'undefined') {
       throw new Error('Either number simulations or a valid irradianceUrl must be given.');
     } else {
-      let sunDirections = getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
-      return rayTracingWebGL(midpoints, normals, meshArray, sunDirections);
+      sunDirections = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
     }
+    if (this.elevationRaster.length > 0) {
+      const shadingElevationAngles = elevation.getMaxElevationAngles(
+        this.elevationRaster,
+        this.elevationRasterMidpoint,
+        sunDirections.spherical.length / 2,
+      );
+    }
+    //TODO: add shading of elevation here
+    return rayTracingWebGL(midpoints, normals, meshArray, sunDirections);
   }
 }
