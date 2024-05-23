@@ -1,4 +1,4 @@
-import { getPosition } from 'suncalc';
+import SunCalc from 'suncalc';
 import { Point, SolarIrradianceData, SphericalPoint } from './utils';
 
 /**
@@ -10,18 +10,17 @@ import { Point, SolarIrradianceData, SphericalPoint } from './utils';
  * @returns
  */
 export function getRandomSunVectors(Ndates: number, lat: number, lon: number): Point[] {
-  const sunVectors: Point[] = [];
+  let sunVectors: Point[] = [];
 
-  var i = 0;
+  let i: number = 0;
   while (i < Ndates) {
     let date = getRandomDate(new Date(2023, 1, 1), new Date(2023, 12, 31));
 
-    const posSpherical = getPosition(date, lat, lon);
+    const posSpherical = SunCalc.getPosition(date, lat, lon);
     // pos.altitude: sun altitude above the horizon in radians,
     //   e.g. 0 at the horizon and PI/2 at the zenith (straight over your head)
     // pos. azimuth: sun azimuth in radians (direction along the horizon, measured
     //   from south to west), e.g. 0 is south and Math.PI * 3/4 is northwest
-
     if (posSpherical.altitude < 0.1 || isNaN(posSpherical.altitude)) {
       continue;
     }
@@ -37,7 +36,7 @@ export function getRandomSunVectors(Ndates: number, lat: number, lon: number): P
         azimuth: posSpherical.azimuth,
       },
     });
-    i += 1;
+    i++;
   }
   return sunVectors;
 }
