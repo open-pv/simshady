@@ -12,13 +12,13 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
 
 /**
  * This class holds all information about the scene that is simulated.
- * A scene is typically equipped with the following attributes:
+ * A ShadingScene is typically equipped with the following attributes:
  * * A pair of coordinates to locate the scene
  * * Simulation geometries, where the PV potential is calculated
  * * Shading geometries, where no PV potential is calculated but which are
  *   responsible for shading
  */
-export default class Scene {
+export default class ShadingScene {
   simulationGeometries: Array<BufferGeometry>;
   shadingGeometries: Array<BufferGeometry>;
   elevationRaster: Array<CartesianPoint>;
@@ -32,6 +32,9 @@ export default class Scene {
    * @param longitude Longitude of the midpoint of the scene.
    */
   constructor(latitude: number, longitude: number) {
+    if (latitude === undefined || longitude === undefined) {
+      throw new Error('Latitude and Longitude must be defined');
+    }
     this.simulationGeometries = [];
     this.shadingGeometries = [];
     this.elevationRaster = [];
@@ -147,6 +150,7 @@ export default class Scene {
       }
     }
     // Compute unique intensities
+    console.log('Calling this.rayTrace');
 
     const intensities = await this.rayTrace(
       midpointsArray,
@@ -174,10 +178,10 @@ export default class Scene {
       intensities[i] /= numberSimulations;
     }
 
-    return this.show(simulationGeometry, intensities);
+    return this.createMesh(simulationGeometry, intensities);
   }
   /** @ignore */
-  show(subdividedGeometry: BufferGeometry, intensities: Float32Array) {
+  createMesh(subdividedGeometry: BufferGeometry, intensities: Float32Array): THREE.Mesh {
     const Npoints = subdividedGeometry.attributes.position.array.length / 9;
     var newColors = new Float32Array(Npoints * 9);
     for (var i = 0; i < Npoints; i++) {
@@ -218,7 +222,7 @@ export default class Scene {
     normals: TypedArray,
     meshArray: Float32Array,
     numberSimulations: number,
-    diffuseIrradianceUrl: string | undefined = undefined,
+    diffuseIrradianceUrl: string | undefined,
     progressCallback: (progress: number, total: number) => void,
   ) {
     let directIrradiance: Point[] = [];
@@ -231,7 +235,9 @@ export default class Scene {
     } else if (typeof diffuseIrradianceUrl != 'undefined') {
       throw new Error('The given url for diffuse Irradiance is not valid.');
     }
+    console.log('Calling getRandomSunVectors');
     directIrradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
+    console.log(directIrradiance);
     if (this.elevationRaster.length > 0) {
       shadingElevationAngles = elevation.getMaxElevationAngles(this.elevationRaster, this.elevationRasterMidpoint, 360);
       sun.shadeIrradianceFromElevation(directIrradiance, shadingElevationAngles);
@@ -239,7 +245,7 @@ export default class Scene {
         sun.shadeIrradianceFromElevation(diffuseIrradiance, shadingElevationAngles);
       }
     }
-
+    console.log('Calling rayTracingWebGL');
     return rayTracingWebGL(midpoints, normals, meshArray, directIrradiance, diffuseIrradiance, progressCallback);
   }
 }
