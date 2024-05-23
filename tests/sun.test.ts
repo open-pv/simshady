@@ -117,7 +117,6 @@ describe('Test functionalities from sun.ts: ', () => {
   test('ConvertSpericalToEuclidian works right.', () => {
     const tolerance = 0.00001;
     const calculatedIrradianceEuclidian = sun.convertSpericalToEuclidian(irradianceSpherical);
-    console.log(calculatedIrradianceEuclidian);
     const allClose = calculatedIrradianceEuclidian.every(
       (point, index) =>
         Math.abs(point.cartesian.x - irradianceEuclidian[index].x) <= tolerance &&

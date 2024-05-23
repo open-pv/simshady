@@ -56,7 +56,6 @@ describe('getMaxElevationAngles', () => {
     const observer: CartesianPoint = { x: 0, y: 0, z: 0 };
     const numDirections = 20;
     const result: SphericalPoint[] = elevation.getMaxElevationAngles(elevations, observer, numDirections);
-    console.log(result);
     expect(result).to.be.an('array').that.has.lengthOf(numDirections);
   });
 });
