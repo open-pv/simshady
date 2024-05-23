@@ -71,7 +71,6 @@ export function getMaxElevationAngles(
 
   for (let point of elevation) {
     const { azimuth, altitude } = calculateSphericalCoordinates(observer, point);
-    console.log(azimuth, altitude);
     const closestIndex = Math.round(azimuth / ((2 * Math.PI) / numDirections)) % numDirections;
 
     if (altitude > maxAngles[closestIndex].altitude) {
