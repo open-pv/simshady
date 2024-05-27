@@ -1,5 +1,5 @@
 import SunCalc from 'suncalc';
-import { Point, SolarIrradianceData, SphericalPoint } from './utils';
+import { Point, SolarIrradianceData, SphericalPoint, SunVector } from './utils';
 
 /**
  * Creates arrays of sun vectors. "cartesian" is a vector of length 3*Ndates where every three entries make up one vector.
@@ -9,8 +9,8 @@ import { Point, SolarIrradianceData, SphericalPoint } from './utils';
  * @param lon
  * @returns
  */
-export function getRandomSunVectors(Ndates: number, lat: number, lon: number): Point[] {
-  let sunVectors: Point[] = [];
+export function getRandomSunVectors(Ndates: number, lat: number, lon: number): SunVector[] {
+  let sunVectors: SunVector[] = [];
 
   let i: number = 0;
   while (i < Ndates) {
@@ -25,16 +25,19 @@ export function getRandomSunVectors(Ndates: number, lat: number, lon: number): P
       continue;
     }
     sunVectors.push({
-      cartesian: {
-        x: -Math.cos(posSpherical.altitude) * Math.sin(posSpherical.azimuth),
-        y: -Math.cos(posSpherical.altitude) * Math.cos(posSpherical.azimuth),
-        z: Math.sin(posSpherical.altitude),
+      vector: {
+        cartesian: {
+          x: -Math.cos(posSpherical.altitude) * Math.sin(posSpherical.azimuth),
+          y: -Math.cos(posSpherical.altitude) * Math.cos(posSpherical.azimuth),
+          z: Math.sin(posSpherical.altitude),
+        },
+        spherical: {
+          radius: 1,
+          altitude: posSpherical.altitude,
+          azimuth: posSpherical.azimuth,
+        },
       },
-      spherical: {
-        radius: 1,
-        altitude: posSpherical.altitude,
-        azimuth: posSpherical.azimuth,
-      },
+      isShadedByElevation: false,
     });
     i++;
   }
@@ -50,17 +53,20 @@ function getRandomDate(start: Date, end: Date): Date {
  * @param irradiance Vector of shape N_altitude x N_azimuth
  * @returns Vector of shape 3 x  N_altitude x N_azimuth
  */
-export function convertSpericalToEuclidian(irradiance: SolarIrradianceData): Point[] {
-  const sunVectors: Point[] = [];
+export function convertSpericalToEuclidian(irradiance: SolarIrradianceData): SunVector[] {
+  const sunVectors: SunVector[] = [];
 
   for (let obj of irradiance.data) {
     sunVectors.push({
-      cartesian: {
-        x: obj.radiance * Math.sin(obj.theta) * Math.cos(obj.phi),
-        y: obj.radiance * Math.sin(obj.theta) * Math.sin(obj.phi),
-        z: obj.radiance * Math.cos(obj.theta),
+      vector: {
+        cartesian: {
+          x: obj.radiance * Math.sin(obj.theta) * Math.cos(obj.phi),
+          y: obj.radiance * Math.sin(obj.theta) * Math.sin(obj.phi),
+          z: obj.radiance * Math.cos(obj.theta),
+        },
+        spherical: { radius: obj.radiance, azimuth: obj.phi, altitude: obj.theta },
       },
-      spherical: { radius: obj.radiance, azimuth: obj.phi, altitude: obj.theta },
+      isShadedByElevation: false,
     });
   }
   return sunVectors;
@@ -81,4 +87,24 @@ export async function fetchIrradiance(baseUrl: string, lat: number, lon: number)
   }
 }
 
-export function shadeIrradianceFromElevation(directIrradiance: Point[], shadingElevationAngles: SphericalPoint[]): void {}
+export function shadeIrradianceFromElevation(Irradiance: SunVector[], shadingElevationAngles: SphericalPoint[]): void {
+  console.log('shadingElevationAngles', shadingElevationAngles);
+
+  function findShadingElevation(azimuth: number): SphericalPoint {
+    return shadingElevationAngles.reduce((prev, curr) =>
+      Math.abs(curr.azimuth - azimuth) < Math.abs(prev.azimuth - azimuth) ? curr : prev,
+    );
+  }
+
+  for (let i = Irradiance.length - 1; i >= 0; i--) {
+    const point = Irradiance[i];
+    const shadingElevation = findShadingElevation(point.vector.spherical.azimuth);
+    console.log('point', point);
+    console.log('shadingElevation', shadingElevation);
+    if (shadingElevation && point.vector.spherical.altitude < shadingElevation.altitude) {
+      Irradiance[i].isShadedByElevation = true;
+    }
+  }
+  console.log('Irradiance after ELevation');
+  console.log(Irradiance);
+}

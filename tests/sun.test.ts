@@ -102,14 +102,14 @@ describe('Test functionalities from sun.ts: ', () => {
   });
   test('Get normalized sun vectors.', () => {
     for (let obj of vectors) {
-      let length = obj.cartesian.x ** 2 + obj.cartesian.y ** 2 + obj.cartesian.z ** 2;
+      let length = obj.vector.cartesian.x ** 2 + obj.vector.cartesian.y ** 2 + obj.vector.cartesian.z ** 2;
       expect(length).to.closeTo(1, 0.001);
     }
   });
   test('Sun is always above the horizon.', () => {
     for (let i = 0; i < N / 3; i++) {
-      let z = vectors[i].cartesian.z;
-      let altitude = vectors[i].spherical.altitude;
+      let z = vectors[i].vector.cartesian.z;
+      let altitude = vectors[i].vector.spherical.altitude;
       expect(z).toBeGreaterThan(0);
       expect(altitude).toBeGreaterThan(0);
     }
@@ -119,9 +119,9 @@ describe('Test functionalities from sun.ts: ', () => {
     const calculatedIrradianceEuclidian = sun.convertSpericalToEuclidian(irradianceSpherical);
     const allClose = calculatedIrradianceEuclidian.every(
       (point, index) =>
-        Math.abs(point.cartesian.x - irradianceEuclidian[index].x) <= tolerance &&
-        Math.abs(point.cartesian.y - irradianceEuclidian[index].y) <= tolerance &&
-        Math.abs(point.cartesian.z - irradianceEuclidian[index].z) <= tolerance,
+        Math.abs(point.vector.cartesian.x - irradianceEuclidian[index].x) <= tolerance &&
+        Math.abs(point.vector.cartesian.y - irradianceEuclidian[index].y) <= tolerance &&
+        Math.abs(point.vector.cartesian.z - irradianceEuclidian[index].z) <= tolerance,
     );
     expect(allClose).toBe(true);
   });

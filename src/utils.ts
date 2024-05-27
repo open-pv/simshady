@@ -36,3 +36,8 @@ export type Point = {
   cartesian: CartesianPoint;
   spherical: SphericalPoint;
 };
+
+export type SunVector = {
+  vector: Point;
+  isShadedByElevation: boolean;
+};

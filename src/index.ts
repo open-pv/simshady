@@ -5,7 +5,7 @@ import { viridis } from './colormaps';
 import * as elevation from './elevation';
 import * as sun from './sun';
 import * as triangleUtils from './triangleUtils.js';
-import { CartesianPoint, Point, SphericalPoint, isValidUrl } from './utils';
+import { CartesianPoint, Point, SphericalPoint, SunVector, isValidUrl } from './utils';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
@@ -225,8 +225,8 @@ export default class ShadingScene {
     diffuseIrradianceUrl: string | undefined,
     progressCallback: (progress: number, total: number) => void,
   ) {
-    let directIrradiance: Point[] = [];
-    let diffuseIrradiance: Point[] = [];
+    let directIrradiance: SunVector[] = [];
+    let diffuseIrradiance: SunVector[] = [];
     let shadingElevationAngles: SphericalPoint[] = [];
 
     if (typeof diffuseIrradianceUrl === 'string' && isValidUrl(diffuseIrradianceUrl)) {
@@ -239,7 +239,7 @@ export default class ShadingScene {
     directIrradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
     console.log(directIrradiance);
     if (this.elevationRaster.length > 0) {
-      shadingElevationAngles = elevation.getMaxElevationAngles(this.elevationRaster, this.elevationRasterMidpoint, 360);
+      shadingElevationAngles = elevation.getMaxElevationAngles(this.elevationRaster, this.elevationRasterMidpoint, 60);
       sun.shadeIrradianceFromElevation(directIrradiance, shadingElevationAngles);
       if (diffuseIrradiance.length > 0) {
         sun.shadeIrradianceFromElevation(diffuseIrradiance, shadingElevationAngles);
