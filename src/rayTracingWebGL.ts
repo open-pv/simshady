@@ -183,6 +183,9 @@ export function rayTracingWebGL(
   var isShadowedArray = null;
 
   for (var i = 0; i < directRadiance.length; i += 1) {
+    if (directRadiance[i].isShadedByElevation) {
+      continue;
+    }
     progressCallback(i, directRadiance.length);
 
     // TODO: Iterate over sunDirection
