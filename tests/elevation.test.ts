@@ -62,7 +62,6 @@ describe('getMaxElevationAngles', () => {
     const observer: CartesianPoint = { x: 0, y: 0, z: 0 };
     const numDirections = elevations.length;
     const result: SphericalPoint[] = elevation.getMaxElevationAngles(elevations, observer, numDirections);
-    console.log(result);
     expect(result).to.be.an('array').that.has.lengthOf(numDirections);
     result.forEach((point, index) => {
       expect(point.azimuth).toBeCloseTo(expectedResult[index].azimuth);
