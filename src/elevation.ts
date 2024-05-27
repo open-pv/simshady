@@ -29,25 +29,25 @@ export function fillMissingAltitudes(maxAngles: SphericalPoint[]): void {
 }
 
 /**
- *
+ * Returns the vector from start to end in the Horizontal coordinate system
  * @param start
  * @param end
- * @returns azimuth from 0 to 2*PI and altitude from 0 to PI/2, where altitude = 0 is facing directly upwards
+ * @returns
  */
-export function calculateSphericalCoordinates(start: CartesianPoint, end: CartesianPoint): { azimuth: number; altitude: number } {
+export function calculateSphericalCoordinates(start: CartesianPoint, end: CartesianPoint): SphericalPoint {
   const dx = end.x - start.x;
   const dy = end.y - start.y;
   const dz = end.z - start.z;
-
-  const r = Math.sqrt(dx * dx + dy * dy + dz * dz);
-  const altitude = Math.acos(dz / r);
-  let azimuth = Math.atan2(dy, dx);
-
-  if (azimuth < 0) {
-    azimuth += 2 * Math.PI; // Adjust azimuth to be from 0 to 2PI
+  if (dx == 0 && dy == 0) {
+    return { radius: 1, azimuth: 0, altitude: 0 };
   }
 
-  return { azimuth, altitude };
+  const r = Math.sqrt(dx * dx + dy * dy + dz * dz);
+  const altitude = Math.asin(dz / r);
+
+  let azimuth = (2 * Math.PI - Math.atan2(dy, dx)) % (2 * Math.PI);
+
+  return { radius: 1, azimuth, altitude };
 }
 
 /**
@@ -61,7 +61,7 @@ export function calculateSphericalCoordinates(start: CartesianPoint, end: Cartes
 export function getMaxElevationAngles(
   elevation: CartesianPoint[],
   observer: CartesianPoint,
-  numDirections: number = 360,
+  numDirections: number,
 ): SphericalPoint[] {
   let maxAngles: SphericalPoint[] = Array.from({ length: numDirections }, (_, index) => ({
     radius: 1,
@@ -72,7 +72,6 @@ export function getMaxElevationAngles(
   for (let point of elevation) {
     const { azimuth, altitude } = calculateSphericalCoordinates(observer, point);
     const closestIndex = Math.round(azimuth / ((2 * Math.PI) / numDirections)) % numDirections;
-
     if (altitude > maxAngles[closestIndex].altitude) {
       maxAngles[closestIndex].altitude = altitude;
     }

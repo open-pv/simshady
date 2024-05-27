@@ -20,12 +20,25 @@ export type SolarIrradianceData = {
     radiance: number;
   }>;
 };
+
+/**
+ * Spherical Coordinate of a point.
+ *
+ * Azimuth = 0 is North, Azimuth = PI/2 is East.
+ *
+ * Altitude = 0 is the horizon, Altitude = PI/2 is upwards / Zenith.
+ */
 export type SphericalPoint = {
   radius: number;
   altitude: number;
   azimuth: number;
 };
 
+/**
+ * Cartesian Coordinate of a point.
+ *
+ * Positive X-Axis is north.
+ */
 export type CartesianPoint = {
   x: number;
   y: number;

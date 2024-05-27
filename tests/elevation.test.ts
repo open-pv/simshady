@@ -6,14 +6,14 @@ describe('calculateSphericalCoordinates', () => {
   test('should calculate the correct spherical coordinates', () => {
     const start = { x: 0, y: 0, z: 0 };
     const ends = [
-      { x: 0, y: 0, z: 1 },
+      { x: 0, y: 1, z: 1 },
       { x: 1, y: 0, z: 1 },
       { x: 0, y: -1, z: 1 },
     ];
     const expectedResults = [
-      { altitude: 0, azimuth: 0 },
-      { altitude: Math.PI / 4, azimuth: 0 },
       { altitude: Math.PI / 4, azimuth: (3 / 2) * Math.PI },
+      { altitude: Math.PI / 4, azimuth: 0 },
+      { altitude: Math.PI / 4, azimuth: (1 / 2) * Math.PI },
     ];
 
     ends.forEach((end, index) => {
@@ -48,14 +48,25 @@ describe('fillMissingAltitudes', () => {
 describe('getMaxElevationAngles', () => {
   test('should correctly calculate the maximum elevation angles for given elevation points and observer', () => {
     const elevations: CartesianPoint[] = [
-      { x: 1, y: 1, z: 2 },
-      { x: 1, y: -1, z: 4 },
-      { x: -1, y: -1, z: 6 },
-      { x: -1, y: 1, z: 8 },
+      { x: 1, y: 0, z: 1 },
+      { x: 0, y: -1, z: 1 },
+      { x: -1, y: 0, z: 1 },
+      { x: 0, y: 1, z: 1 },
+    ];
+    const expectedResult: SphericalPoint[] = [
+      { radius: 1, altitude: Math.PI / 4, azimuth: 0 },
+      { radius: 1, altitude: Math.PI / 4, azimuth: Math.PI / 2 },
+      { radius: 1, altitude: Math.PI / 4, azimuth: Math.PI },
+      { radius: 1, altitude: Math.PI / 4, azimuth: (3 * Math.PI) / 2 },
     ];
     const observer: CartesianPoint = { x: 0, y: 0, z: 0 };
-    const numDirections = 20;
+    const numDirections = elevations.length;
     const result: SphericalPoint[] = elevation.getMaxElevationAngles(elevations, observer, numDirections);
+    console.log(result);
     expect(result).to.be.an('array').that.has.lengthOf(numDirections);
+    result.forEach((point, index) => {
+      expect(point.azimuth).toBeCloseTo(expectedResult[index].azimuth);
+      expect(point.altitude).toBeCloseTo(expectedResult[index].altitude);
+    });
   });
 });

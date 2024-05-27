@@ -25,6 +25,7 @@ export default class ShadingScene {
   elevationRasterMidpoint: CartesianPoint;
   latitude: number;
   longitude: number;
+  elevationAzimuthDivisions: number;
 
   /**
    *
@@ -41,6 +42,7 @@ export default class ShadingScene {
     this.elevationRasterMidpoint = { x: 0, y: 0, z: 0 };
     this.latitude = latitude;
     this.longitude = longitude;
+    this.elevationAzimuthDivisions = 60;
   }
 
   /**
@@ -65,7 +67,8 @@ export default class ShadingScene {
     this.shadingGeometries.push(geometry);
   }
 
-  addElevationRaster(raster: CartesianPoint[], midpoint: CartesianPoint) {
+  addElevationRaster(raster: CartesianPoint[], midpoint: CartesianPoint, azimuthDivisions: number) {
+    this.elevationAzimuthDivisions = azimuthDivisions;
     this.elevationRaster = raster;
     this.elevationRasterMidpoint = midpoint;
   }
@@ -239,7 +242,11 @@ export default class ShadingScene {
     directIrradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
     console.log(directIrradiance);
     if (this.elevationRaster.length > 0) {
-      shadingElevationAngles = elevation.getMaxElevationAngles(this.elevationRaster, this.elevationRasterMidpoint, 60);
+      shadingElevationAngles = elevation.getMaxElevationAngles(
+        this.elevationRaster,
+        this.elevationRasterMidpoint,
+        this.elevationAzimuthDivisions,
+      );
       sun.shadeIrradianceFromElevation(directIrradiance, shadingElevationAngles);
       if (diffuseIrradiance.length > 0) {
         sun.shadeIrradianceFromElevation(diffuseIrradiance, shadingElevationAngles);

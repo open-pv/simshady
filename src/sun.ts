@@ -88,8 +88,6 @@ export async function fetchIrradiance(baseUrl: string, lat: number, lon: number)
 }
 
 export function shadeIrradianceFromElevation(Irradiance: SunVector[], shadingElevationAngles: SphericalPoint[]): void {
-  console.log('shadingElevationAngles', shadingElevationAngles);
-
   function findShadingElevation(azimuth: number): SphericalPoint {
     return shadingElevationAngles.reduce((prev, curr) =>
       Math.abs(curr.azimuth - azimuth) < Math.abs(prev.azimuth - azimuth) ? curr : prev,
@@ -99,12 +97,8 @@ export function shadeIrradianceFromElevation(Irradiance: SunVector[], shadingEle
   for (let i = Irradiance.length - 1; i >= 0; i--) {
     const point = Irradiance[i];
     const shadingElevation = findShadingElevation(point.vector.spherical.azimuth);
-    console.log('point', point);
-    console.log('shadingElevation', shadingElevation);
     if (shadingElevation && point.vector.spherical.altitude < shadingElevation.altitude) {
       Irradiance[i].isShadedByElevation = true;
     }
   }
-  console.log('Irradiance after ELevation');
-  console.log(Irradiance);
 }
