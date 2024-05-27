@@ -66,7 +66,14 @@ export default class ShadingScene {
   addShadingGeometry(geometry: BufferGeometry) {
     this.shadingGeometries.push(geometry);
   }
-
+  /**
+   * IMPORTANT: Make sure that the DEM and the building mesh are in the same units, for example 1 step in
+   * DEM coordinates should be equal to 1 step in the SimulationGeometry coordinates.
+   * @param raster List of Points with x,y,z coordinates, representing a digital elevation model (DEM)
+   * @param midpoint The point of the observer, ie the center of the building
+   * @param azimuthDivisions Number of divisions of the azimuth Angle, i.e. the list of the azimuth
+   * angle will be [0, ..., 2Pi] where the list has a lenght of azimuthDivisions
+   */
   addElevationRaster(raster: CartesianPoint[], midpoint: CartesianPoint, azimuthDivisions: number) {
     this.elevationAzimuthDivisions = azimuthDivisions;
     this.elevationRaster = raster;
