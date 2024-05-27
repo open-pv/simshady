@@ -10,7 +10,7 @@ npm i @openpv/simshady
 ```
 
 ## Usage
-We publish our documentation at open-pv.github.io/simshady/. Additionally, we have built a minimal vite webapp to showcase the most relevant features. Check out its source code [here](https://github.com/open-pv/minimalApp).
+We publish our documentation at https://open-pv.github.io/simshady/. Additionally, we have built a minimal vite webapp to showcase the most relevant features. Check out its source code [here](https://github.com/open-pv/minimalApp).
 
 ## Team
 <table>
