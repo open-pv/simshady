@@ -246,6 +246,7 @@ export default class ShadingScene {
       }
     }
     console.log('Calling rayTracingWebGL');
+    normals = normals.filter((_, index) => index % 9 < 3);
     return rayTracingWebGL(midpoints, normals, meshArray, directIrradiance, diffuseIrradiance, progressCallback);
   }
 }
