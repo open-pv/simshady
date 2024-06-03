@@ -21,11 +21,7 @@ It always has the format `MAJOR.MINOR.PATCH`, e.g. `1.5.0`.
 - `📝package.json`
   - Update `version`
 
-### 3. 🐙 Update `Documentation`
-
-- Navigate to github workflows and manually start the process to generate and host the new documentation page
-
-### 4. 🐙 Publish `Release` on GitHub and NPM
+### 3. 🐙 Publish `Release` on GitHub and NPM
 
 - Navigate to your releases on GitHub and open your draft release.
 - Summarize key changes in the description
