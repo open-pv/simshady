@@ -2,26 +2,30 @@ import * as THREE from 'three';
 import { BufferAttribute, BufferGeometry, TypedArray } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { viridis } from './colormaps';
-import { getRandomSunVectors } from './sun';
+import * as elevation from './elevation';
+import * as sun from './sun';
 import * as triangleUtils from './triangleUtils.js';
-import { ArrayType, Triangle } from './triangleUtils.js';
+import { CartesianPoint, Point, SphericalPoint, SunVector, isValidUrl } from './utils';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
 
 /**
  * This class holds all information about the scene that is simulated.
- * A scene is typically equipped with the following attributes:
+ * A ShadingScene is typically equipped with the following attributes:
  * * A pair of coordinates to locate the scene
  * * Simulation geometries, where the PV potential is calculated
  * * Shading geometries, where no PV potential is calculated but which are
  *   responsible for shading
  */
-export default class Scene {
+export default class ShadingScene {
   simulationGeometries: Array<BufferGeometry>;
   shadingGeometries: Array<BufferGeometry>;
+  elevationRaster: Array<CartesianPoint>;
+  elevationRasterMidpoint: CartesianPoint;
   latitude: number;
   longitude: number;
+  elevationAzimuthDivisions: number;
 
   /**
    *
@@ -29,10 +33,16 @@ export default class Scene {
    * @param longitude Longitude of the midpoint of the scene.
    */
   constructor(latitude: number, longitude: number) {
+    if (latitude === undefined || longitude === undefined) {
+      throw new Error('Latitude and Longitude must be defined');
+    }
     this.simulationGeometries = [];
     this.shadingGeometries = [];
+    this.elevationRaster = [];
+    this.elevationRasterMidpoint = { x: 0, y: 0, z: 0 };
     this.latitude = latitude;
     this.longitude = longitude;
+    this.elevationAzimuthDivisions = 60;
   }
 
   /**
@@ -55,6 +65,19 @@ export default class Scene {
    */
   addShadingGeometry(geometry: BufferGeometry) {
     this.shadingGeometries.push(geometry);
+  }
+  /**
+   * IMPORTANT: Make sure that the DEM and the building mesh are in the same units, for example 1 step in
+   * DEM coordinates should be equal to 1 step in the SimulationGeometry coordinates.
+   * @param raster List of Points with x,y,z coordinates, representing a digital elevation model (DEM)
+   * @param midpoint The point of the observer, ie the center of the building
+   * @param azimuthDivisions Number of divisions of the azimuth Angle, i.e. the list of the azimuth
+   * angle will be [0, ..., 2Pi] where the list has a lenght of azimuthDivisions
+   */
+  addElevationRaster(raster: CartesianPoint[], midpoint: CartesianPoint, azimuthDivisions: number) {
+    this.elevationAzimuthDivisions = azimuthDivisions;
+    this.elevationRaster = raster;
+    this.elevationRasterMidpoint = midpoint;
   }
 
   /** @ignore */
@@ -94,14 +117,17 @@ export default class Scene {
    * @param numberSimulations Number of random sun positions that are used to calculate the PV yield
    * @returns
    */
+
   async calculate(
     numberSimulations: number = 80,
+    irradianceUrl: string | undefined,
     progressCallback: (progress: number, total: number) => void = (progress, total) =>
       console.log(`Progress: ${progress}/${total}%`),
   ) {
     console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
+
     // TODO: This breaks everything, why?
     simulationGeometry = this.refineMesh(simulationGeometry, 0.5); // TODO: make configurable
 
@@ -134,7 +160,16 @@ export default class Scene {
       }
     }
     // Compute unique intensities
-    const intensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, numberSimulations, progressCallback);
+    console.log('Calling this.rayTrace');
+
+    const intensities = await this.rayTrace(
+      midpointsArray,
+      normalsArray,
+      meshArray,
+      numberSimulations,
+      irradianceUrl,
+      progressCallback,
+    );
 
     if (intensities === null) {
       throw new Error('Error raytracing in WebGL.');
@@ -153,10 +188,10 @@ export default class Scene {
       intensities[i] /= numberSimulations;
     }
 
-    return this.show(simulationGeometry, intensities);
+    return this.createMesh(simulationGeometry, intensities);
   }
   /** @ignore */
-  show(subdividedGeometry: BufferGeometry, intensities: Float32Array) {
+  createMesh(subdividedGeometry: BufferGeometry, intensities: Float32Array): THREE.Mesh {
     const Npoints = subdividedGeometry.attributes.position.array.length / 9;
     var newColors = new Float32Array(Npoints * 9);
     for (var i = 0; i < Npoints; i++) {
@@ -187,6 +222,8 @@ export default class Scene {
    * @param midpoints midpoints of triangles for which to calculate intensities
    * @param normals normals for each midpoint
    * @param meshArray array of vertices for the shading mesh
+   * @param numberSimulations number of random sun positions that are used for the simulation. Either numberSimulations or irradianceUrl need to be given.
+   * @param diffuseIrradianceUrl url where a 2D json of irradiance values lies. To generate such a json, visit https://github.com/open-pv/irradiance
    * @return
    * @memberof Scene
    */
@@ -195,9 +232,35 @@ export default class Scene {
     normals: TypedArray,
     meshArray: Float32Array,
     numberSimulations: number,
+    diffuseIrradianceUrl: string | undefined,
     progressCallback: (progress: number, total: number) => void,
   ) {
-    let sunDirections = getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
-    return rayTracingWebGL(midpoints, normals, meshArray, sunDirections, progressCallback);
+    let directIrradiance: SunVector[] = [];
+    let diffuseIrradiance: SunVector[] = [];
+    let shadingElevationAngles: SphericalPoint[] = [];
+
+    if (typeof diffuseIrradianceUrl === 'string' && isValidUrl(diffuseIrradianceUrl)) {
+      const diffuseIrradianceSpherical = await sun.fetchIrradiance(diffuseIrradianceUrl, this.latitude, this.longitude);
+      diffuseIrradiance = sun.convertSpericalToEuclidian(diffuseIrradianceSpherical);
+    } else if (typeof diffuseIrradianceUrl != 'undefined') {
+      throw new Error('The given url for diffuse Irradiance is not valid.');
+    }
+    console.log('Calling getRandomSunVectors');
+    directIrradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
+    console.log(directIrradiance);
+    if (this.elevationRaster.length > 0) {
+      shadingElevationAngles = elevation.getMaxElevationAngles(
+        this.elevationRaster,
+        this.elevationRasterMidpoint,
+        this.elevationAzimuthDivisions,
+      );
+      sun.shadeIrradianceFromElevation(directIrradiance, shadingElevationAngles);
+      if (diffuseIrradiance.length > 0) {
+        sun.shadeIrradianceFromElevation(diffuseIrradiance, shadingElevationAngles);
+      }
+    }
+    console.log('Calling rayTracingWebGL');
+    normals = normals.filter((_, index) => index % 9 < 3);
+    return rayTracingWebGL(midpoints, normals, meshArray, directIrradiance, diffuseIrradiance, progressCallback);
   }
 }

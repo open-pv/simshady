@@ -3,7 +3,6 @@
   "version": "0.0.1a1",
   "description": "Simulating Shadows for PV Potential Analysis on 3D Data on the GPU.",
   "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
   "type": "module",
   "types": "./dist/index.d.ts",
   "files": [

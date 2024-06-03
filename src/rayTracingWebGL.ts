@@ -1,4 +1,5 @@
 import { TypedArray } from 'three';
+import { Point, SunVector } from './utils';
 
 function addToArray(ar1: Float32Array, ar2: Float32Array) {
   for (var i = 0; i < ar1.length; i++) {
@@ -10,7 +11,8 @@ export function rayTracingWebGL(
   pointsArray: TypedArray,
   normals: TypedArray,
   trianglesArray: TypedArray,
-  sunDirections: Float32Array,
+  directRadiance: SunVector[],
+  diffuseRadiance: SunVector[],
   progressCallback: (progress: number, total: number) => void,
 ): Float32Array | null {
   const N_TRIANGLES = trianglesArray.length / 9;
@@ -179,11 +181,20 @@ export function rayTracingWebGL(
 
   var colorCodedArray = null;
   var isShadowedArray = null;
-  for (var i = 0; i < sunDirections.length; i += 3) {
-    progressCallback(i/3, sunDirections.length/3);
+
+  for (var i = 0; i < directRadiance.length; i += 1) {
+    if (directRadiance[i].isShadedByElevation) {
+      continue;
+    }
+    progressCallback(i, directRadiance.length);
+
     // TODO: Iterate over sunDirection
     let sunDirectionUniformLocation = gl.getUniformLocation(program, 'u_sun_direction');
-    gl.uniform3fv(sunDirectionUniformLocation, [sunDirections[i], sunDirections[i + 1], sunDirections[i + 2]]);
+    gl.uniform3fv(sunDirectionUniformLocation, [
+      directRadiance[i].vector.cartesian.x,
+      directRadiance[i].vector.cartesian.y,
+      directRadiance[i].vector.cartesian.z,
+    ]);
 
     drawArraysWithTransformFeedback(gl, tf, gl.POINTS, N_POINTS);
 
