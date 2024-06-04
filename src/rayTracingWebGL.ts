@@ -11,8 +11,7 @@ export function rayTracingWebGL(
   pointsArray: TypedArray,
   normals: TypedArray,
   trianglesArray: TypedArray,
-  directRadiance: SunVector[],
-  diffuseRadiance: SunVector[],
+  irradiance: SunVector[],
   progressCallback: (progress: number, total: number) => void,
 ): Float32Array | null {
   const N_TRIANGLES = trianglesArray.length / 9;
@@ -182,18 +181,18 @@ export function rayTracingWebGL(
   var colorCodedArray = null;
   var isShadowedArray = null;
 
-  for (var i = 0; i < directRadiance.length; i += 1) {
-    if (directRadiance[i].isShadedByElevation) {
+  for (var i = 0; i < irradiance.length; i += 1) {
+    if (irradiance[i].isShadedByElevation) {
       continue;
     }
-    progressCallback(i, directRadiance.length);
+    progressCallback(i, irradiance.length);
 
     // TODO: Iterate over sunDirection
     let sunDirectionUniformLocation = gl.getUniformLocation(program, 'u_sun_direction');
     gl.uniform3fv(sunDirectionUniformLocation, [
-      directRadiance[i].vector.cartesian.x,
-      directRadiance[i].vector.cartesian.y,
-      directRadiance[i].vector.cartesian.z,
+      irradiance[i].vector.cartesian.x,
+      irradiance[i].vector.cartesian.y,
+      irradiance[i].vector.cartesian.z,
     ]);
 
     drawArraysWithTransformFeedback(gl, tf, gl.POINTS, N_POINTS);

@@ -120,7 +120,7 @@ export default class ShadingScene {
 
   async calculate(
     numberSimulations: number = 80,
-    irradianceUrl: string | undefined,
+    diffuseIrradianceURL: string | undefined,
     progressCallback: (progress: number, total: number) => void = (progress, total) =>
       console.log(`Progress: ${progress}/${total}%`),
   ) {
@@ -162,30 +162,33 @@ export default class ShadingScene {
     // Compute unique intensities
     console.log('Calling this.rayTrace');
 
-    const intensities = await this.rayTrace(
+    const directIntensities = await this.rayTrace(
       midpointsArray,
       normalsArray,
       meshArray,
       numberSimulations,
-      irradianceUrl,
+      undefined,
       progressCallback,
     );
-
-    if (intensities === null) {
-      throw new Error('Error raytracing in WebGL.');
+    let diffuseIntensities = new Float32Array();
+    if (typeof diffuseIrradianceURL === 'string') {
+      diffuseIntensities = await this.rayTrace(
+        midpointsArray,
+        normalsArray,
+        meshArray,
+        0,
+        diffuseIrradianceURL,
+        progressCallback,
+      );
+    }
+    console.log('directIntensities', directIntensities);
+    console.log('diffuseIntensities', diffuseIntensities);
+    let intensities = new Float32Array(directIntensities.length);
+    if (diffuseIntensities.length == 0) {
+      return this.createMesh(simulationGeometry, directIntensities);
     }
     for (let i = 0; i < intensities.length; i++) {
-      if (isNaN(intensities[i])) {
-        console.log(`intensities ${i} is nan`);
-      }
-    }
-
-    console.log('Simulation package successfully calculated something');
-    console.log(intensities);
-
-    // Normalize intensities by number of simulations
-    for (let i = 0; i < intensities.length; i++) {
-      intensities[i] /= numberSimulations;
+      intensities[i] = (1 / 100) * diffuseIntensities[i] + 0 * directIntensities[i];
     }
 
     return this.createMesh(simulationGeometry, intensities);
@@ -235,32 +238,42 @@ export default class ShadingScene {
     diffuseIrradianceUrl: string | undefined,
     progressCallback: (progress: number, total: number) => void,
   ) {
-    let directIrradiance: SunVector[] = [];
-    let diffuseIrradiance: SunVector[] = [];
+    let irradiance: SunVector[] = [];
     let shadingElevationAngles: SphericalPoint[] = [];
 
     if (typeof diffuseIrradianceUrl === 'string' && isValidUrl(diffuseIrradianceUrl)) {
       const diffuseIrradianceSpherical = await sun.fetchIrradiance(diffuseIrradianceUrl, this.latitude, this.longitude);
-      diffuseIrradiance = sun.convertSpericalToEuclidian(diffuseIrradianceSpherical);
+      irradiance = sun.convertSpericalToEuclidian(diffuseIrradianceSpherical);
     } else if (typeof diffuseIrradianceUrl != 'undefined') {
       throw new Error('The given url for diffuse Irradiance is not valid.');
+    } else if (numberSimulations > 0) {
+      irradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
+    } else {
+      throw new Error(
+        'No irradiance found for the simulation. Either give a valid URL for diffuse radiation or a numberSimulation > 0.',
+      );
     }
-    console.log('Calling getRandomSunVectors');
-    directIrradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
-    console.log(directIrradiance);
+
     if (this.elevationRaster.length > 0) {
       shadingElevationAngles = elevation.getMaxElevationAngles(
         this.elevationRaster,
         this.elevationRasterMidpoint,
         this.elevationAzimuthDivisions,
       );
-      sun.shadeIrradianceFromElevation(directIrradiance, shadingElevationAngles);
-      if (diffuseIrradiance.length > 0) {
-        sun.shadeIrradianceFromElevation(diffuseIrradiance, shadingElevationAngles);
-      }
+      sun.shadeIrradianceFromElevation(irradiance, shadingElevationAngles);
     }
     console.log('Calling rayTracingWebGL');
     normals = normals.filter((_, index) => index % 9 < 3);
-    return rayTracingWebGL(midpoints, normals, meshArray, directIrradiance, diffuseIrradiance, progressCallback);
+    let intensities = rayTracingWebGL(midpoints, normals, meshArray, irradiance, progressCallback);
+
+    if (intensities === null) {
+      throw new Error('Error occured when running the Raytracing in WebGL.');
+    }
+
+    for (let i = 0; i < intensities.length; i++) {
+      intensities[i] /= irradiance.length;
+    }
+
+    return intensities;
   }
 }
