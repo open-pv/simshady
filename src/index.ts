@@ -115,12 +115,13 @@ export default class ShadingScene {
    * It runs the shading simulation and returns a THREE.js colored mesh.
    * The colors are chosen from the viridis colormap.
    * @param numberSimulations Number of random sun positions that are used to calculate the PV yield
+   * @param diffuseIrradianceURL URL where the files for the diffuse Irradiance can be retreived
    * @returns
    */
 
   async calculate(
     numberSimulations: number = 80,
-    irradianceUrl: string | undefined,
+    diffuseIrradianceURL: string | undefined,
     progressCallback: (progress: number, total: number) => void = (progress, total) =>
       console.log(`Progress: ${progress}/${total}%`),
   ) {
@@ -162,31 +163,45 @@ export default class ShadingScene {
     // Compute unique intensities
     console.log('Calling this.rayTrace');
 
-    const intensities = await this.rayTrace(
+    const directIntensities = await this.rayTrace(
       midpointsArray,
       normalsArray,
       meshArray,
       numberSimulations,
-      irradianceUrl,
+      undefined,
       progressCallback,
     );
-
-    if (intensities === null) {
-      throw new Error('Error raytracing in WebGL.');
+    let diffuseIntensities = new Float32Array();
+    if (typeof diffuseIrradianceURL === 'string') {
+      diffuseIntensities = await this.rayTrace(
+        midpointsArray,
+        normalsArray,
+        meshArray,
+        0,
+        diffuseIrradianceURL,
+        progressCallback,
+      );
     }
+    console.log('directIntensities', directIntensities);
+    console.log('diffuseIntensities', diffuseIntensities);
+    let intensities = new Float32Array(directIntensities.length);
+    if (diffuseIntensities.length == 0) {
+      return this.createMesh(simulationGeometry, directIntensities);
+    }
+    const normalizationDirect = 0.5;
+    const normalizationDiffuse = 72;
+    // Both values come from the calibration function in https://github.com/open-pv/minimalApp
+    // There the intensities are calibrated based on a horizontal plane
+    const alpha = 500 / 1300;
+    // this comes from assuming that diffuse radiation is responsible for 500 W and direct for 800 W on a horizontal plane
     for (let i = 0; i < intensities.length; i++) {
-      if (isNaN(intensities[i])) {
-        console.log(`intensities ${i} is nan`);
-      }
-    }
+      intensities[i] =
+        (1 / 1.2) *
+        ((alpha * diffuseIntensities[i]) / normalizationDiffuse + ((1 - alpha) * directIntensities[i]) / normalizationDirect);
 
-    console.log('Simulation package successfully calculated something');
-    console.log(intensities);
-
-    // Normalize intensities by number of simulations
-    for (let i = 0; i < intensities.length; i++) {
-      intensities[i] /= numberSimulations;
+      // 1/1.2 is to rescale a south facing roof to 1
     }
+    console.log('Maximum of merged intensities: ', Math.max(...intensities));
 
     return this.createMesh(simulationGeometry, intensities);
   }
@@ -194,9 +209,9 @@ export default class ShadingScene {
   createMesh(subdividedGeometry: BufferGeometry, intensities: Float32Array): THREE.Mesh {
     const Npoints = subdividedGeometry.attributes.position.array.length / 9;
     var newColors = new Float32Array(Npoints * 9);
+
     for (var i = 0; i < Npoints; i++) {
-      const col = viridis(Math.min(1, intensities[i] / 0.6));
-      //The 0.6 comes from looking at a rooftop facing south with good angle.
+      const col = viridis(Math.min(1, intensities[i]));
       for (let j = 0; j < 9; j += 3) {
         newColors[9 * i + j] = col[0];
         newColors[9 * i + j + 1] = col[1];
@@ -235,32 +250,42 @@ export default class ShadingScene {
     diffuseIrradianceUrl: string | undefined,
     progressCallback: (progress: number, total: number) => void,
   ) {
-    let directIrradiance: SunVector[] = [];
-    let diffuseIrradiance: SunVector[] = [];
+    let irradiance: SunVector[] = [];
     let shadingElevationAngles: SphericalPoint[] = [];
 
     if (typeof diffuseIrradianceUrl === 'string' && isValidUrl(diffuseIrradianceUrl)) {
+      // Case where diffuse Radiation is considered in simulation
       const diffuseIrradianceSpherical = await sun.fetchIrradiance(diffuseIrradianceUrl, this.latitude, this.longitude);
-      diffuseIrradiance = sun.convertSpericalToEuclidian(diffuseIrradianceSpherical);
+      irradiance = sun.convertSpericalToEuclidian(diffuseIrradianceSpherical);
     } else if (typeof diffuseIrradianceUrl != 'undefined') {
       throw new Error('The given url for diffuse Irradiance is not valid.');
+    } else if (numberSimulations > 0) {
+      irradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
+    } else {
+      throw new Error(
+        'No irradiance found for the simulation. Either give a valid URL for diffuse radiation or a numberSimulation > 0.',
+      );
     }
-    console.log('Calling getRandomSunVectors');
-    directIrradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
-    console.log(directIrradiance);
+
     if (this.elevationRaster.length > 0) {
       shadingElevationAngles = elevation.getMaxElevationAngles(
         this.elevationRaster,
         this.elevationRasterMidpoint,
         this.elevationAzimuthDivisions,
       );
-      sun.shadeIrradianceFromElevation(directIrradiance, shadingElevationAngles);
-      if (diffuseIrradiance.length > 0) {
-        sun.shadeIrradianceFromElevation(diffuseIrradiance, shadingElevationAngles);
-      }
+      sun.shadeIrradianceFromElevation(irradiance, shadingElevationAngles);
     }
-    console.log('Calling rayTracingWebGL');
     normals = normals.filter((_, index) => index % 9 < 3);
-    return rayTracingWebGL(midpoints, normals, meshArray, directIrradiance, diffuseIrradiance, progressCallback);
+    let intensities = rayTracingWebGL(midpoints, normals, meshArray, irradiance, progressCallback);
+
+    if (intensities === null) {
+      throw new Error('Error occured when running the Raytracing in WebGL.');
+    }
+
+    for (let i = 0; i < intensities.length; i++) {
+      intensities[i] /= irradiance.length;
+    }
+
+    return intensities;
   }
 }
