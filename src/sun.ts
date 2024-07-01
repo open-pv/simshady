@@ -179,3 +179,54 @@ export async function getTiffValueAtLatLon(
 
   return radiation;
 }
+
+/**
+ * Calculates the yield of a solar panel in kWh/m2/a
+ * @param directIntensities
+ * @param diffuseIntensities
+ * @param pvCellEfficiency
+ * @param lat
+ * @param lon
+ * @returns
+ */
+export async function calculatePVYield(
+  directIntensities: Float32Array,
+  diffuseIntensities: Float32Array,
+  pvCellEfficiency: number,
+  lat: number,
+  lon: number,
+): Promise<Float32Array> {
+  let intensities = new Float32Array(directIntensities.length);
+  const normalizationDirect = 0.5;
+  const normalizationDiffuse = 72;
+  // Both values come from the calibration function in https://github.com/open-pv/minimalApp
+  // There the intensities are calibrated based on a horizontal plane
+  const directRadiationAverage = await getTiffValueAtLatLon(
+    'https://www.openpv.de/data/irradiance/geotiff/average_direct_radiation.tif',
+    [5.9, 47.3, 15.0, 55.0],
+    lat,
+    lon,
+  );
+  if (diffuseIntensities.length == 0) {
+    for (let i = 0; i < intensities.length; i++) {
+      intensities[i] = pvCellEfficiency * (520 + (directRadiationAverage * directIntensities[i]) / normalizationDirect);
+      //value 520 is some average diffuse horizontal irradiance value for Germany
+    }
+    return intensities;
+  }
+  const diffuseRadiationAverage = await getTiffValueAtLatLon(
+    'https://www.openpv.de/data/irradiance/geotiff/average_diffuse_radiation.tif',
+    [5.9, 47.3, 15.0, 55.0],
+    lat,
+    lon,
+  );
+
+  for (let i = 0; i < intensities.length; i++) {
+    intensities[i] =
+      pvCellEfficiency *
+      ((diffuseRadiationAverage * diffuseIntensities[i]) / normalizationDiffuse +
+        (directRadiationAverage * directIntensities[i]) / normalizationDirect);
+  }
+  console.log('Intensities after efficiency was multiplied', intensities);
+  return intensities;
+}
