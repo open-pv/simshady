@@ -74,7 +74,7 @@ export function convertSpericalToEuclidian(irradiance: SolarIrradianceData): Sun
 }
 
 export async function fetchIrradiance(baseUrl: string, lat: number, lon: number): Promise<SolarIrradianceData> {
-  const url = baseUrl + '/' + lat.toFixed(1) + '/' + lon.toFixed(1) + '.json';
+  const url = baseUrl + '/' + lat.toFixed(0) + '.0/' + lon.toFixed(0) + '.0.json';
   try {
     const response = await fetch(url);
     if (!response.ok) {
@@ -209,8 +209,8 @@ export async function calculatePVYield(
   );
   if (diffuseIntensities.length == 0) {
     for (let i = 0; i < intensities.length; i++) {
-      intensities[i] = pvCellEfficiency * (520 + (directRadiationAverage * directIntensities[i]) / normalizationDirect);
-      //value 520 is some average diffuse horizontal irradiance value for Germany
+      intensities[i] = pvCellEfficiency * ((1.7 * (directRadiationAverage * directIntensities[i])) / normalizationDirect);
+      //TODO: How can this factor 1.7 be changed? Is 1.7 a useful number?
     }
     return intensities;
   }
