@@ -67,8 +67,7 @@ export default class ShadingScene {
     this.shadingGeometries.push(geometry);
   }
   /**
-   * IMPORTANT: Make sure that the DEM and the building mesh are in the same units, for example 1 step in
-   * DEM coordinates should be equal to 1 step in the SimulationGeometry coordinates.
+   * Add a elevation model to the simulation scene.
    * @param raster List of Points with x,y,z coordinates, representing a digital elevation model (DEM)
    * @param midpoint The point of the observer, ie the center of the building
    * @param azimuthDivisions Number of divisions of the azimuth Angle, i.e. the list of the azimuth
@@ -224,7 +223,8 @@ export default class ShadingScene {
       // shininess: 0, // TODO: typescript rejects this, do we need it?
       roughness: 1,
     });
-    var mesh = new THREE.Mesh(subdividedGeometry, material);
+    subdividedGeometry.setAttribute('intensities', new THREE.Float32BufferAttribute(intensities, 1));
+    let mesh = new THREE.Mesh(subdividedGeometry, material);
 
     return mesh;
   }
