@@ -130,7 +130,7 @@ export default class ShadingScene {
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
 
     // TODO: This breaks everything, why?
-    simulationGeometry = this.refineMesh(simulationGeometry, 0.5); // TODO: make configurable
+    simulationGeometry = this.refineMesh(simulationGeometry, 1.0); // TODO: make configurable
 
     console.log('Number of simulation triangles:', simulationGeometry.attributes.position.count / 3);
     console.log('Number of shading triangles:', shadingGeometry.attributes.position.count / 3);
@@ -139,26 +139,31 @@ export default class ShadingScene {
     const points = simulationGeometry.attributes.position.array;
     const normalsArray = simulationGeometry.attributes.normal.array;
 
+    let midpointsNan = 0;
     let midpoints: number[] = [];
     for (let i = 0; i < normalsArray.length; i += 9) {
       const midpoint = triangleUtils.midpoint(points, i);
       for (let j = 0; j < 3; j++) {
         midpoints.push(midpoint[j] + normalsArray[i + j] * 0.05);
-        if (isNaN(midpoint[j])) {
-          console.log(`midpoint ${i} is nan`);
-        }
         if (isNaN(normalsArray[i])) {
-          console.log(`normals ${i} is nan`);
+          midpointsNan++;
         }
       }
+    }
+    if (midpointsNan > 0) {
+      console.log(`${midpointsNan}/${midpoints.length} midpoints are nan`);
     }
 
     const midpointsArray = new Float32Array(midpoints.slice());
 
+    let meshNan = 0;
     for (let i = 0; i < meshArray.length; i++) {
       if (isNaN(meshArray[i])) {
-        console.log(`mesh ${i} is nan`);
+        meshNan++;
       }
+    }
+    if (meshNan > 0) {
+      console.log(`${meshNan}/${meshArray.length} mesh coordinates are nan`);
     }
     // Compute unique intensities
     console.log('Calling this.rayTrace');
@@ -182,6 +187,7 @@ export default class ShadingScene {
         progressCallback,
       );
     }
+
     console.log('directIntensities', directIntensities);
     console.log('diffuseIntensities', diffuseIntensities);
     let intensities = new Float32Array(directIntensities.length);
@@ -198,7 +204,6 @@ export default class ShadingScene {
       intensities[i] =
         (1 / 1.2) *
         ((alpha * diffuseIntensities[i]) / normalizationDiffuse + ((1 - alpha) * directIntensities[i]) / normalizationDirect);
-
       // 1/1.2 is to rescale a south facing roof to 1
     }
     console.log('Maximum of merged intensities: ', Math.max(...intensities));
@@ -224,7 +229,7 @@ export default class ShadingScene {
       vertexColors: true,
       side: THREE.DoubleSide,
       // shininess: 0, // TODO: typescript rejects this, do we need it?
-      roughness: 1,
+      // roughness: 1,
     });
     var mesh = new THREE.Mesh(subdividedGeometry, material);
 
