@@ -56,12 +56,15 @@ export default class ShadingScene {
   /**
    * Adds a geometry as a target for the shading simulation.
    * For these geometries, the PV potential will be simulated.
+   * This geometry will also be used as a shading geometry, hence
+   * it is not needed to additionally add it by using `addShadingGeometry`.
    *
    * @param geometry Arbitrary Three.js geometry
    * @memberof Scene
    */
   addSimulationGeometry(geometry: BufferGeometry) {
     this.simulationGeometries.push(geometry);
+    this.shadingGeometries.push(geometry);
   }
 
   /**
