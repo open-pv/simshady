@@ -130,4 +130,23 @@ describe('Test functionalities from sun.ts: ', () => {
 
     expect(result.data.length).toBeGreaterThan(5);
   });
+  test('Fetch irradiance tiff from openpv url.', async () => {
+    const firstResult = await sun.getTiffValueAtLatLon(
+      'https://www.openpv.de/data/irradiance/geotiff/average_direct_radiation.tif',
+      [5.9, 47.3, 15.0, 55.0],
+      47.5,
+      10.1,
+    );
+    expect(firstResult).toBe(712.625);
+
+    expect(
+      async () =>
+        await sun.getTiffValueAtLatLon(
+          'https://www.openpv.de/data/irradiance/geotiff/average_direct_radiation.tif',
+          [5.9, 47.3, 15.0, 55.0],
+          57,
+          10.1,
+        ),
+    ).rejects.toThrowError('bounding box');
+  });
 });

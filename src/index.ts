@@ -5,10 +5,18 @@ import { viridis } from './colormaps';
 import * as elevation from './elevation';
 import * as sun from './sun';
 import * as triangleUtils from './triangleUtils.js';
-import { CartesianPoint, Point, SphericalPoint, SunVector, isValidUrl } from './utils';
+import { CartesianPoint, SphericalPoint, SunVector, isValidUrl } from './utils';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
+
+interface CalculateParams {
+  numberSimulations?: number;
+  diffuseIrradianceURL?: string;
+  pvCellEfficiency?: number;
+  maxYieldPerSquareMeter?: number;
+  progressCallback?: (progress: number, total: number) => void;
+}
 
 /**
  * This class holds all information about the scene that is simulated.
@@ -67,8 +75,7 @@ export default class ShadingScene {
     this.shadingGeometries.push(geometry);
   }
   /**
-   * IMPORTANT: Make sure that the DEM and the building mesh are in the same units, for example 1 step in
-   * DEM coordinates should be equal to 1 step in the SimulationGeometry coordinates.
+   * Add a elevation model to the simulation scene.
    * @param raster List of Points with x,y,z coordinates, representing a digital elevation model (DEM)
    * @param midpoint The point of the observer, ie the center of the building
    * @param azimuthDivisions Number of divisions of the azimuth Angle, i.e. the list of the azimuth
@@ -114,17 +121,25 @@ export default class ShadingScene {
    * This function is called as a last step, after the scene is fully build.
    * It runs the shading simulation and returns a THREE.js colored mesh.
    * The colors are chosen from the viridis colormap.
-   * @param numberSimulations Number of random sun positions that are used to calculate the PV yield
-   * @param diffuseIrradianceURL URL where the files for the diffuse Irradiance can be retreived
-   * @returns
+   * @param numberSimulations Number of random sun positions that are used to calculate the PV yield.
+   * @param diffuseIrradianceURL URL where the files for the diffuse Irradiance can be retreived.
+   * @param pvCellEfficiency Efficiency of the solar cell, usually this is a value close to 0.2.
+   * @param maxYieldPerSquareMeter Upper boundary of the mesh color in kWh/m2/year.
+   * In Germany this is something like 1400 kWh/m2/year multiplied with the given pvCellEfficiency.
+   * @param progressCallback function that handles the progress of the simulation, used for showing a
+   * loading bar on a website
+   * @returns A three.js colored mesh of the simulationGeometry.
    */
 
-  async calculate(
-    numberSimulations: number = 80,
-    diffuseIrradianceURL: string | undefined,
-    progressCallback: (progress: number, total: number) => void = (progress, total) =>
-      console.log(`Progress: ${progress}/${total}%`),
-  ) {
+  async calculate(params: CalculateParams = {}) {
+    const {
+      numberSimulations = 80,
+      diffuseIrradianceURL,
+      pvCellEfficiency = 0.2,
+      maxYieldPerSquareMeter = 1400 * 0.2,
+      progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}%`),
+    } = params;
+
     console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
@@ -190,33 +205,25 @@ export default class ShadingScene {
 
     console.log('directIntensities', directIntensities);
     console.log('diffuseIntensities', diffuseIntensities);
-    let intensities = new Float32Array(directIntensities.length);
-    if (diffuseIntensities.length == 0) {
-      return this.createMesh(simulationGeometry, directIntensities);
-    }
-    const normalizationDirect = 0.5;
-    const normalizationDiffuse = 72;
-    // Both values come from the calibration function in https://github.com/open-pv/minimalApp
-    // There the intensities are calibrated based on a horizontal plane
-    const alpha = 500 / 1300;
-    // this comes from assuming that diffuse radiation is responsible for 500 W and direct for 800 W on a horizontal plane
-    for (let i = 0; i < intensities.length; i++) {
-      intensities[i] =
-        (1 / 1.2) *
-        ((alpha * diffuseIntensities[i]) / normalizationDiffuse + ((1 - alpha) * directIntensities[i]) / normalizationDirect);
-      // 1/1.2 is to rescale a south facing roof to 1
-    }
-    console.log('Maximum of merged intensities: ', Math.max(...intensities));
 
-    return this.createMesh(simulationGeometry, intensities);
+    const intensities = await sun.calculatePVYield(
+      directIntensities,
+      diffuseIntensities,
+      pvCellEfficiency,
+      this.latitude,
+      this.longitude,
+    );
+    console.log('finalIntensities', intensities);
+
+    return this.createMesh(simulationGeometry, intensities, maxYieldPerSquareMeter);
   }
   /** @ignore */
-  createMesh(subdividedGeometry: BufferGeometry, intensities: Float32Array): THREE.Mesh {
+  createMesh(subdividedGeometry: BufferGeometry, intensities: Float32Array, maxYieldPerSquareMeter: number): THREE.Mesh {
     const Npoints = subdividedGeometry.attributes.position.array.length / 9;
     var newColors = new Float32Array(Npoints * 9);
 
     for (var i = 0; i < Npoints; i++) {
-      const col = viridis(Math.min(1, intensities[i]));
+      const col = viridis(Math.min(maxYieldPerSquareMeter, intensities[i]) / maxYieldPerSquareMeter);
       for (let j = 0; j < 9; j += 3) {
         newColors[9 * i + j] = col[0];
         newColors[9 * i + j + 1] = col[1];
@@ -231,7 +238,8 @@ export default class ShadingScene {
       // shininess: 0, // TODO: typescript rejects this, do we need it?
       // roughness: 1,
     });
-    var mesh = new THREE.Mesh(subdividedGeometry, material);
+    subdividedGeometry.setAttribute('intensities', new THREE.Float32BufferAttribute(intensities, 1));
+    let mesh = new THREE.Mesh(subdividedGeometry, material);
 
     return mesh;
   }
