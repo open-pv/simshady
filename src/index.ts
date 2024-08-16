@@ -10,6 +10,14 @@ import { CartesianPoint, SphericalPoint, SunVector, isValidUrl } from './utils';
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
 
+interface CalculateParams {
+  numberSimulations?: number;
+  diffuseIrradianceURL?: string;
+  pvCellEfficiency?: number;
+  maxYieldPerSquareMeter?: number;
+  progressCallback?: (progress: number, total: number) => void;
+}
+
 /**
  * This class holds all information about the scene that is simulated.
  * A ShadingScene is typically equipped with the following attributes:
@@ -123,14 +131,15 @@ export default class ShadingScene {
    * @returns A three.js colored mesh of the simulationGeometry.
    */
 
-  async calculate(
-    numberSimulations: number = 80,
-    diffuseIrradianceURL: string | undefined,
-    pvCellEfficiency: number,
-    maxYieldPerSquareMeter: number,
-    progressCallback: (progress: number, total: number) => void = (progress, total) =>
-      console.log(`Progress: ${progress}/${total}%`),
-  ) {
+  async calculate(params: CalculateParams = {}) {
+    const {
+      numberSimulations = 80,
+      diffuseIrradianceURL,
+      pvCellEfficiency = 0.2,
+      maxYieldPerSquareMeter = 1400 * 0.2,
+      progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}%`),
+    } = params;
+
     console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
@@ -197,7 +206,6 @@ export default class ShadingScene {
     console.log('directIntensities', directIntensities);
     console.log('diffuseIntensities', diffuseIntensities);
 
-
     const intensities = await sun.calculatePVYield(
       directIntensities,
       diffuseIntensities,
@@ -206,7 +214,6 @@ export default class ShadingScene {
       this.longitude,
     );
     console.log('finalIntensities', intensities);
-
 
     return this.createMesh(simulationGeometry, intensities, maxYieldPerSquareMeter);
   }
