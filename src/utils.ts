@@ -1,3 +1,6 @@
+/**
+  @ignore
+ */
 export function isValidUrl(urlString: string): boolean {
   try {
     new URL(urlString);
@@ -6,6 +9,7 @@ export function isValidUrl(urlString: string): boolean {
     return false;
   }
 }
+
 export type SolarIrradianceData = {
   metadata: {
     description: string;
@@ -50,7 +54,41 @@ export type Point = {
   spherical: SphericalPoint;
 };
 
+/**
+ @ignore
+ */
 export type SunVector = {
   vector: Point;
   isShadedByElevation: boolean;
 };
+
+/**
+ * Interface for the parameter object for {@link index.ShadingScene.calculate}
+ */
+export interface CalculateParams {
+  /**
+   * Number of random sun positions that are used to calculate the PV yield.
+   * @defaultValue 80
+   */
+  numberSimulations?: number;
+
+  /**
+   * URL where the files for the diffuse Irradiance can be retreived.
+   * The object at this URL needs to be of type {@link SolarIrradianceData}.
+   * @defaultValue undefined - only direct irradiance is used.
+   */
+  diffuseIrradianceURL?: string;
+  /**
+   * Efficiency of the solar cell, value in [0,1].
+   * @defaultValue 0.2
+   */
+  pvCellEfficiency?: number;
+  /**
+   * Upper boundary of annual yield in kWh/m2/year. This value is used to normalize
+   * the color of the returned three.js mesh.
+   * In Germany this is something like 1400 kWh/m2/year multiplied with the given pvCellEfficiency.
+   * @defaultValue 1400*0.2
+   */
+  maxYieldPerSquareMeter?: number;
+  progressCallback?: (progress: number, total: number) => void;
+}

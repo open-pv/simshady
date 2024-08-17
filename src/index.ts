@@ -5,18 +5,10 @@ import { viridis } from './colormaps';
 import * as elevation from './elevation';
 import * as sun from './sun';
 import * as triangleUtils from './triangleUtils.js';
-import { CartesianPoint, SphericalPoint, SunVector, isValidUrl } from './utils';
+import { CalculateParams, CartesianPoint, SphericalPoint, SunVector, isValidUrl } from './utils';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
-
-interface CalculateParams {
-  numberSimulations?: number;
-  diffuseIrradianceURL?: string;
-  pvCellEfficiency?: number;
-  maxYieldPerSquareMeter?: number;
-  progressCallback?: (progress: number, total: number) => void;
-}
 
 /**
  * This class holds all information about the scene that is simulated.
@@ -124,13 +116,8 @@ export default class ShadingScene {
    * This function is called as a last step, after the scene is fully build.
    * It runs the shading simulation and returns a THREE.js colored mesh.
    * The colors are chosen from the viridis colormap.
-   * @param numberSimulations Number of random sun positions that are used to calculate the PV yield.
-   * @param diffuseIrradianceURL URL where the files for the diffuse Irradiance can be retreived.
-   * @param pvCellEfficiency Efficiency of the solar cell, usually this is a value close to 0.2.
-   * @param maxYieldPerSquareMeter Upper boundary of the mesh color in kWh/m2/year.
-   * In Germany this is something like 1400 kWh/m2/year multiplied with the given pvCellEfficiency.
-   * @param progressCallback function that handles the progress of the simulation, used for showing a
-   * loading bar on a website
+   * @param params: The input object containing information about the simulation.
+
    * @returns A three.js colored mesh of the simulationGeometry.
    */
 
