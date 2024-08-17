@@ -14,7 +14,7 @@
     "format": "lint-staged",
     "build": "tsup",
     "prepare": "husky",
-    "docs": "typedoc src/index.ts --plugin typedoc-plugin-mdn-links --plugin typedoc-plugin-coverage --plugin typedoc-plugin-rename-defaults --entryPointStrategy expand"
+    "docs": "typedoc src/index.ts --plugin typedoc-plugin-mdn-links --plugin typedoc-plugin-coverage --plugin typedoc-plugin-rename-defaults --entryPointStrategy expand --excludePrivate true"
   },
   "repository": {
     "type": "git",

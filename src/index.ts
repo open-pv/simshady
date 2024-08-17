@@ -27,13 +27,13 @@ interface CalculateParams {
  *   responsible for shading
  */
 export default class ShadingScene {
-  simulationGeometries: Array<BufferGeometry>;
-  shadingGeometries: Array<BufferGeometry>;
-  elevationRaster: Array<CartesianPoint>;
-  elevationRasterMidpoint: CartesianPoint;
-  latitude: number;
-  longitude: number;
-  elevationAzimuthDivisions: number;
+  public simulationGeometries: Array<BufferGeometry>;
+  public shadingGeometries: Array<BufferGeometry>;
+  public elevationRaster: Array<CartesianPoint>;
+  private elevationRasterMidpoint: CartesianPoint;
+  public latitude: number;
+  public longitude: number;
+  private elevationAzimuthDivisions: number;
 
   /**
    *
