@@ -128,8 +128,12 @@ export default class ShadingScene {
       pvCellEfficiency = 0.2,
       maxYieldPerSquareMeter = 1400 * 0.2,
       progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}%`),
+      urlDirectIrrandianceTIF,
+      urlDiffuseIrrandianceTIF,
     } = params;
-
+    if (urlDiffuseIrrandianceTIF === undefined || urlDirectIrrandianceTIF === undefined) {
+      throw new Error('A URL for the geotif files for Diffuse and Direct Irradiance is undefined.');
+    }
     console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
@@ -202,6 +206,8 @@ export default class ShadingScene {
       pvCellEfficiency,
       this.latitude,
       this.longitude,
+      urlDirectIrrandianceTIF,
+      urlDiffuseIrrandianceTIF,
     );
     console.log('finalIntensities', intensities);
 
