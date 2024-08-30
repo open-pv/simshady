@@ -71,7 +71,9 @@ export default class ShadingScene {
   }
   /**
    * Add a elevation model to the simulation scene.
-   * @param raster List of Points with x,y,z coordinates, representing a digital elevation model (DEM)
+   * @param raster List of Points with x,y,z coordinates, representing a digital elevation model (DEM). It is
+   * important that all values of x,y and z are given with same units. If x and y are given in lat / lon and
+   * z is given in meters, this will result in wrong simulation Results.
    * @param midpoint The point of the observer, ie the center of the building
    * @param azimuthDivisions Number of divisions of the azimuth Angle, i.e. the list of the azimuth
    * angle will be [0, ..., 2Pi] where the list has a lenght of azimuthDivisions
