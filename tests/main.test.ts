@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import ShadingScene from '../src/index';
+import { ShadingScene } from '../src/main';
 
 import { BufferAttribute, BufferGeometry } from 'three'; // Import Three.js components if available or mock them
 

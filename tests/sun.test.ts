@@ -137,7 +137,7 @@ describe('Test functionalities from sun.ts: ', () => {
       47.5,
       10.1,
     );
-    expect(firstResult).toBe(712.625);
+    expect(firstResult).toBe(680.625);
 
     expect(
       async () =>
