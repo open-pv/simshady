@@ -1,8 +1,12 @@
 import { Color, ColorMap } from './utils';
 
+/**
+ * The viridis color Map, as defined in https://observablehq.com/@flimsyhat/webgl-color-maps
+ * @param t parameter in [0,1] to go through viridis color map
+ * @returns
+ */
 export function viridis(t: number): Color {
   t = Math.min(Math.max(t, 0), 1);
-  //viridis from https://observablehq.com/@flimsyhat/webgl-color-maps
   const c0 = [0.2777273272234177, 0.005407344544966578, 0.3340998053353061];
   const c1 = [0.1050930431085774, 1.404613529898575, 1.384590162594685];
   const c2 = [-0.3308618287255563, 0.214847559468213, 0.09509516302823659];
