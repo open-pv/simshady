@@ -119,6 +119,7 @@ export async function getTiffValueAtLatLon(
   lon: number,
 ): Promise<number> {
   const [minLon, minLat, maxLon, maxLat] = tiffBoundingBox;
+
   const tiff = await fromUrl(url);
   const image = await tiff.getImage();
   const width = image.getWidth();
@@ -195,18 +196,15 @@ export async function calculatePVYield(
   pvCellEfficiency: number,
   lat: number,
   lon: number,
+  urlDirectIrrandianceTIF: string,
+  urlDiffuseIrrandianceTIF: string,
 ): Promise<Float32Array> {
   let intensities = new Float32Array(directIntensities.length);
   const normalizationDirect = 0.5;
   const normalizationDiffuse = 72;
   // Both values come from the calibration function in https://github.com/open-pv/minimalApp
   // There the intensities are calibrated based on a horizontal plane
-  const directRadiationAverage = await getTiffValueAtLatLon(
-    'https://www.openpv.de/data/irradiance/geotiff/average_direct_radiation.tif',
-    [5.9, 47.3, 15.0, 55.0],
-    lat,
-    lon,
-  );
+  const directRadiationAverage = await getTiffValueAtLatLon(urlDirectIrrandianceTIF, [5.9, 47.3, 15.0, 55.0], lat, lon);
   if (diffuseIntensities.length == 0) {
     for (let i = 0; i < intensities.length; i++) {
       intensities[i] = pvCellEfficiency * ((1.7 * (directRadiationAverage * directIntensities[i])) / normalizationDirect);
@@ -214,12 +212,7 @@ export async function calculatePVYield(
     }
     return intensities;
   }
-  const diffuseRadiationAverage = await getTiffValueAtLatLon(
-    'https://www.openpv.de/data/irradiance/geotiff/average_diffuse_radiation.tif',
-    [5.9, 47.3, 15.0, 55.0],
-    lat,
-    lon,
-  );
+  const diffuseRadiationAverage = await getTiffValueAtLatLon(urlDiffuseIrrandianceTIF, [5.9, 47.3, 15.0, 55.0], lat, lon);
 
   for (let i = 0; i < intensities.length; i++) {
     intensities[i] =

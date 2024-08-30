@@ -90,5 +90,15 @@ export interface CalculateParams {
    * @defaultValue 1400*0.2
    */
   maxYieldPerSquareMeter?: number;
+  /**
+   * URL of a GEOTIF File of annual average direct irradiance data. An example lies at
+   * https://www.openpv.de/data/irradiance/geotiff/
+   */
+  urlDirectIrrandianceTIF?: string;
+  /**
+   * URL of a GEOTIF File of annual average diffuse irradiance data. An example lies at
+   * https://www.openpv.de/data/irradiance/geotiff/
+   */
+  urlDiffuseIrrandianceTIF?: string;
   progressCallback?: (progress: number, total: number) => void;
 }
