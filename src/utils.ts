@@ -63,6 +63,16 @@ export type SunVector = {
 };
 
 /**
+ * RGB values of a color, where all values are in intervall [0,1]
+ */
+export type Color = [number, number, number];
+
+/**
+ * A color Map maps a value t in [0,1] to a color
+ */
+export type ColorMap = (t: number) => Color;
+
+/**
  * Interface for the parameter object for {@link index.ShadingScene.calculate}
  */
 export interface CalculateParams {
