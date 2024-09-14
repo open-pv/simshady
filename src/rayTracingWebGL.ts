@@ -1,5 +1,5 @@
 import { TypedArray } from 'three';
-import { Point, SunVector } from './utils';
+import { Point, SunVector, timeoutForLoop } from './utils';
 
 function addToArray(ar1: Float32Array, ar2: Float32Array) {
   for (var i = 0; i < ar1.length; i++) {
@@ -7,13 +7,13 @@ function addToArray(ar1: Float32Array, ar2: Float32Array) {
   }
 }
 
-export function rayTracingWebGL(
+export async function rayTracingWebGL(
   pointsArray: TypedArray,
   normals: TypedArray,
   trianglesArray: TypedArray,
   irradiance: SunVector[],
   progressCallback: (progress: number, total: number) => void,
-): Float32Array | null {
+): Promise<Float32Array | null> {
   const N_TRIANGLES = trianglesArray.length / 9;
   const width = pointsArray.length / 3; // Change this to the number of horizontal points in the grid
   const N_POINTS = width;
@@ -181,33 +181,32 @@ export function rayTracingWebGL(
   var colorCodedArray = null;
   var isShadowedArray = null;
 
-  for (var i = 0; i < irradiance.length; i += 1) {
-    if (irradiance[i].isShadedByElevation) {
-      continue;
+  await timeoutForLoop(0, irradiance.length, (i) => {
+    if (!irradiance[i].isShadedByElevation) {
+      progressCallback(i, irradiance.length);
+
+      // TODO: Iterate over sunDirection
+      let sunDirectionUniformLocation = gl.getUniformLocation(program, 'u_sun_direction');
+      gl.uniform3fv(sunDirectionUniformLocation, [
+        irradiance[i].vector.cartesian.x,
+        irradiance[i].vector.cartesian.y,
+        irradiance[i].vector.cartesian.z,
+      ]);
+
+      drawArraysWithTransformFeedback(gl, tf, gl.POINTS, N_POINTS);
+
+      if (isShadowedArray == null) {
+        colorCodedArray = getResults(gl, colorBuffer, N_POINTS);
+        isShadowedArray = colorCodedArray.filter((_, index) => (index + 1) % 4 === 0);
+      } else {
+        colorCodedArray = getResults(gl, colorBuffer, N_POINTS);
+        addToArray(
+          isShadowedArray,
+          colorCodedArray.filter((_, index) => (index + 1) % 4 === 0),
+        );
+      }
     }
-    progressCallback(i, irradiance.length);
-
-    // TODO: Iterate over sunDirection
-    let sunDirectionUniformLocation = gl.getUniformLocation(program, 'u_sun_direction');
-    gl.uniform3fv(sunDirectionUniformLocation, [
-      irradiance[i].vector.cartesian.x,
-      irradiance[i].vector.cartesian.y,
-      irradiance[i].vector.cartesian.z,
-    ]);
-
-    drawArraysWithTransformFeedback(gl, tf, gl.POINTS, N_POINTS);
-
-    if (isShadowedArray == null) {
-      colorCodedArray = getResults(gl, colorBuffer, N_POINTS);
-      isShadowedArray = colorCodedArray.filter((_, index) => (index + 1) % 4 === 0);
-    } else {
-      colorCodedArray = getResults(gl, colorBuffer, N_POINTS);
-      addToArray(
-        isShadowedArray,
-        colorCodedArray.filter((_, index) => (index + 1) % 4 === 0),
-      );
-    }
-  }
+  });
   gl.deleteTexture(texture);
   gl.deleteShader(vertexShader);
   gl.deleteShader(fragmentShader);

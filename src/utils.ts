@@ -112,3 +112,22 @@ export interface CalculateParams {
   urlDiffuseIrrandianceTIF?: string;
   progressCallback?: (progress: number, total: number) => void;
 }
+
+/**
+ * Mimics a for-loop but schedules each loop iteration using `setTimeout`, so that
+ * event handles, react updates, etc. can run in-between
+ */
+export async function timeoutForLoop(start: number, end: number, body: (i: number) => void) {
+  return new Promise<void>((resolve) => {
+    const inner = (i: number) => {
+      body(i);
+      i = i + 1;
+      if (i == end) {
+        resolve();
+      } else {
+        setTimeout(() => inner(i), 0);
+      }
+    };
+    setTimeout(() => inner(0), 0);
+  });
+}
