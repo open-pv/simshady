@@ -298,7 +298,7 @@ export class ShadingScene {
       sun.shadeIrradianceFromElevation(irradiance, shadingElevationAngles);
     }
     normals = normals.filter((_, index) => index % 9 < 3);
-    let intensities = rayTracingWebGL(midpoints, normals, meshArray, irradiance, progressCallback);
+    let intensities = await rayTracingWebGL(midpoints, normals, meshArray, irradiance, progressCallback);
 
     if (intensities === null) {
       throw new Error('Error occured when running the Raytracing in WebGL.');
