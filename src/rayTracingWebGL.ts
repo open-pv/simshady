@@ -61,14 +61,14 @@ export async function rayTracingWebGL(
             float inv_det = 1.0 / det;
             if ( isDoubleSided == 0 && det < 0.0 ) 
                 return INFINITY;
-            
+
             vec3 tvec = rayOrigin - v0;
             float u = dot(tvec, pvec) * inv_det;
             vec3 qvec = cross(tvec, edge1);
             float v = dot(rayDirection, qvec) * inv_det;
             float t = dot(edge2, qvec) * inv_det;
             float x = dot(pvec,pvec);
-            return (u < 0.0 || u > 1.0 || v < 0.0 || u + v > 1.0 || t <= 0.0) ? INFINITY : t;
+            return (u < 0.0 || u > 1.0 || v < 0.0 || u + v > 1.0 || t <= 0.01) ? INFINITY : t;
 
         }
 
