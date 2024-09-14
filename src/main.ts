@@ -166,7 +166,7 @@ export class ShadingScene {
     for (let i = 0; i < normalsArray.length; i += 9) {
       const midpoint = triangleUtils.midpoint(points, i);
       for (let j = 0; j < 3; j++) {
-        midpoints.push(midpoint[j] + normalsArray[i + j] * 0.05);
+        midpoints.push(midpoint[j]);
         if (isNaN(normalsArray[i])) {
           midpointsNan++;
         }
