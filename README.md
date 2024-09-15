@@ -65,6 +65,10 @@ showThreeJS(mesh);
 </tr>
 </table>
 
+## Contributing
+
+You are welcome to contribute to this project, either by adding code or creating Issues. As a first step, you might check out our [contributing guidelines](https://github.com/open-pv/simshady/blob/main/CONTRIBUTING.md).
+
 ## Sponsors
 
 We thank our sponsors.

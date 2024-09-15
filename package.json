@@ -21,7 +21,15 @@
     "url": "git+https://github.com/open-pv/simshady.git"
   },
   "keywords": [
-    "solar"
+    "solar",
+    "photovoltaic",
+    "pv",
+    "threejs",
+    "three",
+    "webgl",
+    "gis",
+    "renewables",
+    "renewable energy"
   ],
   "author": "Konrad Heidler <k.heidler@tum.de>",
   "license": "Apache-2.0",
