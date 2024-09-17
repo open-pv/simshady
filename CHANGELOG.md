@@ -6,7 +6,7 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## v0.0.5
+## v0.0.5 - 2024-09-17
 
 ### Changes
 
