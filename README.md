@@ -26,7 +26,16 @@ const lon = 11.0;
 const scene = new ShadingScene(lat, lon);
 scene.addShadingGeometry(someShadingGeometry);
 scene.addSimulationGeometry(someSimulationGeometry);
-const mesh = await scene.calculate(100);
+
+let mesh = await scene.calculate({
+    numberSimulations: 100,
+    diffuseIrradiance: "https://www.openpv.de/data/irradiance",
+    urlDirectIrrandianceTIF:
+      "https://www.openpv.de/data/irradiance/geotiff/average_direct_radiation.tif",
+    urlDiffuseIrrandianceTIF:
+      "https://www.openpv.de/data/irradiance/geotiff/average_diffuse_radiation.tif",
+});
+
 showThreeJS(mesh);
 ```
 
