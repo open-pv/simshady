@@ -57,6 +57,7 @@ export class ShadingScene {
    * @memberof Scene
    */
   addSimulationGeometry(geometry: BufferGeometry) {
+    geometry = geometry.toNonIndexed();
     this.simulationGeometries.push(geometry);
     this.shadingGeometries.push(geometry);
   }
@@ -69,6 +70,7 @@ export class ShadingScene {
    * @memberof Scene
    */
   addShadingGeometry(geometry: BufferGeometry) {
+    geometry = geometry.toNonIndexed();
     this.shadingGeometries.push(geometry);
   }
   /**
