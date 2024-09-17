@@ -179,7 +179,7 @@ export async function rayTracingWebGL(
   const normalBuffer = makeBufferAndSetAttribute(gl, normals, normalAttributeLocation);
 
   var colorCodedArray = null;
-  var isShadowedArray = null;
+  var isShadowedArray: Float32Array | null = null;
 
   await timeoutForLoop(0, irradiance.length, (i) => {
     if (!irradiance[i].isShadedByElevation) {
