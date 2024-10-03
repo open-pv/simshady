@@ -1,8 +1,14 @@
 ![Tests](https://github.com/open-pv/simshady/actions/workflows/tests.yml/badge.svg) ![Docs](https://github.com/open-pv/simshady/actions/workflows/typedoc.yml/badge.svg) [![NPM Version](https://img.shields.io/npm/v/@openpv/simshady)](https://www.npmjs.com/package/@openpv/simshady) [![NPM Downloads](https://img.shields.io/npm/dm/@openpv/simshady)](https://npmtrends.com/@openpv/simshady)
 
-# SimShady
+# simshady
 
-SimShady is a package for shading simulation and PV yield estimation based on 3D meshes. It runs on the GPU using WebGL. See it in action at [openpv.de](https://openpv.de).
+`simshady` is a package for shading simulation and solar yield estimation based on 3D meshes. It runs on the GPU using WebGL. See it in action at [openpv.de](https://openpv.de).
+
+## When to use `simshady`
+You want to
+* build an application for solar (photovoltaic) yield estimation. These estimations tell you how much electricity a solar panel can produce at a specific location. Since this is influenced a lot by the shadows of surrounding buildings and trees, you want to have a shading simulation. Use `simshady`.
+* use 3D data of buildings, terrain, or trees to calculate shading. You have this data in formats like `.obj`, `.stl`, `.citygml` or as `three.js`-Meshes. Use `simshady`.
+
 
 ## Installation
 
@@ -76,7 +82,7 @@ showThreeJS(mesh);
 
 ## Contributing
 
-You are welcome to contribute to this project, either by adding code or creating Issues. As a first step, you might check out our [contributing guidelines](https://github.com/open-pv/simshady/blob/main/CONTRIBUTING.md).
+You are welcome to contribute to this project, either by adding code or creating Issues. For major changes, please open an issue first to discuss what you would like to change. As a first step, you might check out our [contributing guidelines](https://github.com/open-pv/simshady/blob/main/CONTRIBUTING.md).
 
 ## Sponsors
 
