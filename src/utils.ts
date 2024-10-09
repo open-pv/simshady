@@ -117,6 +117,7 @@ export interface CalculateParams {
  * Mimics a for-loop but schedules each loop iteration using `setTimeout`, so that
  * event handles, react updates, etc. can run in-between
  */
+/** @ignore */
 export async function timeoutForLoop(start: number, end: number, body: (i: number) => void) {
   return new Promise<void>((resolve) => {
     const inner = (i: number) => {
