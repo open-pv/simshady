@@ -19,9 +19,9 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
  *   responsible for shading
  */
 export class ShadingScene {
-  public simulationGeometries: Array<BufferGeometry>;
-  public shadingGeometries: Array<BufferGeometry>;
-  public elevationRaster: Array<CartesianPoint>;
+  private simulationGeometries: Array<BufferGeometry>;
+  private shadingGeometries: Array<BufferGeometry>;
+  private elevationRaster: Array<CartesianPoint>;
   private elevationRasterMidpoint: CartesianPoint;
   public latitude: number;
   public longitude: number;
