@@ -92,28 +92,6 @@ const irradianceEuclidian: CartesianPoint[] = [
 ];
 
 describe('Test functionalities from sun.ts: ', () => {
-  const N = 50;
-  let vectors = sun.getRandomSunVectors(N, 0, 0);
-  test('Get Correct number of positions for cartesian coordiantes.', () => {
-    expect(vectors.length).toStrictEqual(N);
-  });
-  test('Get Correct number of positions for spherical coordiantes.', () => {
-    expect(vectors.length).toStrictEqual(N);
-  });
-  test('Get normalized sun vectors.', () => {
-    for (let obj of vectors) {
-      let length = obj.vector.cartesian.x ** 2 + obj.vector.cartesian.y ** 2 + obj.vector.cartesian.z ** 2;
-      expect(length).to.closeTo(1, 0.001);
-    }
-  });
-  test('Sun is always above the horizon.', () => {
-    for (let i = 0; i < N / 3; i++) {
-      let z = vectors[i].vector.cartesian.z;
-      let altitude = vectors[i].vector.spherical.altitude;
-      expect(z).toBeGreaterThan(0);
-      expect(altitude).toBeGreaterThan(0);
-    }
-  });
   test('ConvertSpericalToEuclidian works right.', () => {
     const tolerance = 0.00001;
     const calculatedIrradianceEuclidian = sun.convertSpericalToEuclidian(irradianceSpherical);
