@@ -194,9 +194,6 @@ export class ShadingScene {
     const doDiffuseIntensities = typeof diffuseIrradianceURL === 'string';
     const simulationRounds = doDiffuseIntensities ? 2 : 1;
 
-    const directIntensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, undefined, (i, total) =>
-      progressCallback(i, total * simulationRounds),
-    );
     let diffuseIntensities = new Float32Array();
     if (doDiffuseIntensities) {
       diffuseIntensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, diffuseIrradianceURL, (i, total) =>
@@ -204,11 +201,10 @@ export class ShadingScene {
       );
     }
 
-    console.log('directIntensities', directIntensities);
     console.log('diffuseIntensities', diffuseIntensities);
 
     const intensities = await sun.calculatePVYield(
-      directIntensities,
+      diffuseIntensities,
       diffuseIntensities,
       pvCellEfficiency,
       this.latitude,
