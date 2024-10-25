@@ -13,7 +13,7 @@ export async function rayTracingWebGL(
   trianglesArray: TypedArray,
   irradiance: SunVector[],
   progressCallback: (progress: number, total: number) => void,
-): Promise<Float32Array | null> {
+): Promise<Float32Array[] | null> {
   const N_TRIANGLES = trianglesArray.length / 9;
   const width = pointsArray.length / 3; // Change this to the number of horizontal points in the grid
   const N_POINTS = width;
@@ -179,7 +179,9 @@ export async function rayTracingWebGL(
   const normalBuffer = makeBufferAndSetAttribute(gl, normals, normalAttributeLocation);
 
   var colorCodedArray = null;
-  var isShadowedArray: Float32Array | null = null;
+  var shadedIrradianceScenes: Float32Array[] = [];
+  // each element of this shadedIrradianceScenes represents the shading
+  // caused by one ray of the irradiance list
 
   await timeoutForLoop(0, irradiance.length, (i) => {
     if (!irradiance[i].isShadedByElevation) {
@@ -195,16 +197,8 @@ export async function rayTracingWebGL(
 
       drawArraysWithTransformFeedback(gl, tf, gl.POINTS, N_POINTS);
 
-      if (isShadowedArray == null) {
-        colorCodedArray = getResults(gl, colorBuffer, N_POINTS);
-        isShadowedArray = colorCodedArray.filter((_, index) => (index + 1) % 4 === 0);
-      } else {
-        colorCodedArray = getResults(gl, colorBuffer, N_POINTS);
-        addToArray(
-          isShadowedArray,
-          colorCodedArray.filter((_, index) => (index + 1) % 4 === 0),
-        );
-      }
+      colorCodedArray = getResults(gl, colorBuffer, N_POINTS);
+      shadedIrradianceScenes[i] = colorCodedArray.filter((_, index) => (index + 1) % 4 === 0);
     }
   });
   gl.deleteTexture(texture);
@@ -215,7 +209,7 @@ export async function rayTracingWebGL(
   gl.deleteBuffer(normalBuffer);
   gl.deleteTransformFeedback(tf);
   gl.deleteBuffer(colorBuffer);
-  return isShadowedArray;
+  return shadedIrradianceScenes;
 }
 
 function getResults(gl: WebGL2RenderingContext, buffer: WebGLBuffer | null, N_POINTS: number) {
