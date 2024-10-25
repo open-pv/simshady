@@ -138,7 +138,6 @@ export class ShadingScene {
 
   async calculate(params: CalculateParams = {}) {
     const {
-      numberSimulations = 80,
       diffuseIrradianceURL,
       pvCellEfficiency = 0.2,
       maxYieldPerSquareMeter = 1400 * 0.2,
@@ -195,17 +194,12 @@ export class ShadingScene {
     const doDiffuseIntensities = typeof diffuseIrradianceURL === 'string';
     const simulationRounds = doDiffuseIntensities ? 2 : 1;
 
-    const directIntensities = await this.rayTrace(
-      midpointsArray,
-      normalsArray,
-      meshArray,
-      numberSimulations,
-      undefined,
-      (i, total) => progressCallback(i, total * simulationRounds),
+    const directIntensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, undefined, (i, total) =>
+      progressCallback(i, total * simulationRounds),
     );
     let diffuseIntensities = new Float32Array();
     if (doDiffuseIntensities) {
-      diffuseIntensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, 0, diffuseIrradianceURL, (i, total) =>
+      diffuseIntensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, diffuseIrradianceURL, (i, total) =>
         progressCallback(i + total, total * simulationRounds),
       );
     }
@@ -259,7 +253,6 @@ export class ShadingScene {
    * @param midpoints midpoints of triangles for which to calculate intensities
    * @param normals normals for each midpoint
    * @param meshArray array of vertices for the shading mesh
-   * @param numberSimulations number of random sun positions that are used for the simulation. Either numberSimulations or irradianceUrl need to be given.
    * @param diffuseIrradianceUrl url where a 2D json of irradiance values lies. To generate such a json, visit https://github.com/open-pv/irradiance
    * @return
    * @memberof Scene
@@ -268,7 +261,6 @@ export class ShadingScene {
     midpoints: Float32Array,
     normals: TypedArray,
     meshArray: Float32Array,
-    numberSimulations: number,
     diffuseIrradianceUrl: string | undefined,
     progressCallback: (progress: number, total: number) => void,
   ) {
@@ -281,12 +273,8 @@ export class ShadingScene {
       irradiance = sun.convertSpericalToEuclidian(diffuseIrradianceSpherical);
     } else if (typeof diffuseIrradianceUrl != 'undefined') {
       throw new Error('The given url for diffuse Irradiance is not valid.');
-    } else if (numberSimulations > 0) {
-      irradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
     } else {
-      throw new Error(
-        'No irradiance found for the simulation. Either give a valid URL for diffuse radiation or a numberSimulation > 0.',
-      );
+      throw new Error('No irradiance found for the simulation.');
     }
 
     if (this.elevationRaster.length > 0) {

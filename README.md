@@ -28,12 +28,9 @@ scene.addShadingGeometry(someShadingGeometry);
 scene.addSimulationGeometry(someSimulationGeometry);
 
 let mesh = await scene.calculate({
-    numberSimulations: 100,
-    diffuseIrradiance: "https://www.openpv.de/data/irradiance",
-    urlDirectIrrandianceTIF:
-      "https://www.openpv.de/data/irradiance/geotiff/average_direct_radiation.tif",
-    urlDiffuseIrrandianceTIF:
-      "https://www.openpv.de/data/irradiance/geotiff/average_diffuse_radiation.tif",
+  diffuseIrradiance: 'https://www.openpv.de/data/irradiance',
+  urlDirectIrrandianceTIF: 'https://www.openpv.de/data/irradiance/geotiff/average_direct_radiation.tif',
+  urlDiffuseIrrandianceTIF: 'https://www.openpv.de/data/irradiance/geotiff/average_diffuse_radiation.tif',
 });
 
 showThreeJS(mesh);

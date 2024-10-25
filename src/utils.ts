@@ -77,12 +77,6 @@ export type ColorMap = (t: number) => Color;
  */
 export interface CalculateParams {
   /**
-   * Number of random sun positions that are used to calculate the PV yield.
-   * @defaultValue 80
-   */
-  numberSimulations?: number;
-
-  /**
    * URL where the files for the diffuse Irradiance can be retreived.
    * The object at this URL needs to be of type {@link SolarIrradianceData}.
    * @defaultValue undefined - only direct irradiance is used.

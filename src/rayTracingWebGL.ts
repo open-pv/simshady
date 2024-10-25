@@ -1,5 +1,5 @@
 import { TypedArray } from 'three';
-import { Point, SunVector, timeoutForLoop } from './utils';
+import { SunVector, timeoutForLoop } from './utils';
 
 function addToArray(ar1: Float32Array, ar2: Float32Array) {
   for (var i = 0; i < ar1.length; i++) {
