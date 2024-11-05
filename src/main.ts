@@ -97,7 +97,10 @@ export class ShadingScene {
     this.elevationRaster = raster;
     this.elevationRasterMidpoint = midpoint;
   }
-
+  /**
+   * Add data of solar irradiance to the scene.
+   * @param irradiance
+   */
   addSolarIrradiance(irradiance: SolarIrradianceData) {
     this.solarIrradiance = irradiance;
   }
