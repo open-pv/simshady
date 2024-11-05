@@ -5,7 +5,15 @@ import { viridis } from './colormaps.js';
 import * as elevation from './elevation.js';
 import * as sun from './sun.js';
 import * as triangleUtils from './triangleUtils.js';
-import { CalculateParams, CartesianPoint, ColorMap, isValidUrl, SphericalPoint, SunVector } from './utils.js';
+import {
+  CalculateParams,
+  CartesianPoint,
+  ColorMap,
+  isValidUrl,
+  SolarIrradianceData,
+  SphericalPoint,
+  SunVector,
+} from './utils.js';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
@@ -26,6 +34,7 @@ export class ShadingScene {
   public latitude: number;
   public longitude: number;
   private elevationAzimuthDivisions: number;
+  private solarIrradiance: SolarIrradianceData | null;
   private colorMap: (t: number) => [number, number, number];
 
   /**
@@ -44,6 +53,7 @@ export class ShadingScene {
     this.latitude = latitude;
     this.longitude = longitude;
     this.elevationAzimuthDivisions = 60;
+    this.solarIrradiance = null;
     this.colorMap = viridis;
   }
 
@@ -86,6 +96,10 @@ export class ShadingScene {
     this.elevationAzimuthDivisions = azimuthDivisions;
     this.elevationRaster = raster;
     this.elevationRasterMidpoint = midpoint;
+  }
+
+  addSolarIrradiance(irradiance: SolarIrradianceData) {
+    this.solarIrradiance = irradiance;
   }
 
   /**
