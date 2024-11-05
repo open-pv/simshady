@@ -134,44 +134,16 @@ export async function getTiffValueAtLatLon(
 }
 
 /**
- * Calculates the yield of a solar panel in kWh/m2/a
- * @param directIntensities
- * @param diffuseIntensities
+ * Calculates the yield of a solar panel in kWh/m2
+ * @param intensities
  * @param pvCellEfficiency
- * @param lat
- * @param lon
  * @returns
  */
-export async function calculatePVYield(
-  directIntensities: Float32Array,
-  diffuseIntensities: Float32Array,
-  pvCellEfficiency: number,
-  lat: number,
-  lon: number,
-  urlDirectIrrandianceTIF: string,
-  urlDiffuseIrrandianceTIF: string,
-): Promise<Float32Array> {
-  let intensities = new Float32Array(directIntensities.length);
-  const normalizationDirect = 0.5;
-  const normalizationDiffuse = 72;
-  // Both values come from the calibration function in https://github.com/open-pv/minimalApp
-  // There the intensities are calibrated based on a horizontal plane
-  const directRadiationAverage = await getTiffValueAtLatLon(urlDirectIrrandianceTIF, [5.9, 47.3, 15.0, 55.0], lat, lon);
-  if (diffuseIntensities.length == 0) {
-    for (let i = 0; i < intensities.length; i++) {
-      intensities[i] = pvCellEfficiency * ((1.7 * (directRadiationAverage * directIntensities[i])) / normalizationDirect);
-      //TODO: How can this factor 1.7 be changed? Is 1.7 a useful number?
-    }
-    return intensities;
-  }
-  const diffuseRadiationAverage = await getTiffValueAtLatLon(urlDiffuseIrrandianceTIF, [5.9, 47.3, 15.0, 55.0], lat, lon);
+export function calculatePVYield(intensities: Float32Array, pvCellEfficiency: number): Float32Array {
+  let PVYield = new Float32Array(intensities.length);
 
-  for (let i = 0; i < intensities.length; i++) {
-    intensities[i] =
-      pvCellEfficiency *
-      ((diffuseRadiationAverage * diffuseIntensities[i]) / normalizationDiffuse +
-        (directRadiationAverage * directIntensities[i]) / normalizationDirect);
+  for (let i = 0; i < PVYield.length; i++) {
+    PVYield[i] = pvCellEfficiency * intensities[i];
   }
-  console.log('Intensities after efficiency was multiplied', intensities);
-  return intensities;
+  return PVYield;
 }
