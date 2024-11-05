@@ -98,7 +98,7 @@ export class ShadingScene {
   }
 
   /** @ignore */
-  refineMesh(mesh: BufferGeometry, maxLength: number): BufferGeometry {
+  private refineMesh(mesh: BufferGeometry, maxLength: number): BufferGeometry {
     const positions = mesh.attributes.position.array.slice();
 
     let newTriangles: number[] = [];
@@ -194,30 +194,19 @@ export class ShadingScene {
     const doDiffuseIntensities = typeof diffuseIrradianceURL === 'string';
     const simulationRounds = doDiffuseIntensities ? 2 : 1;
 
-    let diffuseIntensities = new Float32Array();
-    if (doDiffuseIntensities) {
-      diffuseIntensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, diffuseIrradianceURL, (i, total) =>
-        progressCallback(i + total, total * simulationRounds),
-      );
-    }
+    let diffuseIntensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, diffuseIrradianceURL, (i, total) =>
+      progressCallback(i + total, total * simulationRounds),
+    );
 
     console.log('diffuseIntensities', diffuseIntensities);
 
-    const intensities = await sun.calculatePVYield(
-      diffuseIntensities,
-      diffuseIntensities,
-      pvCellEfficiency,
-      this.latitude,
-      this.longitude,
-      urlDirectIrrandianceTIF,
-      urlDiffuseIrrandianceTIF,
-    );
+    const intensities = await sun.calculatePVYield(diffuseIntensities, pvCellEfficiency);
     console.log('finalIntensities', intensities);
 
     return this.createMesh(simulationGeometry, intensities, maxYieldPerSquareMeter);
   }
   /** @ignore */
-  createMesh(subdividedGeometry: BufferGeometry, intensities: Float32Array, maxYieldPerSquareMeter: number): THREE.Mesh {
+  private createMesh(subdividedGeometry: BufferGeometry, intensities: Float32Array, maxYieldPerSquareMeter: number): THREE.Mesh {
     const Npoints = subdividedGeometry.attributes.position.array.length / 9;
     var newColors = new Float32Array(Npoints * 9);
 
@@ -253,13 +242,13 @@ export class ShadingScene {
    * @return
    * @memberof Scene
    */
-  async rayTrace(
+  private async rayTrace(
     midpoints: Float32Array,
     normals: TypedArray,
     meshArray: Float32Array,
     diffuseIrradianceUrl: string | undefined,
     progressCallback: (progress: number, total: number) => void,
-  ) {
+  ): Promise<Float32Array> {
     let irradiance: SunVector[] = [];
     let shadingElevationAngles: SphericalPoint[] = [];
 
@@ -286,10 +275,12 @@ export class ShadingScene {
     if (shadedIrradianceScenes === null) {
       throw new Error('Error occured when running the Raytracing in WebGL.');
     }
-    let intensities = shadedIrradianceScenes[0];
-    for (let i = 1; i < shadedIrradianceScenes.length; i++) {
+
+    let intensities = new Float32Array(shadedIrradianceScenes[0].length).fill(0);
+
+    for (let i = 0; i < shadedIrradianceScenes.length; i++) {
       for (let j = 0; j < intensities.length; j++) {
-        intensities[j] += shadedIrradianceScenes[i][j];
+        intensities[j] += shadedIrradianceScenes[i][j] / shadedIrradianceScenes.length;
       }
     }
 
