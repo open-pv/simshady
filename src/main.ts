@@ -105,6 +105,12 @@ export class ShadingScene {
     this.solarIrradiance = irradiance;
   }
 
+  async addSolarIrradianceFromURL(url: string): Promise<void> {
+    const response = await fetch(url);
+    const data = await response.json();
+    this.addSolarIrradiance(data);
+  }
+
   /**
    * Change the Color Map that is used for the colors of the simulated Three.js mesh. This is
    * optional, the default colorMap is viridis (blue to green to yellow)
