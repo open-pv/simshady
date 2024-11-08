@@ -5,15 +5,7 @@ import { viridis } from './colormaps.js';
 import * as elevation from './elevation.js';
 import * as sun from './sun.js';
 import * as triangleUtils from './triangleUtils.js';
-import {
-  CalculateParams,
-  CartesianPoint,
-  ColorMap,
-  isValidUrl,
-  SolarIrradianceData,
-  SphericalPoint,
-  SunVector,
-} from './utils.js';
+import { CalculateParams, CartesianPoint, ColorMap, SolarIrradianceData, SphericalPoint, SunVector } from './utils.js';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
