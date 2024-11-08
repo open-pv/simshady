@@ -193,8 +193,8 @@ export class ShadingScene {
     this.logNaNCount('midpoints', midpointsArray);
     this.logNaNCount('mesh', meshArray);
 
-    // Perform ray tracing to calculate diffuse intensities
-    const diffuseIntensities = await this.rayTrace(
+    // Perform ray tracing to calculate intensities
+    const shadedScene = await this.rayTrace(
       midpointsArray,
       normalsArray,
       meshArray,
@@ -202,13 +202,13 @@ export class ShadingScene {
       (i, total) => progressCallback(i + total, total),
     );
 
-    console.log('diffuseIntensities', diffuseIntensities);
+    console.log('diffuseIntensities', shadedScene);
 
     // Calculate final intensities and generate output mesh
-    const intensities = sun.calculatePVYield(diffuseIntensities, pvCellEfficiency);
-    console.log('finalIntensities', intensities);
+    const pvYield = sun.calculatePVYield(shadedScene, pvCellEfficiency);
+    console.log('finalIntensities', pvYield);
 
-    return this.createMesh(simulationGeometry, intensities, maxYieldPerSquareMeter);
+    return this.createMesh(simulationGeometry, pvYield, maxYieldPerSquareMeter);
   }
 
   // Helper to validate class parameters
