@@ -161,15 +161,22 @@ export class ShadingScene {
 
   async calculate(params: CalculateParams = {}) {
     const {
-      diffuseIrradianceURL,
       pvCellEfficiency = 0.2,
       maxYieldPerSquareMeter = 1400 * 0.2,
       progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}%`),
-      urlDirectIrrandianceTIF,
-      urlDiffuseIrrandianceTIF,
     } = params;
-    if (urlDiffuseIrrandianceTIF === undefined || urlDirectIrrandianceTIF === undefined) {
-      throw new Error('A URL for the geotif files for Diffuse and Direct Irradiance is undefined.');
+
+    const areClassParamsValid = () => {
+      const isShadingGeomValid = this.shadingGeometries.length > 0;
+      const isSimulationGeomValid = this.simulationGeometries.length > 0;
+      const isIrradianceValid = this.solarIrradiance != null;
+      return isShadingGeomValid && isSimulationGeomValid && isIrradianceValid;
+    };
+
+    if (!areClassParamsValid()) {
+      throw new Error(
+        'Invalid Class Parameters: You need to supply at least Shading Geometry, a Simulation Geometry, and Irradiance Data.',
+      );
     }
     console.log('Simulation package was called to calculate');
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
@@ -214,16 +221,17 @@ export class ShadingScene {
     // Compute unique intensities
     console.log('Calling this.rayTrace');
 
-    const doDiffuseIntensities = typeof diffuseIrradianceURL === 'string';
-    const simulationRounds = doDiffuseIntensities ? 2 : 1;
-
-    let diffuseIntensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, diffuseIrradianceURL, (i, total) =>
-      progressCallback(i + total, total * simulationRounds),
+    let diffuseIntensities = await this.rayTrace(
+      midpointsArray,
+      normalsArray,
+      meshArray,
+      this.solarIrradiance!, // ! is the non null assertion operator
+      (i, total) => progressCallback(i + total, total),
     );
 
     console.log('diffuseIntensities', diffuseIntensities);
 
-    const intensities = await sun.calculatePVYield(diffuseIntensities, pvCellEfficiency);
+    const intensities = sun.calculatePVYield(diffuseIntensities, pvCellEfficiency);
     console.log('finalIntensities', intensities);
 
     return this.createMesh(simulationGeometry, intensities, maxYieldPerSquareMeter);
@@ -269,21 +277,13 @@ export class ShadingScene {
     midpoints: Float32Array,
     normals: TypedArray,
     meshArray: Float32Array,
-    diffuseIrradianceUrl: string | undefined,
+    irradiance: SolarIrradianceData,
     progressCallback: (progress: number, total: number) => void,
   ): Promise<Float32Array> {
-    let irradiance: SunVector[] = [];
+    let irradianceShadedByElevation: SunVector[] = [];
     let shadingElevationAngles: SphericalPoint[] = [];
 
-    if (typeof diffuseIrradianceUrl === 'string' && isValidUrl(diffuseIrradianceUrl)) {
-      // Case where diffuse Radiation is considered in simulation
-      const diffuseIrradianceSpherical = await sun.fetchIrradiance(diffuseIrradianceUrl, this.latitude, this.longitude);
-      irradiance = sun.convertSpericalToEuclidian(diffuseIrradianceSpherical);
-    } else if (typeof diffuseIrradianceUrl != 'undefined') {
-      throw new Error('The given url for diffuse Irradiance is not valid.');
-    } else {
-      throw new Error('No irradiance found for the simulation.');
-    }
+    irradianceShadedByElevation = sun.convertSpericalToEuclidian(irradiance);
 
     if (this.elevationRaster.length > 0) {
       shadingElevationAngles = elevation.getMaxElevationAngles(
@@ -291,10 +291,16 @@ export class ShadingScene {
         this.elevationRasterMidpoint,
         this.elevationAzimuthDivisions,
       );
-      sun.shadeIrradianceFromElevation(irradiance, shadingElevationAngles);
+      sun.shadeIrradianceFromElevation(irradianceShadedByElevation, shadingElevationAngles);
     }
     normals = normals.filter((_, index) => index % 9 < 3);
-    const shadedIrradianceScenes = await rayTracingWebGL(midpoints, normals, meshArray, irradiance, progressCallback);
+    const shadedIrradianceScenes = await rayTracingWebGL(
+      midpoints,
+      normals,
+      meshArray,
+      irradianceShadedByElevation,
+      progressCallback,
+    );
     if (shadedIrradianceScenes === null) {
       throw new Error('Error occured when running the Raytracing in WebGL.');
     }
