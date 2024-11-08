@@ -166,76 +166,77 @@ export class ShadingScene {
       progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}%`),
     } = params;
 
-    const areClassParamsValid = () => {
-      const isShadingGeomValid = this.shadingGeometries.length > 0;
-      const isSimulationGeomValid = this.simulationGeometries.length > 0;
-      const isIrradianceValid = this.solarIrradiance != null;
-      return isShadingGeomValid && isSimulationGeomValid && isIrradianceValid;
-    };
-
-    if (!areClassParamsValid()) {
+    // Validate class parameters
+    if (!this.validateClassParams()) {
       throw new Error(
         'Invalid Class Parameters: You need to supply at least Shading Geometry, a Simulation Geometry, and Irradiance Data.',
       );
     }
-    console.log('Simulation package was called to calculate');
+
+    // Merge geometries
     let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
     let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
 
-    // TODO: This breaks everything, why?
-    simulationGeometry = this.refineMesh(simulationGeometry, 1.0); // TODO: make configurable
+    simulationGeometry = this.refineMesh(simulationGeometry, 1.0);
 
     console.log('Number of simulation triangles:', simulationGeometry.attributes.position.count / 3);
     console.log('Number of shading triangles:', shadingGeometry.attributes.position.count / 3);
 
+    // Extract and validate geometry attributes
     const meshArray = <Float32Array>shadingGeometry.attributes.position.array;
     const points = simulationGeometry.attributes.position.array;
     const normalsArray = simulationGeometry.attributes.normal.array;
 
-    let midpointsNan = 0;
-    let midpoints: number[] = [];
-    for (let i = 0; i < normalsArray.length; i += 9) {
-      const midpoint = triangleUtils.midpoint(points, i);
-      for (let j = 0; j < 3; j++) {
-        midpoints.push(midpoint[j]);
-        if (isNaN(normalsArray[i])) {
-          midpointsNan++;
-        }
-      }
-    }
-    if (midpointsNan > 0) {
-      console.log(`${midpointsNan}/${midpoints.length} midpoints are nan`);
-    }
+    const midpointsArray = this.computeMidpoints(points, normalsArray);
 
-    const midpointsArray = new Float32Array(midpoints.slice());
+    // Check for NaN values in geometry data
+    this.logNaNCount('midpoints', midpointsArray);
+    this.logNaNCount('mesh', meshArray);
 
-    let meshNan = 0;
-    for (let i = 0; i < meshArray.length; i++) {
-      if (isNaN(meshArray[i])) {
-        meshNan++;
-      }
-    }
-    if (meshNan > 0) {
-      console.log(`${meshNan}/${meshArray.length} mesh coordinates are nan`);
-    }
-    // Compute unique intensities
-    console.log('Calling this.rayTrace');
-
-    let diffuseIntensities = await this.rayTrace(
+    // Perform ray tracing to calculate diffuse intensities
+    const diffuseIntensities = await this.rayTrace(
       midpointsArray,
       normalsArray,
       meshArray,
-      this.solarIrradiance!, // ! is the non null assertion operator
+      this.solarIrradiance!, // Non-null assertion
       (i, total) => progressCallback(i + total, total),
     );
 
     console.log('diffuseIntensities', diffuseIntensities);
 
+    // Calculate final intensities and generate output mesh
     const intensities = sun.calculatePVYield(diffuseIntensities, pvCellEfficiency);
     console.log('finalIntensities', intensities);
 
     return this.createMesh(simulationGeometry, intensities, maxYieldPerSquareMeter);
   }
+
+  // Helper to validate class parameters
+  private validateClassParams(): boolean {
+    const hasShadingGeom = this.shadingGeometries.length > 0;
+    const hasSimulationGeom = this.simulationGeometries.length > 0;
+    const hasIrradianceData = this.solarIrradiance != null;
+    return hasShadingGeom && hasSimulationGeom && hasIrradianceData;
+  }
+
+  // Helper to compute midpoints of triangles and track NaN values
+  private computeMidpoints(points: TypedArray, normals: TypedArray): Float32Array {
+    let midpoints: number[] = [];
+    for (let i = 0; i < normals.length; i += 9) {
+      const midpoint = triangleUtils.midpoint(points, i);
+      midpoints.push(...midpoint);
+    }
+    return new Float32Array(midpoints);
+  }
+
+  // Helper to log NaN counts in data arrays
+  private logNaNCount(name: string, array: Float32Array): void {
+    const nanCount = Array.from(array).filter(isNaN).length;
+    if (nanCount > 0) {
+      console.log(`${nanCount}/${array.length} ${name} coordinates are NaN`);
+    }
+  }
+
   /** @ignore */
   private createMesh(subdividedGeometry: BufferGeometry, intensities: Float32Array, maxYieldPerSquareMeter: number): THREE.Mesh {
     const Npoints = subdividedGeometry.attributes.position.array.length / 9;
