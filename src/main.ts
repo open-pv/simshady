@@ -5,7 +5,15 @@ import { viridis } from './colormaps.js';
 import * as elevation from './elevation.js';
 import * as sun from './sun.js';
 import * as triangleUtils from './triangleUtils.js';
-import { CalculateParams, CartesianPoint, ColorMap, SolarIrradianceData, SphericalPoint, SunVector } from './utils.js';
+import {
+  CalculateParams,
+  CartesianPoint,
+  ColorMap,
+  SolarIrradianceData,
+  SphericalPoint,
+  SunVector,
+  logNaNCount,
+} from './utils.js';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
@@ -182,8 +190,8 @@ export class ShadingScene {
     const midpointsArray = this.computeMidpoints(points, normalsArray);
 
     // Check for NaN values in geometry data
-    this.logNaNCount('midpoints', midpointsArray);
-    this.logNaNCount('mesh', meshArray);
+    logNaNCount('midpoints', midpointsArray);
+    logNaNCount('mesh', meshArray);
 
     // Perform ray tracing to calculate intensities
     const shadedScene = await this.rayTrace(
@@ -219,14 +227,6 @@ export class ShadingScene {
       midpoints.push(...midpoint);
     }
     return new Float32Array(midpoints);
-  }
-
-  // Helper to log NaN counts in data arrays
-  private logNaNCount(name: string, array: Float32Array): void {
-    const nanCount = Array.from(array).filter(isNaN).length;
-    if (nanCount > 0) {
-      console.log(`${nanCount}/${array.length} ${name} coordinates are NaN`);
-    }
   }
 
   /** @ignore */

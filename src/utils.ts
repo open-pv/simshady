@@ -113,3 +113,11 @@ export async function timeoutForLoop(start: number, end: number, body: (i: numbe
     setTimeout(() => inner(0), 0);
   });
 }
+
+// Helper to log NaN counts in data arrays
+export function logNaNCount(name: string, array: Float32Array): void {
+  const nanCount = Array.from(array).filter(isNaN).length;
+  if (nanCount > 0) {
+    console.log(`${nanCount}/${array.length} ${name} coordinates are NaN`);
+  }
+}
