@@ -121,7 +121,7 @@ export class ShadingScene {
   }
 
   /** @ignore */
-  private refineMesh(mesh: BufferGeometry, maxLength: number): BufferGeometry {
+  refineMesh(mesh: BufferGeometry, maxLength: number): BufferGeometry {
     const positions = mesh.attributes.position.array.slice();
 
     let newTriangles: number[] = [];
