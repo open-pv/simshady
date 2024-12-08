@@ -120,7 +120,11 @@ export class ShadingScene {
     this.colorMap = colorMap;
   }
 
-  /** @ignore */
+  /** @ignore
+   * Gets a BufferGeometry representing a mesh. Refines the triangles until all triangles
+   * have sites smaller maxLength.
+   */
+
   refineMesh(mesh: BufferGeometry, maxLength: number): BufferGeometry {
     const positions = mesh.attributes.position.array.slice();
 
