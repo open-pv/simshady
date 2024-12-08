@@ -22,19 +22,19 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
  * This class holds all information about the scene that is simulated.
  * A ShadingScene is typically equipped with the following attributes:
  * * A pair of coordinates to locate the scene
- * * Simulation geometries, where the PV potential is calculated
- * * Shading geometries, where no PV potential is calculated but which are
+ * * Simulation geometry, where the PV potential is calculated
+ * * Shading geometry, where no PV potential is calculated but which are
  *   responsible for shading
  */
 export class ShadingScene {
-  public simulationGeometries: Array<BufferGeometry>;
-  public shadingGeometries: Array<BufferGeometry>;
+  public simulationGeometry: BufferGeometry | undefined;
+  public shadingGeometry: BufferGeometry | undefined;
   public elevationRaster: Array<CartesianPoint>;
   private elevationRasterMidpoint: CartesianPoint;
   public latitude: number;
   public longitude: number;
   private elevationAzimuthDivisions: number;
-  private solarIrradiance: SolarIrradianceData | null;
+  public solarIrradiance: SolarIrradianceData | null;
   private colorMap: (t: number) => [number, number, number];
 
   /**
@@ -46,8 +46,7 @@ export class ShadingScene {
     if (latitude === undefined || longitude === undefined) {
       throw new Error('Latitude and Longitude must be defined');
     }
-    this.simulationGeometries = [];
-    this.shadingGeometries = [];
+
     this.elevationRaster = [];
     this.elevationRasterMidpoint = { x: 0, y: 0, z: 0 };
     this.latitude = latitude;
@@ -68,8 +67,16 @@ export class ShadingScene {
    */
   addSimulationGeometry(geometry: BufferGeometry) {
     geometry = geometry.toNonIndexed();
-    this.simulationGeometries.push(geometry);
-    this.shadingGeometries.push(geometry);
+    if (!this.simulationGeometry) {
+      this.simulationGeometry = geometry;
+    } else {
+      this.simulationGeometry = BufferGeometryUtils.mergeGeometries([this.simulationGeometry, geometry]);
+    }
+    if (!this.shadingGeometry) {
+      this.shadingGeometry = geometry;
+    } else {
+      this.shadingGeometry = BufferGeometryUtils.mergeGeometries([this.shadingGeometry, geometry]);
+    }
   }
 
   /**
@@ -81,7 +88,11 @@ export class ShadingScene {
    */
   addShadingGeometry(geometry: BufferGeometry) {
     geometry = geometry.toNonIndexed();
-    this.shadingGeometries.push(geometry);
+    if (!this.shadingGeometry) {
+      this.shadingGeometry = geometry;
+    } else {
+      this.shadingGeometry = BufferGeometryUtils.mergeGeometries([this.shadingGeometry, geometry]);
+    }
   }
   /**
    * Add a elevation model to the simulation scene.
@@ -178,18 +189,16 @@ export class ShadingScene {
     }
 
     // Merge geometries
-    let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
-    let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
 
-    simulationGeometry = this.refineMesh(simulationGeometry, 1.0);
+    this.simulationGeometry = this.refineMesh(this.simulationGeometry, 1.0);
 
-    console.log('Number of simulation triangles:', simulationGeometry.attributes.position.count / 3);
-    console.log('Number of shading triangles:', shadingGeometry.attributes.position.count / 3);
+    console.log('Number of simulation triangles:', this.simulationGeometry.attributes.position.count / 3);
+    console.log('Number of shading triangles:', this.shadingGeometry.attributes.position.count / 3);
 
     // Extract and validate geometry attributes
-    const meshArray = <Float32Array>shadingGeometry.attributes.position.array;
-    const points = simulationGeometry.attributes.position.array;
-    const normalsArray = simulationGeometry.attributes.normal.array;
+    const meshArray = <Float32Array>this.shadingGeometry.attributes.position.array;
+    const points = this.simulationGeometry.attributes.position.array;
+    const normalsArray = this.simulationGeometry.attributes.normal.array;
 
     const midpointsArray = this.computeMidpoints(points, normalsArray);
 
@@ -212,15 +221,22 @@ export class ShadingScene {
     const pvYield = sun.calculatePVYield(shadedScene, pvCellEfficiency);
     console.log('finalIntensities', pvYield);
 
-    return this.createMesh(simulationGeometry, pvYield, maxYieldPerSquareMeter);
+    return this.createMesh(this.simulationGeometry, pvYield, maxYieldPerSquareMeter);
   }
 
-  // Helper to validate class parameters
-  private validateClassParams(): boolean {
-    const hasShadingGeom = this.shadingGeometries.length > 0;
-    const hasSimulationGeom = this.simulationGeometries.length > 0;
-    const hasIrradianceData = this.solarIrradiance != null;
-    return hasShadingGeom && hasSimulationGeom && hasIrradianceData;
+  // Type Guard function to validate class parameters
+  private validateClassParams(): this is {
+    shadingGeometry: NonNullable<BufferGeometry>;
+    simulationGeometry: NonNullable<BufferGeometry>;
+    solarIrradiance: NonNullable<SolarIrradianceData>;
+  } {
+    return (
+      this.shadingGeometry !== null &&
+      this.shadingGeometry !== undefined &&
+      this.simulationGeometry !== null &&
+      this.simulationGeometry !== undefined &&
+      this.solarIrradiance != null
+    );
   }
 
   // Helper to compute midpoints of triangles and track NaN values
