@@ -3,7 +3,7 @@ import * as sun from '../src/sun';
 import { CartesianPoint } from '../src/utils';
 
 const irradianceSpherical = {
-  metadata: { description: '', latitude: 0, longitude: 0, samplesAzimuth: 0, samplesAltitude: 0 },
+  metadata: { latitude: 0, longitude: 0 },
   data: [
     {
       altitude: 0,

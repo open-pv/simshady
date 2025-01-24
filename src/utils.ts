@@ -1,10 +1,7 @@
 export type SolarIrradianceData = {
   metadata: {
-    description: string;
     latitude: number;
     longitude: number;
-    samplesAzimuth: number;
-    samplesAltitude: number;
   };
   data: Array<{
     altitude: number;
