@@ -13,11 +13,11 @@ export function convertSpericalToEuclidian(irradiance: SolarIrradianceData): Sun
     sunVectors.push({
       vector: {
         cartesian: {
-          x: obj.radiance * Math.sin(obj.theta) * Math.cos(obj.phi),
-          y: obj.radiance * Math.sin(obj.theta) * Math.sin(obj.phi),
-          z: obj.radiance * Math.cos(obj.theta),
+          x: obj.radiance * Math.sin(obj.altitude) * Math.cos(obj.azimuth),
+          y: obj.radiance * Math.sin(obj.altitude) * Math.sin(obj.azimuth),
+          z: obj.radiance * Math.cos(obj.altitude),
         },
-        spherical: { radius: obj.radiance, azimuth: obj.phi, altitude: obj.theta },
+        spherical: { radius: obj.radiance, azimuth: obj.azimuth, altitude: obj.altitude },
       },
       isShadedByElevation: false,
     });

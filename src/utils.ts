@@ -3,12 +3,12 @@ export type SolarIrradianceData = {
     description: string;
     latitude: number;
     longitude: number;
-    samples_phi: number;
-    samples_theta: number;
+    samplesAzimuth: number;
+    samplesAltitude: number;
   };
   data: Array<{
-    theta: number;
-    phi: number;
+    altitude: number;
+    azimuth: number;
     radiance: number;
   }>;
 };

@@ -3,46 +3,46 @@ import * as sun from '../src/sun';
 import { CartesianPoint } from '../src/utils';
 
 const irradianceSpherical = {
-  metadata: { description: '', latitude: 0, longitude: 0, samples_phi: 0, samples_theta: 0 },
+  metadata: { description: '', latitude: 0, longitude: 0, samplesAzimuth: 0, samplesAltitude: 0 },
   data: [
     {
-      theta: 0,
-      phi: 0,
+      altitude: 0,
+      azimuth: 0,
       radiance: 1,
     },
     {
-      theta: 0,
-      phi: Math.PI / 2,
+      altitude: 0,
+      azimuth: Math.PI / 2,
       radiance: 2,
     },
     {
-      theta: 0,
-      phi: Math.PI,
+      altitude: 0,
+      azimuth: Math.PI,
       radiance: 3,
     },
     {
-      theta: 0,
-      phi: (Math.PI * 3) / 2,
+      altitude: 0,
+      azimuth: (Math.PI * 3) / 2,
       radiance: 4,
     },
     {
-      theta: Math.PI / 2,
-      phi: 0,
+      altitude: Math.PI / 2,
+      azimuth: 0,
       radiance: 1,
     },
     {
-      theta: Math.PI / 2,
-      phi: Math.PI / 2,
+      altitude: Math.PI / 2,
+      azimuth: Math.PI / 2,
       radiance: 2,
     },
     {
-      theta: Math.PI / 2,
-      phi: Math.PI,
+      altitude: Math.PI / 2,
+      azimuth: Math.PI,
       radiance: 3,
     },
     {
-      theta: Math.PI / 2,
-      phi: (Math.PI * 3) / 2,
+      altitude: Math.PI / 2,
+      azimuth: (Math.PI * 3) / 2,
       radiance: 4,
     },
   ],
