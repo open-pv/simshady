@@ -1,26 +1,11 @@
-/**
-  @ignore
- */
-export function isValidUrl(urlString: string): boolean {
-  try {
-    new URL(urlString);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
 export type SolarIrradianceData = {
   metadata: {
-    description: string;
     latitude: number;
     longitude: number;
-    samples_phi: number;
-    samples_theta: number;
   };
   data: Array<{
-    theta: number;
-    phi: number;
+    altitude: number;
+    azimuth: number;
     radiance: number;
   }>;
 };
@@ -77,12 +62,6 @@ export type ColorMap = (t: number) => Color;
  */
 export interface CalculateParams {
   /**
-   * Number of random sun positions that are used to calculate the PV yield.
-   * @defaultValue 80
-   */
-  numberSimulations?: number;
-
-  /**
    * URL where the files for the diffuse Irradiance can be retreived.
    * The object at this URL needs to be of type {@link SolarIrradianceData}.
    * @defaultValue undefined - only direct irradiance is used.
@@ -130,4 +109,12 @@ export async function timeoutForLoop(start: number, end: number, body: (i: numbe
     };
     setTimeout(() => inner(0), 0);
   });
+}
+
+// Helper to log NaN counts in data arrays
+export function logNaNCount(name: string, array: Float32Array): void {
+  const nanCount = Array.from(array).filter(isNaN).length;
+  if (nanCount > 0) {
+    console.log(`${nanCount}/${array.length} ${name} coordinates are NaN`);
+  }
 }

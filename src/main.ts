@@ -5,7 +5,15 @@ import { viridis } from './colormaps.js';
 import * as elevation from './elevation.js';
 import * as sun from './sun.js';
 import * as triangleUtils from './triangleUtils.js';
-import { CalculateParams, CartesianPoint, ColorMap, isValidUrl, SphericalPoint, SunVector } from './utils.js';
+import {
+  CalculateParams,
+  CartesianPoint,
+  ColorMap,
+  SolarIrradianceData,
+  SphericalPoint,
+  SunVector,
+  logNaNCount,
+} from './utils.js';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
@@ -14,18 +22,19 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
  * This class holds all information about the scene that is simulated.
  * A ShadingScene is typically equipped with the following attributes:
  * * A pair of coordinates to locate the scene
- * * Simulation geometries, where the PV potential is calculated
- * * Shading geometries, where no PV potential is calculated but which are
+ * * Simulation geometry, where the PV potential is calculated
+ * * Shading geometry, where no PV potential is calculated but which are
  *   responsible for shading
  */
 export class ShadingScene {
-  public simulationGeometries: Array<BufferGeometry>;
-  public shadingGeometries: Array<BufferGeometry>;
+  public simulationGeometry: BufferGeometry | undefined;
+  public shadingGeometry: BufferGeometry | undefined;
   public elevationRaster: Array<CartesianPoint>;
   private elevationRasterMidpoint: CartesianPoint;
   public latitude: number;
   public longitude: number;
   private elevationAzimuthDivisions: number;
+  public solarIrradiance: SolarIrradianceData | null;
   private colorMap: (t: number) => [number, number, number];
 
   /**
@@ -37,13 +46,13 @@ export class ShadingScene {
     if (latitude === undefined || longitude === undefined) {
       throw new Error('Latitude and Longitude must be defined');
     }
-    this.simulationGeometries = [];
-    this.shadingGeometries = [];
+
     this.elevationRaster = [];
     this.elevationRasterMidpoint = { x: 0, y: 0, z: 0 };
     this.latitude = latitude;
     this.longitude = longitude;
     this.elevationAzimuthDivisions = 60;
+    this.solarIrradiance = null;
     this.colorMap = viridis;
   }
 
@@ -58,8 +67,16 @@ export class ShadingScene {
    */
   addSimulationGeometry(geometry: BufferGeometry) {
     geometry = geometry.toNonIndexed();
-    this.simulationGeometries.push(geometry);
-    this.shadingGeometries.push(geometry);
+    if (!this.simulationGeometry) {
+      this.simulationGeometry = geometry;
+    } else {
+      this.simulationGeometry = BufferGeometryUtils.mergeGeometries([this.simulationGeometry, geometry]);
+    }
+    if (!this.shadingGeometry) {
+      this.shadingGeometry = geometry;
+    } else {
+      this.shadingGeometry = BufferGeometryUtils.mergeGeometries([this.shadingGeometry, geometry]);
+    }
   }
 
   /**
@@ -71,7 +88,11 @@ export class ShadingScene {
    */
   addShadingGeometry(geometry: BufferGeometry) {
     geometry = geometry.toNonIndexed();
-    this.shadingGeometries.push(geometry);
+    if (!this.shadingGeometry) {
+      this.shadingGeometry = geometry;
+    } else {
+      this.shadingGeometry = BufferGeometryUtils.mergeGeometries([this.shadingGeometry, geometry]);
+    }
   }
   /**
    * Add a elevation model to the simulation scene.
@@ -87,6 +108,19 @@ export class ShadingScene {
     this.elevationRaster = raster;
     this.elevationRasterMidpoint = midpoint;
   }
+  /**
+   * Add data of solar irradiance to the scene.
+   * @param irradiance
+   */
+  addSolarIrradiance(irradiance: SolarIrradianceData) {
+    this.solarIrradiance = irradiance;
+  }
+
+  async addSolarIrradianceFromURL(url: string): Promise<void> {
+    const response = await fetch(url);
+    const data = await response.json();
+    this.addSolarIrradiance(data);
+  }
 
   /**
    * Change the Color Map that is used for the colors of the simulated Three.js mesh. This is
@@ -97,7 +131,11 @@ export class ShadingScene {
     this.colorMap = colorMap;
   }
 
-  /** @ignore */
+  /** @ignore
+   * Gets a BufferGeometry representing a mesh. Refines the triangles until all triangles
+   * have sites smaller maxLength.
+   */
+
   refineMesh(mesh: BufferGeometry, maxLength: number): BufferGeometry {
     const positions = mesh.attributes.position.array.slice();
 
@@ -138,96 +176,81 @@ export class ShadingScene {
 
   async calculate(params: CalculateParams = {}) {
     const {
-      numberSimulations = 80,
-      diffuseIrradianceURL,
       pvCellEfficiency = 0.2,
       maxYieldPerSquareMeter = 1400 * 0.2,
       progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}%`),
-      urlDirectIrrandianceTIF,
-      urlDiffuseIrrandianceTIF,
     } = params;
-    if (urlDiffuseIrrandianceTIF === undefined || urlDirectIrrandianceTIF === undefined) {
-      throw new Error('A URL for the geotif files for Diffuse and Direct Irradiance is undefined.');
-    }
-    console.log('Simulation package was called to calculate');
-    let simulationGeometry = BufferGeometryUtils.mergeGeometries(this.simulationGeometries);
-    let shadingGeometry = BufferGeometryUtils.mergeGeometries(this.shadingGeometries);
 
-    // TODO: This breaks everything, why?
-    simulationGeometry = this.refineMesh(simulationGeometry, 1.0); // TODO: make configurable
-
-    console.log('Number of simulation triangles:', simulationGeometry.attributes.position.count / 3);
-    console.log('Number of shading triangles:', shadingGeometry.attributes.position.count / 3);
-
-    const meshArray = <Float32Array>shadingGeometry.attributes.position.array;
-    const points = simulationGeometry.attributes.position.array;
-    const normalsArray = simulationGeometry.attributes.normal.array;
-
-    let midpointsNan = 0;
-    let midpoints: number[] = [];
-    for (let i = 0; i < normalsArray.length; i += 9) {
-      const midpoint = triangleUtils.midpoint(points, i);
-      for (let j = 0; j < 3; j++) {
-        midpoints.push(midpoint[j]);
-        if (isNaN(normalsArray[i])) {
-          midpointsNan++;
-        }
-      }
-    }
-    if (midpointsNan > 0) {
-      console.log(`${midpointsNan}/${midpoints.length} midpoints are nan`);
-    }
-
-    const midpointsArray = new Float32Array(midpoints.slice());
-
-    let meshNan = 0;
-    for (let i = 0; i < meshArray.length; i++) {
-      if (isNaN(meshArray[i])) {
-        meshNan++;
-      }
-    }
-    if (meshNan > 0) {
-      console.log(`${meshNan}/${meshArray.length} mesh coordinates are nan`);
-    }
-    // Compute unique intensities
-    console.log('Calling this.rayTrace');
-
-    const doDiffuseIntensities = typeof diffuseIrradianceURL === 'string';
-    const simulationRounds = doDiffuseIntensities ? 2 : 1;
-
-    const directIntensities = await this.rayTrace(
-      midpointsArray,
-      normalsArray,
-      meshArray,
-      numberSimulations,
-      undefined,
-      (i, total) => progressCallback(i, total * simulationRounds),
-    );
-    let diffuseIntensities = new Float32Array();
-    if (doDiffuseIntensities) {
-      diffuseIntensities = await this.rayTrace(midpointsArray, normalsArray, meshArray, 0, diffuseIrradianceURL, (i, total) =>
-        progressCallback(i + total, total * simulationRounds),
+    // Validate class parameters
+    if (!this.validateClassParams()) {
+      throw new Error(
+        'Invalid Class Parameters: You need to supply at least Shading Geometry, a Simulation Geometry, and Irradiance Data.',
       );
     }
 
-    console.log('directIntensities', directIntensities);
-    console.log('diffuseIntensities', diffuseIntensities);
+    // Merge geometries
 
-    const intensities = await sun.calculatePVYield(
-      directIntensities,
-      diffuseIntensities,
-      pvCellEfficiency,
-      this.latitude,
-      this.longitude,
-      urlDirectIrrandianceTIF,
-      urlDiffuseIrrandianceTIF,
+    this.simulationGeometry = this.refineMesh(this.simulationGeometry, 1.0);
+
+    console.log('Number of simulation triangles:', this.simulationGeometry.attributes.position.count / 3);
+    console.log('Number of shading triangles:', this.shadingGeometry.attributes.position.count / 3);
+
+    // Extract and validate geometry attributes
+    const meshArray = <Float32Array>this.shadingGeometry.attributes.position.array;
+    const points = this.simulationGeometry.attributes.position.array;
+    const normalsArray = this.simulationGeometry.attributes.normal.array;
+
+    const midpointsArray = this.computeMidpoints(points, normalsArray);
+
+    // Check for NaN values in geometry data
+    logNaNCount('midpoints', midpointsArray);
+    logNaNCount('mesh', meshArray);
+
+    // Perform ray tracing to calculate intensities
+    const shadedScene = await this.rayTrace(
+      midpointsArray,
+      normalsArray,
+      meshArray,
+      this.solarIrradiance!, // Non-null assertion
+      (i, total) => progressCallback(i + total, total),
     );
-    console.log('finalIntensities', intensities);
 
-    return this.createMesh(simulationGeometry, intensities, maxYieldPerSquareMeter);
+    console.log('diffuseIntensities', shadedScene);
+
+    // Calculate final intensities and generate output mesh
+    const pvYield = sun.calculatePVYield(shadedScene, pvCellEfficiency);
+    console.log('finalIntensities', pvYield);
+
+    return this.createMesh(this.simulationGeometry, pvYield, maxYieldPerSquareMeter);
   }
+
+  // Type Guard function to validate class parameters
+  private validateClassParams(): this is {
+    shadingGeometry: NonNullable<BufferGeometry>;
+    simulationGeometry: NonNullable<BufferGeometry>;
+    solarIrradiance: NonNullable<SolarIrradianceData>;
+  } {
+    return (
+      this.shadingGeometry !== null &&
+      this.shadingGeometry !== undefined &&
+      this.simulationGeometry !== null &&
+      this.simulationGeometry !== undefined &&
+      this.solarIrradiance != null
+    );
+  }
+
+  // Helper to compute midpoints of triangles and track NaN values
+  private computeMidpoints(points: TypedArray, normals: TypedArray): Float32Array {
+    let midpoints: number[] = [];
+    for (let i = 0; i < normals.length; i += 9) {
+      const midpoint = triangleUtils.midpoint(points, i);
+      midpoints.push(...midpoint);
+    }
+    return new Float32Array(midpoints);
+  }
+
   /** @ignore */
-  createMesh(subdividedGeometry: BufferGeometry, intensities: Float32Array, maxYieldPerSquareMeter: number): THREE.Mesh {
+  private createMesh(subdividedGeometry: BufferGeometry, intensities: Float32Array, maxYieldPerSquareMeter: number): THREE.Mesh {
     const Npoints = subdividedGeometry.attributes.position.array.length / 9;
     var newColors = new Float32Array(Npoints * 9);
 
@@ -259,35 +282,21 @@ export class ShadingScene {
    * @param midpoints midpoints of triangles for which to calculate intensities
    * @param normals normals for each midpoint
    * @param meshArray array of vertices for the shading mesh
-   * @param numberSimulations number of random sun positions that are used for the simulation. Either numberSimulations or irradianceUrl need to be given.
    * @param diffuseIrradianceUrl url where a 2D json of irradiance values lies. To generate such a json, visit https://github.com/open-pv/irradiance
    * @return
    * @memberof Scene
    */
-  async rayTrace(
+  private async rayTrace(
     midpoints: Float32Array,
     normals: TypedArray,
     meshArray: Float32Array,
-    numberSimulations: number,
-    diffuseIrradianceUrl: string | undefined,
+    irradiance: SolarIrradianceData,
     progressCallback: (progress: number, total: number) => void,
-  ) {
-    let irradiance: SunVector[] = [];
+  ): Promise<Float32Array> {
+    let irradianceShadedByElevation: SunVector[] = [];
     let shadingElevationAngles: SphericalPoint[] = [];
 
-    if (typeof diffuseIrradianceUrl === 'string' && isValidUrl(diffuseIrradianceUrl)) {
-      // Case where diffuse Radiation is considered in simulation
-      const diffuseIrradianceSpherical = await sun.fetchIrradiance(diffuseIrradianceUrl, this.latitude, this.longitude);
-      irradiance = sun.convertSpericalToEuclidian(diffuseIrradianceSpherical);
-    } else if (typeof diffuseIrradianceUrl != 'undefined') {
-      throw new Error('The given url for diffuse Irradiance is not valid.');
-    } else if (numberSimulations > 0) {
-      irradiance = sun.getRandomSunVectors(numberSimulations, this.latitude, this.longitude);
-    } else {
-      throw new Error(
-        'No irradiance found for the simulation. Either give a valid URL for diffuse radiation or a numberSimulation > 0.',
-      );
-    }
+    irradianceShadedByElevation = sun.convertSpericalToEuclidian(irradiance);
 
     if (this.elevationRaster.length > 0) {
       shadingElevationAngles = elevation.getMaxElevationAngles(
@@ -295,17 +304,26 @@ export class ShadingScene {
         this.elevationRasterMidpoint,
         this.elevationAzimuthDivisions,
       );
-      sun.shadeIrradianceFromElevation(irradiance, shadingElevationAngles);
+      sun.shadeIrradianceFromElevation(irradianceShadedByElevation, shadingElevationAngles);
     }
     normals = normals.filter((_, index) => index % 9 < 3);
-    let intensities = await rayTracingWebGL(midpoints, normals, meshArray, irradiance, progressCallback);
-
-    if (intensities === null) {
+    const shadedIrradianceScenes = await rayTracingWebGL(
+      midpoints,
+      normals,
+      meshArray,
+      irradianceShadedByElevation,
+      progressCallback,
+    );
+    if (shadedIrradianceScenes === null) {
       throw new Error('Error occured when running the Raytracing in WebGL.');
     }
 
-    for (let i = 0; i < intensities.length; i++) {
-      intensities[i] /= irradiance.length;
+    let intensities = new Float32Array(shadedIrradianceScenes[0].length).fill(0);
+
+    for (let i = 0; i < shadedIrradianceScenes.length; i++) {
+      for (let j = 0; j < intensities.length; j++) {
+        intensities[j] += shadedIrradianceScenes[i][j] / shadedIrradianceScenes.length;
+      }
     }
 
     return intensities;
