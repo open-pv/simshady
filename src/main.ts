@@ -171,7 +171,9 @@ export class ShadingScene {
    * The colors are chosen from the viridis colormap.
    * @param params: The input object containing information about the simulation.
 
-   * @returns A three.js colored mesh of the simulationGeometry.
+   * @returns A three.js colored mesh of the simulationGeometry. Each triangle gets an 
+   * attribute called intensity, that holds the annual electricity in kwh/m2 that a PV
+   * system can generate.
    */
 
   async calculate(params: CalculateParams = {}) {
