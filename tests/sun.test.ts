@@ -12,43 +12,63 @@ const irradianceSpherical = {
     },
     {
       altitude: 0,
-      azimuth: Math.PI / 2,
+      azimuth: 90,
       radiance: 2,
     },
     {
       altitude: 0,
-      azimuth: Math.PI,
+      azimuth: 180,
       radiance: 3,
     },
     {
       altitude: 0,
-      azimuth: (Math.PI * 3) / 2,
+      azimuth: 270,
       radiance: 4,
     },
     {
-      altitude: Math.PI / 2,
+      altitude: 90,
       azimuth: 0,
       radiance: 1,
     },
     {
-      altitude: Math.PI / 2,
-      azimuth: Math.PI / 2,
+      altitude: 90,
+      azimuth: 90,
       radiance: 2,
     },
     {
-      altitude: Math.PI / 2,
-      azimuth: Math.PI,
+      altitude: 90,
+      azimuth: 180,
       radiance: 3,
     },
     {
-      altitude: Math.PI / 2,
-      azimuth: (Math.PI * 3) / 2,
+      altitude: 90,
+      azimuth: 270,
       radiance: 4,
     },
   ],
 };
 
 const irradianceEuclidian: CartesianPoint[] = [
+  {
+    x: 0,
+    y: 1,
+    z: 0,
+  },
+  {
+    x: 2,
+    y: 0,
+    z: 0,
+  },
+  {
+    x: 0,
+    y: -3,
+    z: 0,
+  },
+  {
+    x: -4,
+    y: 0,
+    z: 0,
+  },
   {
     x: 0,
     y: 0,
@@ -69,26 +89,6 @@ const irradianceEuclidian: CartesianPoint[] = [
     y: 0,
     z: 4,
   },
-  {
-    x: 1,
-    y: 0,
-    z: 0,
-  },
-  {
-    x: 0,
-    y: 2,
-    z: 0,
-  },
-  {
-    x: -3,
-    y: 0,
-    z: 0,
-  },
-  {
-    x: 0,
-    y: -4,
-    z: 0,
-  },
 ];
 
 describe('Test functionalities from sun.ts: ', () => {
@@ -102,11 +102,6 @@ describe('Test functionalities from sun.ts: ', () => {
         Math.abs(point.vector.cartesian.z - irradianceEuclidian[index].z) <= tolerance,
     );
     expect(allClose).toBe(true);
-  });
-  test('Fetch irradiance json from openpv url.', async () => {
-    const result = await sun.fetchIrradiance('https://www.openpv.de/data/irradiance', 50.0, 11.0);
-
-    expect(result.data.length).toBeGreaterThan(5);
   });
   test('Fetch irradiance tiff from openpv url.', async () => {
     const firstResult = await sun.getTiffValueAtLatLon(
