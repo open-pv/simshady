@@ -2,7 +2,10 @@
 title: How does simshady work?
 ---
 # How does this work
+To model the yield of PV systems, simshady takes two major factors into account: weather or climate and local objects that cause shading. 
 ## A scene of 3D geometries
+The yield of PV systems placed on a building depends on the shading effects of the building itself, neighboring buildings, vegetation, and nearby mountains. Hence, in simshady, a `ShadingScene` is created and populated by adding `three.js` geometries. A main geometry is added using the `addMainGeometry()`. This is the geometry that will be simulated, ie the geometry of PV panels or of the building of interest. With `addShadingGeometry()`, geometries are added that are responsible for shading, i.e. buildings or trees from the neighbourhood.
+
 ## Weather, Climate, and Skydomes
 From [NREL](https://nsrdb.nrel.gov/) we receive time series of measured and modeled GHI and DNI for every location in Germany. In these measured values, the direction of irradiance is not provided, hence we need to model it. We use the [HEALPix](https://doi.org/10.1086/427976) to divide the upper hemisphere into 96 pixels of equal size.
 
