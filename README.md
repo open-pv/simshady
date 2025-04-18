@@ -16,25 +16,8 @@ npm i @openpv/simshady
 
 We publish our documentation at https://open-pv.github.io/simshady/. Additionally, we have built a minimal vite webapp to showcase the most relevant features. Check out its source code [here](https://github.com/open-pv/minimalApp).
 
-The basic usage of the package works as follows:
+## How it works
 
-```javascript
-import ShadingScene from '@openpv/simshady';
-
-const lat = 50.0;
-const lon = 11.0;
-const scene = new ShadingScene(lat, lon);
-scene.addShadingGeometry(someShadingGeometry);
-scene.addSimulationGeometry(someSimulationGeometry);
-
-let mesh = await scene.calculate({
-  diffuseIrradiance: 'https://www.openpv.de/data/irradiance',
-  urlDirectIrrandianceTIF: 'https://www.openpv.de/data/irradiance/geotiff/average_direct_radiation.tif',
-  urlDiffuseIrrandianceTIF: 'https://www.openpv.de/data/irradiance/geotiff/average_diffuse_radiation.tif',
-});
-
-showThreeJS(mesh);
-```
 
 ## Team
 
