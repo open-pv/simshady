@@ -1,0 +1,12 @@
+{
+    "options": {"projectDocuments": ["documents/*.md"]},
+    "entryPoints": ["./src/index.ts", "./src/utils.ts"],
+    "out": "docs",
+    "plugin": [
+        "typedoc-plugin-mdn-links",
+        "typedoc-plugin-coverage",
+        "typedoc-plugin-rename-defaults"
+    ],
+    "entryPointStrategy": "expand",
+    "excludePrivate": true     
+}
