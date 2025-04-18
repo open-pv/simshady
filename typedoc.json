@@ -8,5 +8,6 @@
         "typedoc-plugin-rename-defaults"
     ],
     "entryPointStrategy": "expand",
-    "excludePrivate": true     
+    "excludePrivate": true,
+    "favicon": "documents/assets/favicon.ico"     
 }
