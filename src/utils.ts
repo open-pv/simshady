@@ -71,7 +71,7 @@ export type Color = [number, number, number];
 export type ColorMap = (t: number) => Color;
 
 /**
- * Interface for the parameter object for {@link index.ShadingScene.calculate}
+ * Interface for the parameter object for {@link ShadingScene.calculate}
  */
 export interface CalculateParams {
   /**
@@ -121,7 +121,8 @@ export async function timeoutForLoop(start: number, end: number, body: (i: numbe
 
 /**
  * @ignore
- * Helper to log NaN counts in data arrays
+ * Helper to log NaN counts in data arrays. If no NaN values are found
+ * nothing is logged.
  */
 export function logNaNCount(name: string, array: Float32Array): void {
   const nanCount = Array.from(array).filter(isNaN).length;
