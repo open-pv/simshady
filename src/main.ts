@@ -192,9 +192,15 @@ export class ShadingScene {
     console.log('Number of shading triangles:', this.shadingGeometry.attributes.position.count / 3);
 
     // Extract and validate geometry attributes
+    // Flattened Mx3 array for M points
     const meshArray = <Float32Array>this.shadingGeometry.attributes.position.array;
+    // Flattened Nx3 array for N points
     const points = this.simulationGeometry.attributes.position.array;
-    const normalsArray = this.simulationGeometry.attributes.normal.array;
+    // Flattened (N/3)x3 array for N/3 triangles, each triangle with a normal
+    // Originally, every N point has one normal
+    // Keeping only the first 3 elements out of every 9 so we have one normal
+    // per triangle, not one normal per triangle edge point
+    const normalsArray = this.simulationGeometry.attributes.normal.array.filter((_, index) => index % 9 < 3);
 
     const midpointsArray = this.computeMidpoints(points);
 
@@ -341,7 +347,6 @@ export class ShadingScene {
 
     // Convert the existing array to a flat Float32Array
     const { skysegmentDirections, skysegmentRadiation } = convertSunVectorsToFloat32Array(irradianceShadedByElevation);
-    normals = normals.filter((_, index) => index % 9 < 3);
     console.log('midpoints', midpoints);
     console.log('normals', normals);
     console.log('meshArray', meshArray);
