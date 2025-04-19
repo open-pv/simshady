@@ -24,6 +24,10 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
  * * Simulation geometry, where the PV potential is calculated
  * * Shading geometry, where no PV potential is calculated but which are
  *   responsible for shading
+ * * Solar Irradiance Data that contains information about incoming irradiance
+ *   in the format of sky domes
+ * The Usage of this class and its methods is explained in the "Getting Started" Section
+ * of this site.
  */
 export class ShadingScene {
   public simulationGeometry: BufferGeometry | undefined;
