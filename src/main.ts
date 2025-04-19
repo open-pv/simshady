@@ -103,7 +103,8 @@ export class ShadingScene {
     this.elevationRasterMidpoint = midpoint;
   }
   /**
-   * Add data of solar irradiance to the scene.
+   * Add data of solar irradiance to the scene. Check out the
+   * type definition of the input data for more information.
    * @param irradiance
    */
   addSolarIrradiance(irradiance: SolarIrradianceData) {
@@ -358,7 +359,7 @@ export class ShadingScene {
       throw new Error('Error occured when running the Raytracing in WebGL.');
     }
 
-    //At this point we have one array shaded mask array (length N)for the sky segment
+    //At this point we have one array shaded mask array (length N) for the sky segment
     //So we do the following
     //
 

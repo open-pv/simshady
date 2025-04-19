@@ -6,8 +6,32 @@
  * it in the "How does simshady work" section of the docs page.
  *
  * Definition of the coordiante system in `simshady`:
- * Azimuth = 0 is North, Azimuth = PI/2 is East.
- * Altitude = 0 is the horizon, Altitude = PI/2 is upwards / Zenith.
+ * Angles are expected in degree.
+ * Azimuth = 0 is North, Azimuth = 90° is East.
+ * Altitude = 0 is the horizon, Altitude = 90° is upwards / Zenith.
+ * 
+ * Example Data:
+ * ```json
+ * {
+    "data": [
+        {
+            "altitude": 78.28,
+            "azimuth": 45.0,
+            "radiance": 32.13
+        },
+        {
+            "altitude": 78.28,
+            "azimuth": 135.0,
+            "radiance": 32.13
+        },
+        ...
+        ],
+    "metadata": {
+        "latitude": 48.5,
+        "longitude": 11.5
+    }
+}
+  ```
  */
 export type SolarIrradianceData = {
   metadata: {
