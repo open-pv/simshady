@@ -196,7 +196,7 @@ export class ShadingScene {
     const points = this.simulationGeometry.attributes.position.array;
     const normalsArray = this.simulationGeometry.attributes.normal.array;
 
-    const midpointsArray = this.computeMidpoints(points, normalsArray);
+    const midpointsArray = this.computeMidpoints(points);
 
     // Check for NaN values in geometry data
     logNaNCount('midpoints', midpointsArray);
@@ -236,9 +236,9 @@ export class ShadingScene {
   }
 
   // Helper to compute midpoints of triangles and track NaN values
-  private computeMidpoints(points: TypedArray, normals: TypedArray): Float32Array {
+  private computeMidpoints(points: TypedArray): Float32Array {
     let midpoints: number[] = [];
-    for (let i = 0; i < normals.length; i += 9) {
+    for (let i = 0; i < points.length; i += 9) {
       const midpoint = triangleUtils.midpoint(points, i);
       midpoints.push(...midpoint);
     }
