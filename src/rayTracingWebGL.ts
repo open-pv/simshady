@@ -1,13 +1,5 @@
 import { TypedArray } from 'three';
-import { SunVector, timeoutForLoop } from './utils';
-import { calculatePVYield } from './sun';
-import { normalize } from 'three/src/math/MathUtils.js';
-
-function addToArray(ar1: Float32Array, ar2: Float32Array) {
-  for (var i = 0; i < ar1.length; i++) {
-    ar1[i] += ar2[i];
-  }
-}
+import { timeoutForLoop } from './utils';
 
 /**
  * this function calculates
