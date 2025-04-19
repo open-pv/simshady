@@ -13,7 +13,7 @@ function createTestGeometry(positions: number[], normals: number[]): BufferGeome
 
 describe('Scene refineMesh', () => {
   test('subdivides triangle edges longer than maxLength', () => {
-    const scene = new ShadingScene(0, 0);
+    const scene = new ShadingScene();
     const positions = [0, 0, 0, 1, 0, 0, 0, 1, 0]; // Diagonal longer than 1
     const normals = [0, 0, 1, 0, 0, 1, 0, 0, 1];
     const testGeometry = createTestGeometry(positions, normals);
@@ -22,7 +22,7 @@ describe('Scene refineMesh', () => {
   });
 
   test('does not subdivide triangle edges shorter than or equal to maxLength', () => {
-    const scene = new ShadingScene(0, 0);
+    const scene = new ShadingScene();
     const positions = [0, 0, 0, 1, 0, 0, 0, 1, 0];
     const normals = [0, 0, 1, 0, 0, 1, 0, 0, 1];
     const testGeometry = createTestGeometry(positions, normals);
