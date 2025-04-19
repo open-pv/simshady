@@ -21,7 +21,6 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
 /**
  * This class holds all information about the scene that is simulated.
  * A ShadingScene is typically equipped with the following attributes:
- * * A pair of coordinates to locate the scene
  * * Simulation geometry, where the PV potential is calculated
  * * Shading geometry, where no PV potential is calculated but which are
  *   responsible for shading
@@ -31,26 +30,13 @@ export class ShadingScene {
   public shadingGeometry: BufferGeometry | undefined;
   public elevationRaster: Array<CartesianPoint>;
   private elevationRasterMidpoint: CartesianPoint;
-  public latitude: number;
-  public longitude: number;
   private elevationAzimuthDivisions: number;
   public solarIrradiance: SolarIrradianceData | null;
   private colorMap: (t: number) => [number, number, number];
 
-  /**
-   *
-   * @param latitude Latitude of the midpoint of the scene.
-   * @param longitude Longitude of the midpoint of the scene.
-   */
-  constructor(latitude: number, longitude: number) {
-    if (latitude === undefined || longitude === undefined) {
-      throw new Error('Latitude and Longitude must be defined');
-    }
-
+  constructor() {
     this.elevationRaster = [];
     this.elevationRasterMidpoint = { x: 0, y: 0, z: 0 };
-    this.latitude = latitude;
-    this.longitude = longitude;
     this.elevationAzimuthDivisions = 60;
     this.solarIrradiance = null;
     this.colorMap = viridis;
