@@ -1,3 +1,14 @@
+/**
+ * Solar irradiance data. `metadata` json holds the coordinates
+ * where the irradiance data can be used. `data` holds a list of
+ * sky segments, where altitude and azimuth define the position
+ * and radiance defines the amount of incoming radiance. Read more about
+ * it in the "How does simshady work" section of the docs page.
+ *
+ * Definition of the coordiante system in `simshady`:
+ * Azimuth = 0 is North, Azimuth = PI/2 is East.
+ * Altitude = 0 is the horizon, Altitude = PI/2 is upwards / Zenith.
+ */
 export type SolarIrradianceData = {
   metadata: {
     latitude: number;
@@ -26,7 +37,9 @@ export type SphericalPoint = {
 /**
  * Cartesian Coordinate of a point.
  *
- * Positive X-Axis is north.
+ * Positive X-axis is east.
+ * Positive Y-axis is north.
+ * Positive z-axis is upwards.
  */
 export type CartesianPoint = {
   x: number;
@@ -83,6 +96,7 @@ export interface CalculateParams {
 }
 
 /**
+ * @ignore
  * Mimics a for-loop but schedules each loop iteration using `setTimeout`, so that
  * event handles, react updates, etc. can run in-between
  */
@@ -101,7 +115,10 @@ export async function timeoutForLoop(start: number, end: number, body: (i: numbe
   });
 }
 
-// Helper to log NaN counts in data arrays
+/**
+ * @ignore
+ * Helper to log NaN counts in data arrays
+ */
 export function logNaNCount(name: string, array: Float32Array): void {
   const nanCount = Array.from(array).filter(isNaN).length;
   if (nanCount > 0) {

@@ -26,8 +26,14 @@ As a result, a flat surface receives a total irradiance of
 
 There are two reasons for using skydomes: First they allow the simultaneous simulation of direct and diffuse radiation. And second, they allow the simulation of **timely resolved PV yields**. This happens as follows:
 
-1. For each pixel of the sky segment and for each trianlge of the SimulationGeometry, `simshady` runs the Möller-Trumbore algorithm to check if the direct line between sky segment and triangle is intersected by other objects. It saves the value 0 if something intersects, or the value of the dot product of triangle normal vector and the direction vector between triangle and sky segment. This dot product represents the factor of the incident angle of the solar irradiance. The result is an `N x S` vector, where N is the number of trianlges and S the number of sky segment. The vektor represents a shading mask, i.e. every entry is between 0 and 1.
-2.
+1. For each pixel of the sky segment and for each trianlge of the SimulationGeometry, `simshady` runs the Möller-Trumbore algorithm to check if the direct line between sky segment and triangle is intersected by other objects. It saves the value 0 if something intersects, or the value of the dot product of triangle normal vector and the direction vector between triangle and sky segment. This dot product represents the factor of the incident angle of the solar irradiance. The result is an `S x N` vector, where N is the number of trianlges and S the number of sky segment. The vektor represents a shading mask, i.e. every entry is between 0 and 1.
+2. In the next step, actual radiance values from the sky dome are integrated. These radiance values can be given in the form of time series, i.e. a vector of shape `S x T` with S being the number of sky segments and T the number of time steps. We can now calculate the incoming energy per time step and per area as
+
+```
+E(t,n) = 1/(2xPI) * SUM(Mask(s,n) * irrad(s,t)),
+```
+
+where the factor of 2PI comes from integrating over the upper half of the skydome sphere and the unit of E is Wh/m2.
 
 ## Performant Simulation on the GPU
 

@@ -52,7 +52,9 @@ export class ShadingScene {
    * This geometry will also be used as a shading geometry, hence
    * it is not needed to additionally add it by using `addShadingGeometry`.
    *
-   * @param geometry Arbitrary Three.js geometry
+   * @param geometry Flat Buffer Array of a Three.js geometry, where three
+   * consecutive numbers of the array represent one 3D point and nine consecutive
+   * numbers represent one triangle.
    * @memberof Scene
    */
   addSimulationGeometry(geometry: BufferGeometry) {
@@ -73,7 +75,9 @@ export class ShadingScene {
    * Adds a geometry as an outer geometry for the shading simulation.
    * These geometries are responsible for shading.
    *
-   * @param geometry Arbitrary Three.js geometry
+   * @param geometry Flat Buffer Array of a Three.js geometry, where three
+   * consecutive numbers of the array represent one 3D point and nine consecutive
+   * numbers represent one triangle.
    * @memberof Scene
    */
   addShadingGeometry(geometry: BufferGeometry) {
