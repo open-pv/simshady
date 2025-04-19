@@ -5,15 +5,7 @@ import { viridis } from './colormaps.js';
 import * as elevation from './elevation.js';
 import * as sun from './sun.js';
 import * as triangleUtils from './triangleUtils.js';
-import {
-  CalculateParams,
-  CartesianPoint,
-  ColorMap,
-  SolarIrradianceData,
-  SphericalPoint,
-  SunVector,
-  logNaNCount,
-} from './utils.js';
+import { CalculateParams, CartesianPoint, ColorMap, SolarIrradianceData, logNaNCount } from './utils.js';
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
@@ -35,7 +27,7 @@ export class ShadingScene {
   public elevationRaster: Array<CartesianPoint>;
   private elevationRasterMidpoint: CartesianPoint;
   private elevationAzimuthDivisions: number;
-  public solarIrradiance: SolarIrradianceData | null;
+  public solarIrradiance: SolarIrradianceData[] | null;
   private colorMap: (t: number) => [number, number, number];
 
   constructor() {
@@ -107,7 +99,12 @@ export class ShadingScene {
    * type definition of the input data for more information.
    * @param irradiance
    */
-  addSolarIrradiance(irradiance: SolarIrradianceData) {
+  addSolarIrradiance(irradiance: SolarIrradianceData[] | SolarIrradianceData) {
+    // solarIrradiance is a time series of skydomes. If only one skydome is given
+    // this one will be placed in a list
+    if (!Array.isArray(irradiance)) {
+      irradiance = [irradiance];
+    }
     this.solarIrradiance = irradiance;
   }
 
@@ -293,61 +290,50 @@ export class ShadingScene {
     midpoints: Float32Array,
     normals: TypedArray,
     meshArray: Float32Array,
-    irradiance: SolarIrradianceData,
+    irradiance: SolarIrradianceData[],
     progressCallback: (progress: number, total: number) => void,
   ): Promise<Float32Array> {
     /**
-     * Converts an array of SunVector objects to a flat Float32Array containing only
-     * the normalized cartesian coordinates (x, y, z) and a Float32Array of absolute values.
-     * @param sunVectors
-     * @returns
+     * Converts a list of solarIrradiance objects to a flat Float32Array containing only
+     * the normalized cartesian coordinates (x, y, z) of the skysegments
+     * and a list of Float32Arrays containing the absolute values of radiances at each
+     * sky segment.
+     * @param solarIrradiance
+     * @returns skysegmentDirections as Sx3 flattened Float32Array with S being number of skysegments
+     * skysegmentRadiation List of Float32Array, List has lenght T as the number of time steps,
+     * each Float32Array has lenght S with on radiation value for each segment
      */
-    function convertSunVectorsToFloat32Array(sunVectors: SunVector[]): {
+    function convertSolarIrradianceToFloat32Array(solarIrradiance: SolarIrradianceData[]): {
       skysegmentDirections: Float32Array;
-      skysegmentRadiation: Float32Array;
+      skysegmentRadiation: Float32Array[];
     } {
-      const normalizedVectors = new Float32Array(sunVectors.length * 3);
-      const absoluteValues = new Float32Array(sunVectors.length);
+      const directions: number[] = [];
+      const radiation: Float32Array[] = [];
 
-      // Iterate through each SunVector and extract the cartesian coordinates
-      for (let i = 0; i < sunVectors.length; i++) {
-        const vector = sunVectors[i].vector.cartesian;
-        const magnitude = Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+      for (const entry of solarIrradiance) {
+        const radiances: number[] = [];
+        for (const point of entry.data) {
+          const altRad = (point.altitude * Math.PI) / 180;
+          const azRad = (point.azimuth * Math.PI) / 180;
 
-        // Calculate normalized components
-        const normalizedX = magnitude !== 0 ? vector.x / magnitude : 0;
-        const normalizedY = magnitude !== 0 ? vector.y / magnitude : 0;
-        const normalizedZ = magnitude !== 0 ? vector.z / magnitude : 1;
+          const x = Math.cos(altRad) * Math.cos(azRad);
+          const y = Math.cos(altRad) * Math.sin(azRad);
+          const z = Math.sin(altRad);
 
-        normalizedVectors[i * 3] = normalizedX;
-        normalizedVectors[i * 3 + 1] = normalizedY;
-        normalizedVectors[i * 3 + 2] = normalizedZ;
-
-        absoluteValues[i] = magnitude;
+          directions.push(x, y, z);
+          radiances.push(point.radiance);
+        }
+        radiation.push(new Float32Array(radiances));
       }
 
       return {
-        skysegmentDirections: normalizedVectors,
-        skysegmentRadiation: absoluteValues,
+        skysegmentDirections: new Float32Array(directions),
+        skysegmentRadiation: radiation,
       };
     }
 
-    let irradianceShadedByElevation: SunVector[] = [];
-    let shadingElevationAngles: SphericalPoint[] = [];
-
-    irradianceShadedByElevation = sun.convertSpericalToEuclidian(irradiance);
-
-    if (this.elevationRaster.length > 0) {
-      shadingElevationAngles = elevation.getMaxElevationAngles(
-        this.elevationRaster,
-        this.elevationRasterMidpoint,
-        this.elevationAzimuthDivisions,
-      );
-      sun.shadeIrradianceFromElevation(irradianceShadedByElevation, shadingElevationAngles);
-    }
-
     // Convert the existing array to a flat Float32Array
-    const { skysegmentDirections, skysegmentRadiation } = convertSunVectorsToFloat32Array(irradianceShadedByElevation);
+    const { skysegmentDirections, skysegmentRadiation } = convertSolarIrradianceToFloat32Array(irradiance);
     console.log('midpoints', midpoints);
     console.log('normals', normals);
     console.log('meshArray', meshArray);
@@ -357,6 +343,16 @@ export class ShadingScene {
     console.log('shadedMaskScenes', shadedMaskScenes);
     if (shadedMaskScenes === null) {
       throw new Error('Error occured when running the Raytracing in WebGL.');
+    }
+    //TODO Insert shading from ELevationRaster here
+    if (this.elevationRaster.length > 0) {
+      const elevationShadingMask = elevation.getElevationShadingMask(
+        this.elevationRaster,
+        this.elevationRasterMidpoint,
+        // extract the altitude azimuth pairs from the first skysegment
+        irradiance[0].data.map(({ altitude, azimuth }) => [altitude, azimuth]),
+      );
+      console.log('elevationShadingMask', elevationShadingMask);
     }
 
     //At this point we have one array shaded mask array (length N) for the sky segment
@@ -369,7 +365,8 @@ export class ShadingScene {
     for (let i = 0; i < shadedMaskScenes.length; i++) {
       // iterate over each midpoint
       for (let j = 0; j < intensities.length; j++) {
-        intensities[j] += shadedMaskScenes[i][j] * skysegmentRadiation[i];
+        //TODO instead of taking only [0] element, build proper time series handling
+        intensities[j] += shadedMaskScenes[i][j] * skysegmentRadiation[0][i];
       }
     }
 
