@@ -62,12 +62,6 @@ export type ColorMap = (t: number) => Color;
  */
 export interface CalculateParams {
   /**
-   * URL where the files for the diffuse Irradiance can be retreived.
-   * The object at this URL needs to be of type {@link SolarIrradianceData}.
-   * @defaultValue undefined - only direct irradiance is used.
-   */
-  diffuseIrradianceURL?: string;
-  /**
    * Efficiency of the solar cell, value in [0,1].
    * @defaultValue 0.2
    */
@@ -80,15 +74,11 @@ export interface CalculateParams {
    */
   maxYieldPerSquareMeter?: number;
   /**
-   * URL of a GEOTIF File of annual average direct irradiance data. An example lies at
-   * https://www.openpv.de/data/irradiance/geotiff/
+   * Callback function to indicate the progress of the simulation
+   * @param progress number indicating the current progress
+   * @param total number indicating the final number that progress needs to reach
+   * @returns
    */
-  urlDirectIrrandianceTIF?: string;
-  /**
-   * URL of a GEOTIF File of annual average diffuse irradiance data. An example lies at
-   * https://www.openpv.de/data/irradiance/geotiff/
-   */
-  urlDiffuseIrrandianceTIF?: string;
   progressCallback?: (progress: number, total: number) => void;
 }
 
