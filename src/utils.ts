@@ -75,10 +75,13 @@ export type ColorMap = (t: number) => Color;
  */
 export interface CalculateParams {
   /**
-   * Efficiency of the solar cell, value in [0,1].
-   * @defaultValue 0.2
+   * Efficiency of the conversion from solar energy to electricity. This includes the
+   * pv cell efficiency (about 20%) as well as the coverage density of PV panels per area
+   * (about 70%).
+   * Value in [0,1].
+   * @defaultValue 0.15
    */
-  pvCellEfficiency?: number;
+  solarToElectricityConversionEfficiency?: number;
   /**
    * Upper boundary of annual yield in kWh/m2/year. This value is used to normalize
    * the color of the returned three.js mesh.

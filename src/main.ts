@@ -172,7 +172,7 @@ export class ShadingScene {
 
   async calculate(params: CalculateParams = {}) {
     const {
-      pvCellEfficiency = 0.2,
+      solarToElectricityConversionEfficiency: pvCellEfficiency = 0.15,
       maxYieldPerSquareMeter = 1400 * 0.2,
       progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}%`),
     } = params;
