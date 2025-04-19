@@ -69,14 +69,14 @@ export function shadeIrradianceFromElevation(Irradiance: SunVector[], shadingEle
 /**
  * Calculates the yield of a solar panel in kWh/m2
  * @param intensities
- * @param pvCellEfficiency
+ * @param solarToElectricityConversionEfficiency
  * @returns
  */
-export function calculatePVYield(intensities: Float32Array, pvCellEfficiency: number): Float32Array {
+export function calculatePVYield(intensities: Float32Array, solarToElectricityConversionEfficiency: number): Float32Array {
   let PVYield = new Float32Array(intensities.length);
 
   for (let i = 0; i < PVYield.length; i++) {
-    PVYield[i] = pvCellEfficiency * intensities[i];
+    PVYield[i] = solarToElectricityConversionEfficiency * intensities[i];
   }
   return PVYield;
 }

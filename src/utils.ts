@@ -85,7 +85,8 @@ export interface CalculateParams {
   /**
    * Upper boundary of annual yield in kWh/m2/year. This value is used to normalize
    * the color of the returned three.js mesh.
-   * In Germany this is something like 1400 kWh/m2/year multiplied with the given pvCellEfficiency.
+   * In Germany this is something like 1400 kWh/m2/year multiplied with the given
+   * solarToElectricityConversionEfficiency.
    * @defaultValue 1400*0.2
    */
   maxYieldPerSquareMeter?: number;

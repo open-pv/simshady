@@ -23,7 +23,7 @@ As a third step, solar irradiance data is added to the scene. This data contains
 ```javascript
 scene.addSolarIrradiance(someSolarIrradianceData);
 let mesh = await scene.calculate({
-  pvCellEfficiency: 0.16,
+  solarToElectricityConversionEfficiency: 0.15,
 });
 ```
 

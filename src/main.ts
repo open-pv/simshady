@@ -172,7 +172,7 @@ export class ShadingScene {
 
   async calculate(params: CalculateParams = {}) {
     const {
-      solarToElectricityConversionEfficiency: pvCellEfficiency = 0.15,
+      solarToElectricityConversionEfficiency = 0.15,
       maxYieldPerSquareMeter = 1400 * 0.2,
       progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}%`),
     } = params;
@@ -214,7 +214,7 @@ export class ShadingScene {
     console.log('diffuseIntensities', shadedScene);
 
     // Calculate final intensities and generate output mesh
-    const pvYield = sun.calculatePVYield(shadedScene, pvCellEfficiency);
+    const pvYield = sun.calculatePVYield(shadedScene, solarToElectricityConversionEfficiency);
     console.log('finalIntensities', pvYield);
 
     return this.createMesh(this.simulationGeometry, pvYield, maxYieldPerSquareMeter);
