@@ -290,7 +290,7 @@ export class ShadingScene {
     // In THREE, only Flat arrays can be set as an attribute
     const flatIntensities = Float32Array.from(intensities.flat());
 
-    simulationGeometry.setAttribute('intensities', new THREE.Float32BufferAttribute(flatIntensities, 1));
+    simulationGeometry.setAttribute('intensities', new THREE.Float32BufferAttribute(intensities[0], 1));
     let mesh = new THREE.Mesh(simulationGeometry, material);
 
     return mesh;
