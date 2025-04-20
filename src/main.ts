@@ -95,8 +95,11 @@ export class ShadingScene {
     this.elevationRasterMidpoint = midpoint;
   }
   /**
-   * Add data of solar irradiance to the scene. Check out the
-   * type definition of the input data for more information.
+   * Add data of solar irradiance to the scene. If it comes as a List of SolarIrradianceData,
+   * this is interpreted as a time series of skydomes.
+   *
+   * **Important Note:** The first skydome of the list is used for the coloring of the final mesh!
+   * Check out the type definition of {@link utils.SolarIrradianceData} for more information.
    * @param irradiance
    */
   addSolarIrradiance(irradiance: SolarIrradianceData[] | SolarIrradianceData) {
