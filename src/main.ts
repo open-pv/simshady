@@ -215,10 +215,8 @@ export class ShadingScene {
       (i, total) => progressCallback(i + total, total),
     );
 
-    console.log('diffuseIntensities', shadedScene);
-
-    // Calculate final intensities and generate output mesh
     const pvYield = sun.calculatePVYield(shadedScene, solarToElectricityConversionEfficiency);
+    console.log('finalIntensities max', Math.max(...pvYield[0]));
     console.log('finalIntensities', pvYield);
 
     return this.createMesh(this.simulationGeometry, pvYield, maxYieldPerSquareMeter);
@@ -249,13 +247,29 @@ export class ShadingScene {
     return new Float32Array(midpoints);
   }
 
-  /** @ignore */
-  private createMesh(subdividedGeometry: BufferGeometry, intensities: Float32Array, maxYieldPerSquareMeter: number): THREE.Mesh {
-    const Npoints = subdividedGeometry.attributes.position.array.length / 9;
+  /**
+   * @ignore
+   * This function does two things:
+   * - it assigns a color to the given simulationGeometry. The color is assigned
+   * using the FIRST value of the intensities time series and the maxYieldPerSquareMeter
+   * as upper boundary.
+   * - it flattens the time series of intensities and sets them as attribute to the simulationGeometry
+   *
+   * @param simulationGeometry Nx9 Array with the edge points of N triangles
+   * @param intensities T x N intensities, one for every triangle and every time step
+   * @param maxYieldPerSquareMeter number defining the upper boundary of the color map
+   * @returns
+   */
+  private createMesh(
+    simulationGeometry: BufferGeometry,
+    intensities: Float32Array[],
+    maxYieldPerSquareMeter: number,
+  ): THREE.Mesh {
+    const Npoints = simulationGeometry.attributes.position.array.length / 9;
     var newColors = new Float32Array(Npoints * 9);
 
     for (var i = 0; i < Npoints; i++) {
-      const col = this.colorMap(Math.min(maxYieldPerSquareMeter, intensities[i]) / maxYieldPerSquareMeter);
+      const col = this.colorMap(Math.min(maxYieldPerSquareMeter, intensities[0][i]) / maxYieldPerSquareMeter);
       for (let j = 0; j < 9; j += 3) {
         newColors[9 * i + j] = col[0];
         newColors[9 * i + j + 1] = col[1];
@@ -263,26 +277,31 @@ export class ShadingScene {
       }
     }
 
-    subdividedGeometry.setAttribute('color', new THREE.Float32BufferAttribute(newColors, 3));
+    simulationGeometry.setAttribute('color', new THREE.Float32BufferAttribute(newColors, 3));
     var material = new THREE.MeshStandardMaterial({
       vertexColors: true,
       side: THREE.DoubleSide,
       // shininess: 0, // TODO: typescript rejects this, do we need it?
       // roughness: 1,
     });
-    subdividedGeometry.setAttribute('intensities', new THREE.Float32BufferAttribute(intensities, 1));
-    let mesh = new THREE.Mesh(subdividedGeometry, material);
+    // In THREE, only Flat arrays can be set as an attribute
+    const flatIntensities = Float32Array.from(intensities.flat());
+
+    simulationGeometry.setAttribute('intensities', new THREE.Float32BufferAttribute(flatIntensities, 1));
+    let mesh = new THREE.Mesh(simulationGeometry, material);
 
     return mesh;
   }
 
   /** @ignore
-   * Call ray-tracing shader to calculate intensities for each midpoint based on the given normals and mesh
+   * This function returns a time series of intensities of shape T x N, with N the number of midpoints.
+   * It includes the shading of geometries, the dot product of normal vector and sky segment vector,
+   * and the radiation values from diffuse and direct irradiance.
    *
    * @param midpoints midpoints of triangles for which to calculate intensities
    * @param normals normals for each midpoint
    * @param meshArray array of vertices for the shading mesh
-   * @param diffuseIrradianceUrl url where a 2D json of irradiance values lies. To generate such a json, visit https://github.com/open-pv/irradiance
+   * @param irradiance Time Series of sky domes
    * @return
    * @memberof Scene
    */
@@ -292,7 +311,7 @@ export class ShadingScene {
     meshArray: Float32Array,
     irradiance: SolarIrradianceData[],
     progressCallback: (progress: number, total: number) => void,
-  ): Promise<Float32Array> {
+  ): Promise<Float32Array[]> {
     /**
      * Converts a list of solarIrradiance objects to a flat Float32Array containing only
      * the normalized cartesian coordinates (x, y, z) of the skysegments
@@ -355,18 +374,23 @@ export class ShadingScene {
       console.log('elevationShadingMask', elevationShadingMask);
     }
 
-    //At this point we have one array shaded mask array (length N) for the sky segment
-    //So we do the following
-    //
+    //At this point we have one shaded mask array (length N) of normalized vectors
+    //for the sky segment
+    //And a time series of skySegmentRadiation (which are the absolute values of the sky segment
+    // vectors)
 
-    let intensities = new Float32Array(shadedMaskScenes[0].length).fill(0);
+    // Initializize Intensities of shape T x S
+    let intensities = skysegmentRadiation.map((arr) => new Float32Array(midpoints.length * 3));
+
     console.log('skysegmentradiation', skysegmentRadiation);
     //iterate over each sky segment
     for (let i = 0; i < shadedMaskScenes.length; i++) {
       // iterate over each midpoint
-      for (let j = 0; j < intensities.length; j++) {
+      for (let j = 0; j < midpoints.length; j++) {
         //TODO instead of taking only [0] element, build proper time series handling
-        intensities[j] += shadedMaskScenes[i][j] * skysegmentRadiation[0][i];
+        for (let t = 0; t < intensities.length; t++) {
+          intensities[t][j] += shadedMaskScenes[i][j] * skysegmentRadiation[t][i];
+        }
       }
     }
 
