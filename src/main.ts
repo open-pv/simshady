@@ -338,8 +338,8 @@ export class ShadingScene {
           const altRad = (point.altitude * Math.PI) / 180;
           const azRad = (point.azimuth * Math.PI) / 180;
 
-          const x = Math.cos(altRad) * Math.cos(azRad);
-          const y = Math.cos(altRad) * Math.sin(azRad);
+          const x = Math.cos(altRad) * Math.sin(azRad);
+          const y = Math.cos(altRad) * Math.cos(azRad);
           const z = Math.sin(altRad);
 
           directions.push(x, y, z);
