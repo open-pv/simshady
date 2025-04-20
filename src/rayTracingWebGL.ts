@@ -137,7 +137,6 @@ export async function rayTracingWebGL(
 
   var textureWidth = Math.min(3 * N_TRIANGLES, Math.floor(maxTextureSize / 9) * 9);
   var textureHeight = Math.ceil((3 * N_TRIANGLES) / textureWidth);
-  console.log('Max Texture Size', maxTextureSize, textureWidth, textureHeight);
 
   const colorBuffer = makeBuffer(gl, N_POINTS * 16);
   const tf = makeTransformFeedback(gl, colorBuffer);

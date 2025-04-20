@@ -215,8 +215,6 @@ export class ShadingScene {
     );
 
     const pvYield = sun.calculatePVYield(shadedScene, solarToElectricityConversionEfficiency);
-    console.log('finalIntensities max', Math.max(...pvYield[0]));
-    console.log('finalIntensities', pvYield);
 
     return this.createMesh(this.simulationGeometry, pvYield, maxYieldPerSquareMeter);
   }
@@ -350,13 +348,8 @@ export class ShadingScene {
 
     // Convert the existing array to a flat Float32Array
     const { skysegmentDirections, skysegmentRadiation } = convertSolarIrradianceToFloat32Array(irradiance);
-    console.log('midpoints', midpoints);
-    console.log('normals', normals);
-    console.log('meshArray', meshArray);
-    console.log('skysegmentDirectionArray', skysegmentDirections);
 
     const shadedMaskScenes = await rayTracingWebGL(midpoints, normals, meshArray, skysegmentDirections, progressCallback);
-    console.log('shadedMaskScenes', shadedMaskScenes);
     if (shadedMaskScenes === null) {
       throw new Error('Error occured when running the Raytracing in WebGL.');
     }
@@ -368,7 +361,6 @@ export class ShadingScene {
         // extract the altitude azimuth pairs from the first skysegment
         irradiance[0].data.map(({ altitude, azimuth }) => [altitude, azimuth]),
       );
-      console.log('elevationShadingMask', elevationShadingMask);
     }
 
     //At this point we have one shaded mask array (length N) of normalized vectors
@@ -379,7 +371,6 @@ export class ShadingScene {
     // Initializize Intensities of shape T x S
     let intensities = skysegmentRadiation.map((arr) => new Float32Array(midpoints.length * 3));
 
-    console.log('skysegmentradiation', skysegmentRadiation);
     //iterate over each sky segment
     for (let i = 0; i < shadedMaskScenes.length; i++) {
       // iterate over each midpoint
