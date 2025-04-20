@@ -1,6 +1,10 @@
 /**
  * Solar irradiance data. `metadata` json holds the coordinates
- * where the irradiance data can be used. `data` holds a list of
+ * where the irradiance data can be used. daylight_timesteps_processed
+ * is the number of hours of daylight in the considered timeframe. If
+ * the skydome represents a whole year, this is about 4700.
+ * 
+ * `data` holds a list of
  * sky segments, where altitude and azimuth define the position
  * and radiance defines the amount of incoming radiance. Read more about
  * it in the "How does simshady work" section of the docs page.
@@ -28,7 +32,8 @@
         ],
     "metadata": {
         "latitude": 48.5,
-        "longitude": 11.5
+        "longitude": 11.5,
+        "daylight_timesteps_processed": 4700,
     }
 }
   ```
@@ -37,6 +42,7 @@ export type SolarIrradianceData = {
   metadata: {
     latitude: number;
     longitude: number;
+    daylight_timesteps_processed: number;
   };
   data: Array<{
     altitude: number;

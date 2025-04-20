@@ -214,7 +214,13 @@ export class ShadingScene {
       (i, total) => progressCallback(i + total, total),
     );
 
-    const pvYield = sun.calculatePVYield(shadedScene, solarToElectricityConversionEfficiency);
+    console.log('solarIrradiance', this.solarIrradiance);
+
+    const pvYield = sun.calculatePVYield(
+      shadedScene,
+      solarToElectricityConversionEfficiency,
+      this.solarIrradiance[0].metadata.daylight_timesteps_processed,
+    );
 
     return this.createMesh(this.simulationGeometry, pvYield, maxYieldPerSquareMeter);
   }

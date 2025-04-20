@@ -39,6 +39,14 @@ export function shadeIrradianceFromElevation(Irradiance: SunVector[], shadingEle
  * @param solarToElectricityConversionEfficiency
  * @returns
  */
-export function calculatePVYield(intensities: Float32Array[], solarToElectricityConversionEfficiency: number): Float32Array[] {
-  return intensities.map((arr) => new Float32Array(arr.map((x) => x * solarToElectricityConversionEfficiency)));
+export function calculatePVYield(
+  intensities: Float32Array[],
+  solarToElectricityConversionEfficiency: number,
+  daylightHours: number,
+): Float32Array[] {
+  // solarIrradiance.metadata.daylight_timesteps_processed is hours with daylight
+  // 0.065 is solid angle (Raumwinkel) per skypixel in the HEALpix Level 4
+  // 1/1000 is Watt to kiloWatt
+  const factor = ((daylightHours * 0.065) / 1000) * solarToElectricityConversionEfficiency;
+  return intensities.map((arr) => new Float32Array(arr.map((x) => x * factor)));
 }
