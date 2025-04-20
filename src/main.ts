@@ -261,7 +261,7 @@ export class ShadingScene {
    * @param simulationGeometry Nx9 Array with the edge points of N triangles
    * @param intensities T x N intensities, one for every triangle and every time step
    * @param maxYieldPerSquareMeter number defining the upper boundary of the color map
-   * @returns
+   * @returns Mesh with color and new attribute "intensities" that has length T*N
    */
   private createMesh(
     simulationGeometry: BufferGeometry,
@@ -284,13 +284,11 @@ export class ShadingScene {
     var material = new THREE.MeshStandardMaterial({
       vertexColors: true,
       side: THREE.DoubleSide,
-      // shininess: 0, // TODO: typescript rejects this, do we need it?
-      // roughness: 1,
     });
     // In THREE, only Flat arrays can be set as an attribute
-    const flatIntensities = Float32Array.from(intensities.flat());
+    const flatIntensities = new Float32Array(intensities.map((arr) => Array.from(arr)).flat());
 
-    simulationGeometry.setAttribute('intensities', new THREE.Float32BufferAttribute(intensities[0], 1));
+    simulationGeometry.setAttribute('intensities', new THREE.Float32BufferAttribute(flatIntensities, 1));
     let mesh = new THREE.Mesh(simulationGeometry, material);
 
     return mesh;
