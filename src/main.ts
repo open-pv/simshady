@@ -282,6 +282,8 @@ export class ShadingScene {
     // In THREE, only Flat arrays can be set as an attribute
     const flatIntensities = new Float32Array(intensities.map((arr) => Array.from(arr)).flat());
 
+    // Set the T*N Float32Array of intensities as attributes. On the website, this intensities
+    // attribute needs to be divided again in T parts for the T time steps.
     simulationGeometry.setAttribute('intensities', new THREE.Float32BufferAttribute(flatIntensities, 1));
     let mesh = new THREE.Mesh(simulationGeometry, material);
 

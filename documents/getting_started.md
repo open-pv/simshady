@@ -4,6 +4,12 @@ title: Getting Started
 
 # Getting started
 
+First, install the package using your favourite package managing tool:
+
+```bash
+npm install @openpv/simshady
+```
+
 The basic usage of the package works as follows: First, a [ShadingScene](/docs/classes/index.ShadingScene.html) is initialized.
 
 ```javascript
@@ -26,6 +32,8 @@ let mesh = await scene.calculate({
   solarToElectricityConversionEfficiency: 0.15,
 });
 ```
+
+The [`ShadingScene.calculate`](/docs/classes/index.ShadingScene.html#calculate) method returns a [Three.js](https://threejs.org/docs/#api/en/objects/Mesh) colored mesh. You can use it within your three.js application, like we do it at [openpv.eu](https://openpv.eu).
 
 ```javascript
 showThreeJS(mesh);
