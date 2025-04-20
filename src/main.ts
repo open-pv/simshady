@@ -26,14 +26,12 @@ export class ShadingScene {
   public shadingGeometry: BufferGeometry | undefined;
   public elevationRaster: Array<CartesianPoint>;
   private elevationRasterMidpoint: CartesianPoint;
-  private elevationAzimuthDivisions: number;
   public solarIrradiance: SolarIrradianceData[] | null;
   private colorMap: (t: number) => [number, number, number];
 
   constructor() {
     this.elevationRaster = [];
     this.elevationRasterMidpoint = { x: 0, y: 0, z: 0 };
-    this.elevationAzimuthDivisions = 60;
     this.solarIrradiance = null;
     this.colorMap = viridis;
   }
@@ -86,11 +84,9 @@ export class ShadingScene {
    * important that all values of x,y and z are given with same units. If x and y are given in lat / lon and
    * z is given in meters, this will result in wrong simulation Results.
    * @param midpoint The point of the observer, ie the center of the building
-   * @param azimuthDivisions Number of divisions of the azimuth Angle, i.e. the list of the azimuth
    * angle will be [0, ..., 2Pi] where the list has a lenght of azimuthDivisions
    */
-  addElevationRaster(raster: CartesianPoint[], midpoint: CartesianPoint, azimuthDivisions: number) {
-    this.elevationAzimuthDivisions = azimuthDivisions;
+  addElevationRaster(raster: CartesianPoint[], midpoint: CartesianPoint) {
     this.elevationRaster = raster;
     this.elevationRasterMidpoint = midpoint;
   }
