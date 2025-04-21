@@ -185,14 +185,13 @@ export class ShadingScene {
    * This function is called as a last step, after the scene is fully build.
    * It runs the shading simulation and returns a THREE.js colored mesh.
    * The colors are chosen from the defined colorMap.
-   * @param params: The input object containing information about the simulation.
+   * @param params The input object containing information about the simulation.
 
    * @returns A three.js colored mesh of the simulationGeometry. Each triangle gets an 
    * attribute called intensity, that holds the annual electricity in kwh/m2 that a PV
    * system can generate. If {@link ShadingScene.solarIrradiance} is a timeseries of sky
    * domes, the resulting intensities attribute is a flattened Float32Array of length T*N.
    */
-
   async calculate(params: CalculateParams = {}) {
     const {
       solarToElectricityConversionEfficiency = 0.15,

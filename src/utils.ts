@@ -101,7 +101,7 @@ export type Color = [number, number, number];
 export type ColorMap = (t: number) => Color;
 
 /**
- * Interface for the parameter object for {@link ShadingScene.calculate}
+ * Interface for the parameter object for {@link index.ShadingScene.calculate}
  */
 export interface CalculateParams {
   /**
