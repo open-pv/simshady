@@ -1,26 +1,52 @@
 /**
-  @ignore
- */
-export function isValidUrl(urlString: string): boolean {
-  try {
-    new URL(urlString);
-    return true;
-  } catch (e) {
-    return false;
-  }
+ * Solar irradiance data. `metadata` json holds the coordinates
+ * where the irradiance data can be used. daylight_timesteps_processed
+ * is the number of hours of daylight in the considered timeframe. If
+ * the skydome represents a whole year, this is about 4700.
+ * 
+ * `data` holds a list of
+ * sky segments, where altitude and azimuth define the position
+ * and radiance defines the amount of incoming radiance. Read more about
+ * it in the "How does simshady work" section of the docs page.
+ *
+ * Definition of the coordiante system in `simshady`:
+ * Angles are expected in degree.
+ * Azimuth = 0 is North, Azimuth = 90° is East.
+ * Altitude = 0 is the horizon, Altitude = 90° is upwards / Zenith.
+ * 
+ * Example Data:
+ * ```json
+ * {
+    "data": [
+        {
+            "altitude": 78.28,
+            "azimuth": 45.0,
+            "radiance": 32.13
+        },
+        {
+            "altitude": 78.28,
+            "azimuth": 135.0,
+            "radiance": 32.13
+        },
+        ...
+        ],
+    "metadata": {
+        "latitude": 48.5,
+        "longitude": 11.5,
+        "daylight_timesteps_processed": 4700,
+    }
 }
-
+  ```
+ */
 export type SolarIrradianceData = {
   metadata: {
-    description: string;
     latitude: number;
     longitude: number;
-    samples_phi: number;
-    samples_theta: number;
+    daylight_timesteps_processed: number;
   };
   data: Array<{
-    theta: number;
-    phi: number;
+    altitude: number;
+    azimuth: number;
     radiance: number;
   }>;
 };
@@ -41,7 +67,9 @@ export type SphericalPoint = {
 /**
  * Cartesian Coordinate of a point.
  *
- * Positive X-Axis is north.
+ * Positive X-axis is east.
+ * Positive Y-axis is north.
+ * Positive z-axis is upwards.
  */
 export type CartesianPoint = {
   x: number;
@@ -77,57 +105,58 @@ export type ColorMap = (t: number) => Color;
  */
 export interface CalculateParams {
   /**
-   * Number of random sun positions that are used to calculate the PV yield.
-   * @defaultValue 80
+   * Efficiency of the conversion from solar energy to electricity. This includes the
+   * pv cell efficiency (about 20%) as well as the coverage density of PV panels per area
+   * (about 70%).
+   * Value in [0,1].
+   * @defaultValue 0.15
    */
-  numberSimulations?: number;
-
-  /**
-   * URL where the files for the diffuse Irradiance can be retreived.
-   * The object at this URL needs to be of type {@link SolarIrradianceData}.
-   * @defaultValue undefined - only direct irradiance is used.
-   */
-  diffuseIrradianceURL?: string;
-  /**
-   * Efficiency of the solar cell, value in [0,1].
-   * @defaultValue 0.2
-   */
-  pvCellEfficiency?: number;
+  solarToElectricityConversionEfficiency?: number;
   /**
    * Upper boundary of annual yield in kWh/m2/year. This value is used to normalize
    * the color of the returned three.js mesh.
-   * In Germany this is something like 1400 kWh/m2/year multiplied with the given pvCellEfficiency.
-   * @defaultValue 1400*0.2
+   * In Germany this is something like 1400 kWh/m2/year multiplied with the given
+   * solarToElectricityConversionEfficiency.
+   * @defaultValue 1400*0.15
    */
   maxYieldPerSquareMeter?: number;
   /**
-   * URL of a GEOTIF File of annual average direct irradiance data. An example lies at
-   * https://www.openpv.de/data/irradiance/geotiff/
+   * Callback function to indicate the progress of the simulation
+   * @param progress number indicating the current progress
+   * @param total number indicating the final number that progress needs to reach
+   * @returns
    */
-  urlDirectIrrandianceTIF?: string;
-  /**
-   * URL of a GEOTIF File of annual average diffuse irradiance data. An example lies at
-   * https://www.openpv.de/data/irradiance/geotiff/
-   */
-  urlDiffuseIrrandianceTIF?: string;
   progressCallback?: (progress: number, total: number) => void;
 }
 
 /**
+ * @ignore
  * Mimics a for-loop but schedules each loop iteration using `setTimeout`, so that
  * event handles, react updates, etc. can run in-between
  */
-export async function timeoutForLoop(start: number, end: number, body: (i: number) => void) {
+export async function timeoutForLoop(start: number, end: number, body: (i: number) => void, step: number = 1) {
   return new Promise<void>((resolve) => {
     const inner = (i: number) => {
       body(i);
-      i = i + 1;
-      if (i == end) {
+      i = i + step;
+      if (i >= end) {
         resolve();
       } else {
         setTimeout(() => inner(i), 0);
       }
     };
-    setTimeout(() => inner(0), 0);
+    setTimeout(() => inner(start), 0);
   });
+}
+
+/**
+ * @ignore
+ * Helper to log NaN counts in data arrays. If no NaN values are found
+ * nothing is logged.
+ */
+export function logNaNCount(name: string, array: Float32Array): void {
+  const nanCount = Array.from(array).filter(isNaN).length;
+  if (nanCount > 0) {
+    console.log(`${nanCount}/${array.length} ${name} coordinates are NaN`);
+  }
 }

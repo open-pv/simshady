@@ -55,27 +55,34 @@ export function calculateSphericalCoordinates(start: CartesianPoint, end: Cartes
  * Returns a list of spherical points of length numDirections.
  * @param elevation list of points with x,y,z component
  * @param observer Point of interest for which the elevation angles are calculated.
- * @param numDirections Number of steps for the azimuth angle.
+ * @param directions List of altitude azimuth pairs. Angles in degree and conform to the
+ * coordinate space definition of simshady.
  * @returns
  */
-export function getMaxElevationAngles(
+export function getElevationShadingMask(
   elevation: CartesianPoint[],
   observer: CartesianPoint,
-  numDirections: number,
-): SphericalPoint[] {
-  let maxAngles: SphericalPoint[] = Array.from({ length: numDirections }, (_, index) => ({
-    radius: 1,
-    azimuth: index * ((2 * Math.PI) / numDirections),
-    altitude: -Infinity,
-  }));
+  directions: [number, number][],
+): [number, number, number][] {
+  const shadingMask: [number, number, number][] = [];
 
-  for (let point of elevation) {
-    const { azimuth, altitude } = calculateSphericalCoordinates(observer, point);
-    const closestIndex = Math.round(azimuth / ((2 * Math.PI) / numDirections)) % numDirections;
-    if (altitude > maxAngles[closestIndex].altitude) {
-      maxAngles[closestIndex].altitude = altitude;
+  for (const [altDeg, azDeg] of directions) {
+    const azRad = (azDeg * Math.PI) / 180;
+    const altRad = (altDeg * Math.PI) / 180;
+    let maxAltitude = -Infinity;
+
+    for (const point of elevation) {
+      const { azimuth, altitude } = calculateSphericalCoordinates(observer, point);
+      const azDiff = Math.abs(((azimuth - azRad + Math.PI) % (2 * Math.PI)) - Math.PI);
+      if (azDiff < Math.PI / 180) {
+        // approx 1 degree tolerance
+        if (altitude > maxAltitude) maxAltitude = altitude;
+      }
     }
+
+    const isVisible = altRad > maxAltitude ? 1 : 0;
+    shadingMask.push([altDeg, azDeg, isVisible]);
   }
-  fillMissingAltitudes(maxAngles);
-  return maxAngles;
+
+  return shadingMask;
 }

@@ -1,8 +1,8 @@
 ![Tests](https://github.com/open-pv/simshady/actions/workflows/tests.yml/badge.svg) ![Docs](https://github.com/open-pv/simshady/actions/workflows/typedoc.yml/badge.svg) [![NPM Version](https://img.shields.io/npm/v/@openpv/simshady)](https://www.npmjs.com/package/@openpv/simshady) [![NPM Downloads](https://img.shields.io/npm/dm/@openpv/simshady)](https://npmtrends.com/@openpv/simshady)
 
-# SimShady
+# simshady
 
-SimShady is a package for shading simulation and PV yield estimation based on 3D meshes. It runs on the GPU using WebGL. See it in action at [openpv.de](https://openpv.de).
+`simshady` is a package for shading simulation and PV yield estimation based on 3D meshes. It runs on the GPU using WebGL. See it in action at [openpv.de](https://openpv.de).
 
 ## Installation
 
@@ -16,28 +16,7 @@ npm i @openpv/simshady
 
 We publish our documentation at https://open-pv.github.io/simshady/. Additionally, we have built a minimal vite webapp to showcase the most relevant features. Check out its source code [here](https://github.com/open-pv/minimalApp).
 
-The basic usage of the package works as follows:
-
-```javascript
-import ShadingScene from '@openpv/simshady';
-
-const lat = 50.0;
-const lon = 11.0;
-const scene = new ShadingScene(lat, lon);
-scene.addShadingGeometry(someShadingGeometry);
-scene.addSimulationGeometry(someSimulationGeometry);
-
-let mesh = await scene.calculate({
-    numberSimulations: 100,
-    diffuseIrradiance: "https://www.openpv.de/data/irradiance",
-    urlDirectIrrandianceTIF:
-      "https://www.openpv.de/data/irradiance/geotiff/average_direct_radiation.tif",
-    urlDiffuseIrrandianceTIF:
-      "https://www.openpv.de/data/irradiance/geotiff/average_diffuse_radiation.tif",
-});
-
-showThreeJS(mesh);
-```
+## How it works
 
 ## Team
 
