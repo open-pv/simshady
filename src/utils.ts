@@ -42,12 +42,12 @@ export type SolarIrradianceData = {
   metadata: {
     latitude: number;
     longitude: number;
-    daylight_timesteps_processed: number;
+    valid_timesteps_for_aggregation: number;
   };
   data: Array<{
-    altitude: number;
-    azimuth: number;
-    radiance: number;
+    altitude_deg: number;
+    azimuth_deg: number;
+    average_radiance_W_m2_sr: number;
   }>;
 };
 

@@ -244,7 +244,7 @@ export class ShadingScene {
     const pvYield = sun.calculatePVYield(
       shadedScene,
       solarToElectricityConversionEfficiency,
-      this.solarIrradiance[0].metadata.daylight_timesteps_processed,
+      this.solarIrradiance[0].metadata.valid_timesteps_for_aggregation,
     );
 
     return this.createMesh(this.simulationGeometry, pvYield, maxYieldPerSquareMeter);
@@ -359,15 +359,15 @@ export class ShadingScene {
       for (const entry of solarIrradiance) {
         const radiances: number[] = [];
         for (const point of entry.data) {
-          const altRad = (point.altitude * Math.PI) / 180;
-          const azRad = (point.azimuth * Math.PI) / 180;
+          const altRad = (point.altitude_deg * Math.PI) / 180;
+          const azRad = (point.azimuth_deg * Math.PI) / 180;
 
           const x = Math.cos(altRad) * Math.sin(azRad);
           const y = Math.cos(altRad) * Math.cos(azRad);
           const z = Math.sin(altRad);
 
           directions.push(x, y, z);
-          radiances.push(point.radiance);
+          radiances.push(point.average_radiance_W_m2_sr);
         }
         radiation.push(new Float32Array(radiances));
       }
@@ -391,7 +391,7 @@ export class ShadingScene {
         this.elevationRaster,
         this.elevationRasterMidpoint,
         // extract the altitude azimuth pairs from the first skysegment
-        irradiance[0].data.map(({ altitude, azimuth }) => [altitude, azimuth]),
+        irradiance[0].data.map(({ altitude_deg, azimuth_deg }) => [altitude_deg, azimuth_deg]),
       );
     }
 
