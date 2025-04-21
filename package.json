@@ -1,6 +1,6 @@
 {
   "name": "@openpv/simshady",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Simulating Shadows for PV Potential Analysis on 3D Data on the GPU.",
   "main": "./dist/index.js",
   "type": "module",
