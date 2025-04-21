@@ -22,10 +22,32 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
  * of this site.
  */
 export class ShadingScene {
+  /**
+   * A Three.js geometry holding the main object of the scene,
+   * see {@link ShadingScene.addShadingGeometry}
+   */
   public simulationGeometry: BufferGeometry | undefined;
+  /**
+   * A Three.js geometry holding the objects that cause shading,
+   * see {@link ShadingScene.addShadingGeometry}
+   */
   public shadingGeometry: BufferGeometry | undefined;
+  /**
+   * A Raster (2D Matrix) holding rasterized data of the terrain,
+   * see {@link ShadingScene.addElevationRaster}
+   */
   public elevationRaster: Array<CartesianPoint>;
+  /**
+   * The midpoint of the elevationRaster, where the main object of
+   * the scene is located.
+   * See {@link ShadingScene.addElevationRaster}
+   */
   private elevationRasterMidpoint: CartesianPoint;
+  /**
+   * A timeseries of Skydomes holding averaged direct and diffuse
+   * irradiance data.
+   * See {@link ShadingScene.addSolarIrradiance}
+   */
   public solarIrradiance: SolarIrradianceData[] | null;
   private colorMap: (t: number) => [number, number, number];
 
@@ -45,7 +67,6 @@ export class ShadingScene {
    * @param geometry Flat Buffer Array of a Three.js geometry, where three
    * consecutive numbers of the array represent one 3D point and nine consecutive
    * numbers represent one triangle.
-   * @memberof Scene
    */
   addSimulationGeometry(geometry: BufferGeometry) {
     geometry = geometry.toNonIndexed();
@@ -68,7 +89,6 @@ export class ShadingScene {
    * @param geometry Flat Buffer Array of a Three.js geometry, where three
    * consecutive numbers of the array represent one 3D point and nine consecutive
    * numbers represent one triangle.
-   * @memberof Scene
    */
   addShadingGeometry(geometry: BufferGeometry) {
     geometry = geometry.toNonIndexed();
@@ -106,7 +126,11 @@ export class ShadingScene {
     }
     this.solarIrradiance = irradiance;
   }
-
+  /**
+   * Fetches a SolarIrradiance Object from a url and adds it to the
+   * ShadingScene.
+   * @param url
+   */
   async addSolarIrradianceFromURL(url: string): Promise<void> {
     const response = await fetch(url);
     const data = await response.json();
@@ -115,7 +139,8 @@ export class ShadingScene {
 
   /**
    * Change the Color Map that is used for the colors of the simulated Three.js mesh. This is
-   * optional, the default colorMap is viridis (blue to green to yellow)
+   * optional, the default colorMap is viridis (blue to green to yellow). Other options are
+   * {@link colormaps.interpolateTwoColors} or {@link colormaps.interpolateThreeColors}
    * @param colorMap
    */
   addColorMap(colorMap: ColorMap) {
@@ -159,18 +184,19 @@ export class ShadingScene {
   /**
    * This function is called as a last step, after the scene is fully build.
    * It runs the shading simulation and returns a THREE.js colored mesh.
-   * The colors are chosen from the viridis colormap.
+   * The colors are chosen from the defined colorMap.
    * @param params: The input object containing information about the simulation.
 
    * @returns A three.js colored mesh of the simulationGeometry. Each triangle gets an 
    * attribute called intensity, that holds the annual electricity in kwh/m2 that a PV
-   * system can generate.
+   * system can generate. If {@link ShadingScene.solarIrradiance} is a timeseries of sky
+   * domes, the resulting intensities attribute is a flattened Float32Array of length T*N.
    */
 
   async calculate(params: CalculateParams = {}) {
     const {
       solarToElectricityConversionEfficiency = 0.15,
-      maxYieldPerSquareMeter = 1400 * 0.2,
+      maxYieldPerSquareMeter = 1400 * 0.15,
       progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}%`),
     } = params;
 
@@ -306,7 +332,6 @@ export class ShadingScene {
    * @param meshArray array of vertices for the shading mesh
    * @param irradiance Time Series of sky domes
    * @return
-   * @memberof Scene
    */
   private async rayTrace(
     midpoints: Float32Array,

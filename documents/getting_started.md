@@ -2,39 +2,56 @@
 title: Getting Started
 ---
 
-# Getting started
+# Getting Started
 
-First, install the package using your favourite package managing tool:
+## Installation
+
+Install the package using your preferred package manager:
 
 ```bash
 npm install @openpv/simshady
 ```
 
-The basic usage of the package works as follows: First, a [ShadingScene](/docs/classes/index.ShadingScene.html) is initialized.
+## Basic Usage
+
+1. **Initialize the Scene**
+
+Begin by creating a new [`ShadingScene`](/docs/classes/index.ShadingScene.html) instance:
 
 ```javascript
 import ShadingScene from '@openpv/simshady';
+
 const scene = new ShadingScene();
 ```
 
-Then, geometries are added to the scene. One or multiple geometries as [`SimulationGeometries`](/docs/classes/index.ShadingScene.html#addsimulationgeometry) - these are the geometries of the object that will be simulated, like a house or a PV panel. Moreover, [`ShadingGeometries`](/docs/classes/index.ShadingScene.html#addshadinggeometry) are added that are taken for shading in the scene.
+2. **Add Geometries**
+
+Add one or more simulation geometries—such as buildings or PV panels—using [`addSimulationGeometry`](/docs/classes/index.ShadingScene.html#addsimulationgeometry).  
+Add shading geometries using [`addShadingGeometry`](/docs/classes/index.ShadingScene.html#addshadinggeometry):
 
 ```javascript
 scene.addShadingGeometry(someShadingGeometry);
 scene.addSimulationGeometry(someSimulationGeometry);
 ```
 
-As a third step, [solar irradiance](/docs/classes/index.ShadingScene.html#addsolarirradiance) data is added to the scene in a [predefined format](/docs/types/utils.SolarIrradianceData.html). This data contains time series data on direct and diffuse irradiance.
+3. **Add Solar Irradiance Data**
+
+Include irradiance data in the [required format](/docs/types/utils.SolarIrradianceData.html) via [`addSolarIrradiance`](/docs/classes/index.ShadingScene.html#addsolarirradiance). This data should contain time series for both direct and diffuse irradiance:
 
 ```javascript
 scene.addSolarIrradiance(someSolarIrradianceData);
+```
+
+4. **Run the Simulation**
+
+Call the [`calculate`](/docs/classes/index.ShadingScene.html#calculate) method to perform the simulation. It returns a [Three.js Mesh](https://threejs.org/docs/#api/en/objects/Mesh), which can be used directly in a Three.js scene:
+
+```javascript
 let mesh = await scene.calculate({
   solarToElectricityConversionEfficiency: 0.15,
 });
-```
 
-The [`ShadingScene.calculate`](/docs/classes/index.ShadingScene.html#calculate) method returns a [Three.js](https://threejs.org/docs/#api/en/objects/Mesh) colored mesh. You can use it within your three.js application, like we do it at [openpv.eu](https://openpv.eu).
-
-```javascript
 showThreeJS(mesh);
 ```
+
+> 💡 You can see a real-world usage example at [openpv.de](https://openpv.de).

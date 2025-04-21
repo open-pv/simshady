@@ -117,7 +117,7 @@ export interface CalculateParams {
    * the color of the returned three.js mesh.
    * In Germany this is something like 1400 kWh/m2/year multiplied with the given
    * solarToElectricityConversionEfficiency.
-   * @defaultValue 1400*0.2
+   * @defaultValue 1400*0.15
    */
   maxYieldPerSquareMeter?: number;
   /**
