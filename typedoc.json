@@ -1,13 +1,10 @@
 {
-    "projectDocuments": ["documents/*.md"],
-    "entryPoints": ["./src/index.ts", "./src/utils.ts"],
-    "out": "docs",
-    "plugin": [
-        "typedoc-plugin-mdn-links",
-        "typedoc-plugin-coverage",
-        "typedoc-plugin-rename-defaults"
-    ],
-    "entryPointStrategy": "expand",
-    "excludePrivate": true,
-    "favicon": "documents/assets/favicon.ico"     
+  "projectDocuments": ["documents/*.md"],
+  "entryPoints": ["./src/index.ts", "./src/utils.ts"],
+  "out": "docs",
+  // this plugin was used before, but I think it is not necessary
+  //"plugin": ["typedoc-plugin-rename-defaults"],
+  "entryPointStrategy": "expand",
+  "excludePrivate": true,
+  "favicon": "documents/assets/favicon.ico"
 }
