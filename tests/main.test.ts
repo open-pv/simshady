@@ -54,52 +54,26 @@ describe('Scene initialization', () => {
     const scene = new ShadingScene();
     const solarIrradiance = {
       data: [
-        {
-          altitude: 78.28,
-          azimuth: 45.0,
-          radiance: 36.799,
-        },
-        {
-          altitude: 78.28,
-          azimuth: 315.0,
-          radiance: 36.799,
-        },
+        { altitude_deg: 78.28, azimuth_deg: 45.0, average_radiance_W_m2_sr: 36.799 },
+        { altitude_deg: 78.28, azimuth_deg: 315.0, average_radiance_W_m2_sr: 36.799 },
       ],
-      metadata: {
-        nside: 4,
-        latitude: 47.21,
-        longitude: 15.86,
-        daylight_timesteps_processed: 4447,
-      },
+      metadata: { nside: 4, latitude: 47.21, longitude: 15.86, valid_timesteps_for_aggregation: 8760 },
     };
 
     const solarIrradianceSecondTimeStep = {
       data: [
-        {
-          altitude: 78.28,
-          azimuth: 45.0,
-          radiance: 36.799,
-        },
-        {
-          altitude: 78.28,
-          azimuth: 315.0,
-          radiance: 36.799,
-        },
+        { altitude_deg: 78.28, azimuth_deg: 45.0, average_radiance_W_m2_sr: 36.799 },
+        { altitude_deg: 78.28, azimuth_deg: 315.0, average_radiance_W_m2_sr: 36.799 },
       ],
-      metadata: {
-        nside: 4,
-        latitude: 47.21,
-        longitude: 15.86,
-        daylight_timesteps_processed: 4447,
-      },
+      metadata: { nside: 4, latitude: 47.21, longitude: 15.86, valid_timesteps_for_aggregation: 8760 },
     };
     scene.addSolarIrradiance(solarIrradiance);
     expect(Array.isArray(scene.solarIrradiance)).toBe(true);
-    expect(scene.solarIrradiance![0].metadata.daylight_timesteps_processed).toEqual(4447);
+    expect(scene.solarIrradiance![0].metadata.valid_timesteps_for_aggregation).toEqual(8760);
 
     const sceneWithTimeSeries = new ShadingScene();
     sceneWithTimeSeries.addSolarIrradiance([solarIrradiance, solarIrradianceSecondTimeStep]);
     expect(Array.isArray(scene.solarIrradiance)).toBe(true);
-    expect(scene.solarIrradiance![0].metadata.daylight_timesteps_processed).toEqual(4447);
+    expect(scene.solarIrradiance![0].metadata.valid_timesteps_for_aggregation).toEqual(8760);
   });
 });
