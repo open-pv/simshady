@@ -1,13 +1,13 @@
 /**
  * Solar irradiance data. `metadata` json holds the coordinates
- * where the irradiance data can be used. daylight_timesteps_processed
+ * where the irradiance data can be used. valid_timesteps_for_aggregation
  * is the number of hours of daylight in the considered timeframe. If
- * the skydome represents a whole year, this is about 4700.
+ * the skydome represents a whole year, this is about 8760.
  * 
  * `data` holds a list of
- * sky segments, where altitude and azimuth define the position
- * and radiance defines the amount of incoming radiance. Read more about
- * it in the "How does simshady work" section of the docs page.
+ * sky segments, where altitude_deg and azimuth_deg define the position
+ * and average_radiance_W_m2_sr defines the averaged incoming irradinace in W per m2 per sr. 
+ * Read more about it in the "How does simshady work" section of the docs page.
  *
  * Definition of the coordiante system in `simshady`:
  * Angles are expected in degree.
@@ -19,36 +19,28 @@
  * {
     "data": [
         {
-            "altitude": 78.28,
-            "azimuth": 45.0,
-            "radiance": 32.13
+            "altitude_deg": 78.28,
+            "azimuth_deg": 45.0,
+            "average_radiance_W_m2_sr": 17.034986301369866
         },
         {
-            "altitude": 78.28,
-            "azimuth": 135.0,
-            "radiance": 32.13
+            "altitude_deg": 78.28,
+            "azimuth_deg": 315.0,
+            "average_radiance_W_m2_sr": 17.034986301369866
         },
         ...
         ],
     "metadata": {
-        "latitude": 48.5,
-        "longitude": 11.5,
-        "daylight_timesteps_processed": 4700,
+        "latitude": 49.8,
+        "longitude": 8.6,
+        "valid_timesteps_for_aggregation": 8760,
     }
 }
   ```
  */
 export type SolarIrradianceData = {
-  metadata: {
-    latitude: number;
-    longitude: number;
-    daylight_timesteps_processed: number;
-  };
-  data: Array<{
-    altitude: number;
-    azimuth: number;
-    radiance: number;
-  }>;
+  metadata: { latitude: number; longitude: number; valid_timesteps_for_aggregation: number };
+  data: Array<{ altitude_deg: number; azimuth_deg: number; average_radiance_W_m2_sr: number }>;
 };
 
 /**
@@ -58,11 +50,7 @@ export type SolarIrradianceData = {
  *
  * Altitude = 0 is the horizon, Altitude = PI/2 is upwards / Zenith.
  */
-export type SphericalPoint = {
-  radius: number;
-  altitude: number;
-  azimuth: number;
-};
+export type SphericalPoint = { radius: number; altitude: number; azimuth: number };
 
 /**
  * Cartesian Coordinate of a point.
@@ -71,24 +59,14 @@ export type SphericalPoint = {
  * Positive Y-axis is north.
  * Positive z-axis is upwards.
  */
-export type CartesianPoint = {
-  x: number;
-  y: number;
-  z: number;
-};
+export type CartesianPoint = { x: number; y: number; z: number };
 
-export type Point = {
-  cartesian: CartesianPoint;
-  spherical: SphericalPoint;
-};
+export type Point = { cartesian: CartesianPoint; spherical: SphericalPoint };
 
 /**
  @ignore
  */
-export type SunVector = {
-  vector: Point;
-  isShadedByElevation: boolean;
-};
+export type SunVector = { vector: Point; isShadedByElevation: boolean };
 
 /**
  * RGB values of a color, where all values are in intervall [0,1]

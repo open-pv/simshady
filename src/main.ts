@@ -210,9 +210,6 @@ export class ShadingScene {
 
     this.simulationGeometry = this.refineMesh(this.simulationGeometry, 1.0);
 
-    console.log('Number of simulation triangles:', this.simulationGeometry.attributes.position.count / 3);
-    console.log('Number of shading triangles:', this.shadingGeometry.attributes.position.count / 3);
-
     // Extract and validate geometry attributes
     // Flattened Mx3 array for M points
     const meshArray = <Float32Array>this.shadingGeometry.attributes.position.array;
@@ -239,12 +236,10 @@ export class ShadingScene {
       (i, total) => progressCallback(i + total, total),
     );
 
-    console.log('solarIrradiance', this.solarIrradiance);
-
     const pvYield = sun.calculatePVYield(
       shadedScene,
       solarToElectricityConversionEfficiency,
-      this.solarIrradiance[0].metadata.daylight_timesteps_processed,
+      this.solarIrradiance[0].metadata.valid_timesteps_for_aggregation,
     );
 
     return this.createMesh(this.simulationGeometry, pvYield, maxYieldPerSquareMeter);
@@ -359,15 +354,15 @@ export class ShadingScene {
       for (const entry of solarIrradiance) {
         const radiances: number[] = [];
         for (const point of entry.data) {
-          const altRad = (point.altitude * Math.PI) / 180;
-          const azRad = (point.azimuth * Math.PI) / 180;
+          const altRad = (point.altitude_deg * Math.PI) / 180;
+          const azRad = (point.azimuth_deg * Math.PI) / 180;
 
           const x = Math.cos(altRad) * Math.sin(azRad);
           const y = Math.cos(altRad) * Math.cos(azRad);
           const z = Math.sin(altRad);
 
           directions.push(x, y, z);
-          radiances.push(point.radiance);
+          radiances.push(point.average_radiance_W_m2_sr);
         }
         radiation.push(new Float32Array(radiances));
       }
@@ -391,7 +386,7 @@ export class ShadingScene {
         this.elevationRaster,
         this.elevationRasterMidpoint,
         // extract the altitude azimuth pairs from the first skysegment
-        irradiance[0].data.map(({ altitude, azimuth }) => [altitude, azimuth]),
+        irradiance[0].data.map(({ altitude_deg, azimuth_deg }) => [altitude_deg, azimuth_deg]),
       );
     }
 
@@ -400,20 +395,18 @@ export class ShadingScene {
     //And a time series of skySegmentRadiation (which are the absolute values of the sky segment
     // vectors)
 
-    // Initializize Intensities of shape T x S
-    let intensities = skysegmentRadiation.map((arr) => new Float32Array(midpoints.length * 3));
+    // Initializize Intensities of shape T x N, with one intensity per time step per midpoint
+    let intensities = skysegmentRadiation.map(() => new Float32Array(midpoints.length / 3));
 
     //iterate over each sky segment
     for (let i = 0; i < shadedMaskScenes.length; i++) {
       // iterate over each midpoint
       for (let j = 0; j < midpoints.length; j++) {
-        //TODO instead of taking only [0] element, build proper time series handling
         for (let t = 0; t < intensities.length; t++) {
           intensities[t][j] += shadedMaskScenes[i][j] * skysegmentRadiation[t][i];
         }
       }
     }
-
     return intensities;
   }
 }
