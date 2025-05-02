@@ -210,9 +210,6 @@ export class ShadingScene {
 
     this.simulationGeometry = this.refineMesh(this.simulationGeometry, 1.0);
 
-    console.log('Number of simulation triangles:', this.simulationGeometry.attributes.position.count / 3);
-    console.log('Number of shading triangles:', this.shadingGeometry.attributes.position.count / 3);
-
     // Extract and validate geometry attributes
     // Flattened Mx3 array for M points
     const meshArray = <Float32Array>this.shadingGeometry.attributes.position.array;
@@ -238,8 +235,6 @@ export class ShadingScene {
       this.solarIrradiance!, // Non-null assertion
       (i, total) => progressCallback(i + total, total),
     );
-
-    console.log('solarIrradiance', this.solarIrradiance);
 
     const pvYield = sun.calculatePVYield(
       shadedScene,
@@ -400,20 +395,18 @@ export class ShadingScene {
     //And a time series of skySegmentRadiation (which are the absolute values of the sky segment
     // vectors)
 
-    // Initializize Intensities of shape T x S
-    let intensities = skysegmentRadiation.map((arr) => new Float32Array(midpoints.length * 3));
+    // Initializize Intensities of shape T x N, with one intensity per time step per midpoint
+    let intensities = skysegmentRadiation.map(() => new Float32Array(midpoints.length / 3));
 
     //iterate over each sky segment
     for (let i = 0; i < shadedMaskScenes.length; i++) {
       // iterate over each midpoint
       for (let j = 0; j < midpoints.length; j++) {
-        //TODO instead of taking only [0] element, build proper time series handling
         for (let t = 0; t < intensities.length; t++) {
           intensities[t][j] += shadedMaskScenes[i][j] * skysegmentRadiation[t][i];
         }
       }
     }
-
     return intensities;
   }
 }
