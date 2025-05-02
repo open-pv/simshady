@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import * as elevation from '../src/elevation';
-import { CartesianPoint, SphericalPoint } from '../src/utils';
+import { SphericalPoint } from '../src/utils';
 
 describe('calculateSphericalCoordinates', () => {
   test('should calculate the correct spherical coordinates', () => {

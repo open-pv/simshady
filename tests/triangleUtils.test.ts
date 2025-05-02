@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import * as triangleUtils from '../src/triangleUtils.js';
+import { triangleArray } from './data.js';
 
-const triangleArray = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 3, 1, 1, 3, 6]);
 const firstTriangle: triangleUtils.Triangle = [0, 0, 0, 1, 0, 0, 0, 1, 0];
 const secondTriangle: triangleUtils.Triangle = [1, 1, 1, 1, 3, 1, 1, 3, 6];
 
