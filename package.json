@@ -14,7 +14,7 @@
     "format": "lint-staged",
     "build": "tsup",
     "prepare": "husky",
-    "docs": "typedoc --options typedoc.json"
+    "docs": "typedoc --options typedoc.json --out ./docs"
   },
   "repository": {
     "type": "git",
