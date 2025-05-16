@@ -4,6 +4,13 @@
 
 `simshady` is a package for shading simulation and PV yield estimation based on 3D meshes. It runs on the GPU using WebGL. See it in action at [openpv.de](https://openpv.de).
 
+## When to use `simshady`
+
+You want to
+
+- build an application for solar (photovoltaic) yield estimation. These estimations tell you how much electricity a solar panel can produce at a specific location. Since this is influenced a lot by the shadows of surrounding buildings and trees, you want to have a shading simulation. Use `simshady`.
+- use 3D data of buildings, terrain, or trees to calculate shading. You have this data in formats that can be converted to `three.js`-Meshes, like `.obj`, `.stl`, or `.citygml`. Use `simshady`.
+
 ## Installation
 
 To install the package, run
@@ -53,7 +60,7 @@ We publish our documentation at https://open-pv.github.io/simshady/. Additionall
 
 ## Contributing
 
-You are welcome to contribute to this project, either by adding code or creating Issues. As a first step, you might check out our [contributing guidelines](https://github.com/open-pv/simshady/blob/main/CONTRIBUTING.md).
+You are welcome to contribute to this project, either by adding code or creating Issues. For major changes, please open an issue first to discuss what you would like to change. As a first step, you might check out our [contributing guidelines](https://github.com/open-pv/simshady/blob/main/CONTRIBUTING.md).
 
 ## Sponsors
 
