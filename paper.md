@@ -43,11 +43,13 @@ bibliography: paper.bib
 
 To meet global climate targets, solar photovoltaic (PV) capacity must expand significantly. Tripling renewable energy capacity by 2030 is essential to limit global warming to 1.5°C [@IEA2023]. The expansion of PV plays a crucial part, and PV systems offer another benefit. Small scale house mounted PV systems enable the public participation and legitimize the energy transition.
 For calculating the yield of PV systems, various factors are important: the location of the planned installation, the local climate, surrounding objects such as houses or trees, and the terrain. To provide accurate estimates of expected yields, simulation tools are essential in both research and practical PV system planning.
-For these reasons, a variety of software tools already exist [@holmgren2018review]. The python package pvlib [@anderson2023pvlib]
+For these reasons, a variety of software tools already exist [@holmgren2018review, jakica2018state]. The python package pvlib is widely used and actively maintained [@anderson2023pvlib]. It offers a variety of functionalities around the modeling of PV systems, but a shading simulation with 3D objects is not included in this package.
+Regarding web based tools, solutions like PVGIS, PVWatts and RETScreen exist [psomopoulos2015comparative]. Their focus lies on estimates based on geographic location and user information of building geometries. They do not offer shading simulations based on 3D geometries.
+The `@openpv/simshady` package targets the gap of javascript based software, that can be run on the server using node or in the browser that implements the raytracing on the GPU.
 
 # Package description
 
-The javascript package `simshady` first initializes a scene object. Various adder functions can then be used to add relevant data to this scene:
+The javascript package `simshady` orients at the functionalities of three.js and first initializes a scene object. Various adder functions can then be used to add relevant data to this scene:
 
 - The core simulation geometry as the object where the PV yield is of interest. This is usually a geometry of a house. This geomety needs to be a vector mesh. It is not optional.
 - The background geometries as geometries that are relevant for shading, but where no PV yield should be calculated. These geometries are usually the houses from the neighborhood or trees. These geometries need to be vector meshes. They are optional.
@@ -61,6 +63,9 @@ If all relevant data is added to the scene object, the simulation can be started
 # CRediT Authorship Statement
 
 FK:
+MG:
+KH:
+KP:
 
 # Acknowledgements
 
