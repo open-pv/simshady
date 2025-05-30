@@ -4,6 +4,8 @@ title: Getting Started
 
 # Getting Started
 
+> 💡 A minimal example App using 'simshady' can be found [here](https://github.com/open-pv/minimalApp).
+
 ## Installation
 
 Install the package using your preferred package manager:
