@@ -1,5 +1,5 @@
 ---
-title: 'simshady: A Javascript Package for Photovoltaic Yield Estimation Based on 3D Meshes'
+title: '@openpv/simshady: A Javascript Package for Photovoltaic Yield Estimation Based on 3D Meshes'
 tags:
   - TypeScript
   - JavaScript
@@ -37,19 +37,19 @@ bibliography: paper.bib
 
 # Summary
 
-`@openpv/simshady` is a JavaScript package for simulating photovoltaic (PV) energy yields. It can integrate local climate data and 3D object shading. It utilizes three.js meshes for geometric modeling and performs shading analysis using a WebGL-parallelized implementation of the Möller-Trumbore intersection algorithm. The output includes color-coded three.js meshes representing the expected PV yield.
+`simshady` is a JavaScript package for simulating photovoltaic (PV) energy yields. It can integrate local climate data and 3D object shading. It utilizes three.js meshes for geometric modeling and performs shading analysis using a WebGL-parallelized implementation of the Möller-Trumbore intersection algorithm. The output includes color-coded three.js meshes representing the expected PV yield.
 
 # Statement of need
 
 To meet global climate targets, solar photovoltaic (PV) capacity must expand significantly. Tripling renewable energy capacity by 2030 is essential to limit global warming to 1.5°C [@IEA2023]. The expansion of PV plays a crucial part, and PV systems offer another benefit. Small scale house mounted PV systems enable the public participation and legitimize the energy transition.
 For calculating the yield of PV systems, various factors are important: the location of the planned installation, the local climate, surrounding objects such as houses or trees, and the terrain. To provide accurate estimates of expected yields, simulation tools are essential in both research and practical PV system planning.
-For these reasons, a variety of software tools already exist [@holmgren2018review, jakica2018state]. The python package pvlib is widely used and actively maintained [@anderson2023pvlib]. It offers a variety of functionalities around the modeling of PV systems, but a shading simulation with 3D objects is not included in this package.
-Regarding web based tools, solutions like PVGIS, PVWatts and RETScreen exist [psomopoulos2015comparative]. Their focus lies on estimates based on geographic location and user information of building geometries. They do not offer shading simulations based on 3D geometries.
+For these reasons, a variety of software tools already exist [@holmgren2018review; @jakica2018state]. One videly used software is the python package pvlib [@anderson2023pvlib]. It offers a variety of functionalities around the modeling of PV systems. However, the rather niche topic of shading simulation with 3D objects is not included in this package. Another python based software that enables irradiance modelling in two dimensions is `pvfactors` [@pvfactors2025; @anoma_view_2017].
+Regarding web based tools, solutions like PVGIS, PVWatts and RETScreen exist [@psomopoulos2015comparative]. Their focus lies on estimates based on geographic location and user information of building geometries. They do not offer shading simulations based on 3D geometries.
 The `@openpv/simshady` package targets the gap of javascript based software, that can be run on the server using node or in the browser that implements the raytracing on the GPU.
 
 # Package description
 
-The javascript package `simshady` orients at the functionalities of three.js and first initializes a scene object. Various adder functions can then be used to add relevant data to this scene:
+The javascript package `@openpv/simshady` orients at the functionalities of three.js and first initializes a scene object. Various adder functions can then be used to add relevant data to this scene:
 
 - The core simulation geometry as the object where the PV yield is of interest. This is usually a geometry of a house. This geomety needs to be a vector mesh. It is not optional.
 - The background geometries as geometries that are relevant for shading, but where no PV yield should be calculated. These geometries are usually the houses from the neighborhood or trees. These geometries need to be vector meshes. They are optional.
