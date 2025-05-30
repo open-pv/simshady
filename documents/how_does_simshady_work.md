@@ -17,7 +17,7 @@ PV system output is heavily influenced by shading from nearby objects—such as 
 
 Simshady uses time-series data of Global Horizontal Irradiance (GHI) and Direct Normal Irradiance (DNI) from [NREL](https://nsrdb.nrel.gov/) for locations in Germany. These datasets do not include directional irradiance information, so Simshady reconstructs it using the [HEALPix](https://doi.org/10.1086/427976) framework, which divides the sky dome into 96 equal-area segments.
 
-![HEALPix sky segmentation](./assets/Gorski2024_Healpix.png)
+![HEALPix sky segmentation](./assets/Gorski2024_Healpix.jpg)
 
 _Figure 1: Sky discretization using HEALPix, from Gorski et al._
 

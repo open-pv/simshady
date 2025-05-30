@@ -26,13 +26,19 @@ const scene = new ShadingScene();
 
 2. **Add Geometries**
 
-Add one or more simulation geometries—such as buildings or PV panels—using [`addSimulationGeometry`](/docs/classes/index.ShadingScene.html#addsimulationgeometry).  
+Add one or more simulation geometries — such as buildings or PV panels — using [`addSimulationGeometry`](/docs/classes/index.ShadingScene.html#addsimulationgeometry).  
 Add shading geometries using [`addShadingGeometry`](/docs/classes/index.ShadingScene.html#addshadinggeometry):
 
 ```javascript
 scene.addShadingGeometry(someShadingGeometry);
 scene.addSimulationGeometry(someSimulationGeometry);
 ```
+
+In Figure 1, the difference between the two types of geometries is shown. The simulation geometry, represented by the colored building, is the main focus where PV yield is calculated. The shading geometries, shown in grey-brown, are included in the simulation to account for shading effects due to their close proximity.
+
+![Screenshot from openpv.de showing simulation and shading geometries](assets/screenshot-simulation-geometry.jpg)
+
+_Figure 1: Screenshot from openpv.de showing both simulation geometries (colored) and shading geometries (grey-brown)._
 
 3. **Add Solar Irradiance Data**
 
