@@ -2,6 +2,8 @@ import { Color, ColorMap } from './utils';
 
 /**
  * The viridis color Map, as defined in https://observablehq.com/@flimsyhat/webgl-color-maps
+ * Use colormaps in the {@link ShadingScene.addColorMap} method to define the colors of the returned
+ * Three.js geometry.
  * @param t parameter in [0,1] to go through viridis color map
  * @returns
  */
@@ -23,6 +25,8 @@ export function viridis(t: number): Color {
 
 /**
  * Creates a color map function that interpolates between two colors.
+ * Use colormaps in the {@link ShadingScene.addColorMap} method to define the colors of the returned
+ * Three.js geometry.
  * @param {Object} colors - The input colors.
  * @param {Color} colors.c0 - The starting color.
  * @param {Color} colors.c1 - The ending color.
@@ -46,6 +50,8 @@ export function interpolateTwoColors(colors: { c0: Color; c1: Color }): ColorMap
 
 /**
  * Creates a color map function that interpolates between three colors using quadratic interpolation.
+ * Use colormaps in the {@link ShadingScene.addColorMap} method to define the colors of the returned
+ * Three.js geometry.
  * @param {Object} colors - The input colors.
  * @param {Color} colors.c0 - The first color.
  * @param {Color} colors.c1 - The second color.

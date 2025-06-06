@@ -13,11 +13,11 @@ import { rayTracingWebGL } from './rayTracingWebGL.js';
 /**
  * This class holds all information about the scene that is simulated.
  * A ShadingScene is typically equipped with the following attributes:
- * * Simulation geometry, where the PV potential is calculated
+ * * Simulation geometry, where the PV potential is calculated.
  * * Shading geometry, where no PV potential is calculated but which are
- *   responsible for shading
+ *   responsible for shading.
  * * Solar Irradiance Data that contains information about incoming irradiance
- *   in the format of sky domes
+ *   in the format of sky domes.
  * The Usage of this class and its methods is explained in the "Getting Started" Section
  * of this site.
  */
