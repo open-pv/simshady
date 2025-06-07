@@ -41,7 +41,7 @@ There are two key reasons for using skydomes:
 
 The process works as follows:
 
-1. For each sky segment and each triangle of the simulation geometry, Simshady uses the Möller-Trumbore algorithm to check if the line of sight is obstructed by any shading geometry. The result is:
+1. For each sky segment and each triangle of the simulation geometry, Simshady uses the [Möller-Trumbore algorithm](https://doi.org/10.1080%2F10867651.1997.10487468) to check if the line of sight is obstructed by any shading geometry. The result is:
 
    - `0` if an intersection occurs.
    - The dot product between the triangle normal and the vector to the sky segment if unshaded.

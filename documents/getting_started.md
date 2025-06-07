@@ -44,7 +44,7 @@ In _Figure 1_, the difference between the two types of geometries is shown. The 
 
 _Figure 1: Screenshot from openpv.de showing both simulation geometries (colored) and shading geometries (grey-brown)._
 
-These geometries need to [Three.js Buffer Geometries](https://threejs.org/docs/#api/en/core/BufferGeometry). You can use a variety of [Three.js Loaders](https://threejs.org/manual/#en/loading-3d-models) to load different 3D file formats to BufferGeometries.
+These geometries need to be [Three.js Buffer Geometries](https://threejs.org/docs/#api/en/core/BufferGeometry). You can use a variety of [Three.js Loaders](https://threejs.org/manual/#en/loading-3d-models) to load different 3D file formats into BufferGeometries.
 <br/>
 <br/>
 
