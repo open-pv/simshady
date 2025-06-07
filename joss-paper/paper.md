@@ -62,9 +62,9 @@ The `openpv/simshady` package serves two primary purposes: it provides a solutio
 # CRediT Authorship Statement
 
 FK: Conceptualization, Software, Funding acquisition, Writing – original draft
-MG: Conceptualization, Software, Writing – review & editing
-KH: Conceptualization, Software, Writing – review & editing
-KP: Conceptualization, Software, Writing – review & editing
+MG: Conceptualization, Software, Funding acquisition, Writing – review & editing
+KH: Conceptualization, Software, Funding acquisition, Writing – review & editing
+KP: Conceptualization, Software, Funding acquisition, Writing – review & editing
 
 # Acknowledgements
 
