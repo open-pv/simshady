@@ -61,6 +61,9 @@ export type SphericalPoint = { radius: number; altitude: number; azimuth: number
  */
 export type CartesianPoint = { x: number; y: number; z: number };
 
+/**
+ @ignore
+ */
 export type Point = { cartesian: CartesianPoint; spherical: SphericalPoint };
 
 /**
@@ -69,12 +72,12 @@ export type Point = { cartesian: CartesianPoint; spherical: SphericalPoint };
 export type SunVector = { vector: Point; isShadedByElevation: boolean };
 
 /**
- * RGB values of a color, where all values are in intervall [0,1]
+ * RGB values of a color, where all values are in intervall [0,1].
  */
 export type Color = [number, number, number];
 
 /**
- * A color Map maps a value t in [0,1] to a color
+ * A color Map maps a value t in [0,1] to a color.
  */
 export type ColorMap = (t: number) => Color;
 
@@ -99,9 +102,9 @@ export interface CalculateParams {
    */
   maxYieldPerSquareMeter?: number;
   /**
-   * Callback function to indicate the progress of the simulation
-   * @param progress number indicating the current progress
-   * @param total number indicating the final number that progress needs to reach
+   * Callback function to indicate the progress of the simulation.
+   * @param progress Number indicating the current progress.
+   * @param total Number indicating the final number that progress needs to reach.
    * @returns
    */
   progressCallback?: (progress: number, total: number) => void;
@@ -110,7 +113,7 @@ export interface CalculateParams {
 /**
  * @ignore
  * Mimics a for-loop but schedules each loop iteration using `setTimeout`, so that
- * event handles, react updates, etc. can run in-between
+ * event handles, react updates, etc. can run in-between.
  */
 export async function timeoutForLoop(start: number, end: number, body: (i: number) => void, step: number = 1) {
   return new Promise<void>((resolve) => {
