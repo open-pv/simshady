@@ -8,7 +8,7 @@ Simshady models the yield of photovoltaic (PV) systems by considering two primar
 
 ## 3D Scene Setup
 
-PV system output is heavily influenced by shading from nearby objects—such as buildings, vegetation, or terrain. Simshady represents this environment through a [`ShadingScene`](/docs/classes/index.ShadingScene.html), which is composed of `three.js` geometries.
+PV system output is heavily influenced by shading from nearby objects—such as buildings, vegetation, or terrain. Simshady represents this environment through a [`ShadingScene`](/simshady/classes/index.ShadingScene.html), which is composed of `three.js` geometries.
 
 - Use `addMainGeometry()` to define the primary object for simulation (e.g., PV panels or the target building).
 - Use `addShadingGeometry()` to add surrounding objects that may cast shadows (e.g., neighboring buildings, trees).

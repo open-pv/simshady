@@ -18,7 +18,7 @@ npm install @openpv/simshady
 
 ### **1. Initialize the Scene**
 
-Begin by creating a new [`ShadingScene`](/docs/classes/index.ShadingScene.html) object:
+Begin by creating a new [`ShadingScene`](/simshady/classes/index.ShadingScene.html) object:
 
 ```javascript
 import ShadingScene from '@openpv/simshady';
@@ -31,7 +31,7 @@ const scene = new ShadingScene();
 
 ### **2. Add Geometries**
 
-Add one or more simulation geometries — such as buildings or PV panels — using [`addSimulationGeometry`](/docs/classes/index.ShadingScene.html#addsimulationgeometry). Add shading geometries using [`addShadingGeometry`](/docs/classes/index.ShadingScene.html#addshadinggeometry):
+Add one or more simulation geometries — such as buildings or PV panels — using [`addSimulationGeometry`](/simshady/classes/index.ShadingScene.html#addsimulationgeometry). Add shading geometries using [`addShadingGeometry`](/simshady/classes/index.ShadingScene.html#addshadinggeometry):
 
 ```javascript
 scene.addShadingGeometry(someShadingGeometry);
@@ -50,7 +50,7 @@ These geometries need to [Three.js Buffer Geometries](https://threejs.org/docs/#
 
 ### **3. Add Solar Irradiance Data**
 
-Include irradiance data in the [required format](/docs/types/utils.SolarIrradianceData.html) via [`addSolarIrradiance`](/docs/classes/index.ShadingScene.html#addsolarirradiance). This data should contain time series for both direct and diffuse irradiance:
+Include irradiance data in the [required format](/simshady/types/utils.SolarIrradianceData.html) via [`addSolarIrradiance`](/simshady/classes/index.ShadingScene.html#addsolarirradiance). This data should contain time series for both direct and diffuse irradiance:
 
 ```javascript
 scene.addSolarIrradiance(someSolarIrradianceData);
@@ -61,7 +61,7 @@ scene.addSolarIrradiance(someSolarIrradianceData);
 
 ### **4. Run the Simulation**
 
-Call the [`calculate`](/docs/classes/index.ShadingScene.html#calculate) method to perform the simulation. It returns a [Three.js Mesh](https://threejs.org/docs/#api/en/objects/Mesh), which can be used directly in a Three.js scene:
+Call the [`calculate`](/simshady/classes/index.ShadingScene.html#calculate) method to perform the simulation. It returns a [Three.js Mesh](https://threejs.org/docs/#api/en/objects/Mesh), which can be used directly in a Three.js scene:
 
 ```javascript
 let mesh = await scene.calculate({
