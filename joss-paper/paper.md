@@ -25,7 +25,7 @@ authors:
     corresponding: false
     affiliation: 1 # (Multiple affiliations must be quoted)
 affiliations:
-  - name: OpenPV GbR, ADRESS
+  - name: OpenPV GbR, c/o Martin Großhauser, Arnulfstrasse 138, 80634 München, Germany
     index: 1
   - name: OFFIS Institute for Information Technology, Escherweg 2, 26121 Oldenburg, Germany
     index: 2
