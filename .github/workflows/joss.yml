@@ -1,0 +1,4 @@
+- name: Open Journals PDF Generator
+  on:
+    workflow_dispatch:
+  uses: openjournals/openjournals-draft-action@v1.0
