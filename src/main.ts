@@ -7,8 +7,7 @@ import * as sun from './sun.js';
 import * as triangleUtils from './triangleUtils.js';
 import { CalculateParams, CartesianPoint, ColorMap, SolarIrradianceData, logNaNCount } from './utils.js';
 
-// @ts-ignore
-import { rayTracingWebGL } from './rayTracingWebGL.js';
+import { rayTracingWebGLWrapper } from './rayTracingWebGLWrapper';
 
 /**
  * This class holds all information about the scene that is simulated.
@@ -42,7 +41,7 @@ export class ShadingScene {
    * the scene is located.
    * See {@link ShadingScene.addElevationRaster}
    */
-  private elevationRasterMidpoint: CartesianPoint;
+  protected elevationRasterMidpoint: CartesianPoint;
   /**
    * A timeseries of Skydomes holding averaged direct and diffuse
    * irradiance data.
@@ -246,7 +245,7 @@ export class ShadingScene {
   }
 
   // Type Guard function to validate class parameters
-  private validateClassParams(): this is {
+  protected validateClassParams(): this is {
     shadingGeometry: NonNullable<BufferGeometry>;
     simulationGeometry: NonNullable<BufferGeometry>;
     solarIrradiance: NonNullable<SolarIrradianceData>;
@@ -261,7 +260,7 @@ export class ShadingScene {
   }
 
   // Helper to compute midpoints of triangles and track NaN values
-  private computeMidpoints(points: TypedArray): Float32Array {
+  protected computeMidpoints(points: TypedArray): Float32Array {
     let midpoints: number[] = [];
     for (let i = 0; i < points.length; i += 9) {
       const midpoint = triangleUtils.midpoint(points, i);
@@ -325,14 +324,17 @@ export class ShadingScene {
    * @param normals normals for each midpoint
    * @param meshArray array of vertices for the shading mesh
    * @param irradiance Time Series of sky domes
+   * @param progressCallback flattened Callback indicating the progress
+   * @param gl WebGL context which can be provided
    * @return
    */
-  private async rayTrace(
+  protected async rayTrace(
     midpoints: Float32Array,
     normals: TypedArray,
     meshArray: Float32Array,
     irradiance: SolarIrradianceData[],
     progressCallback: (progress: number, total: number) => void,
+    gl: WebGLRenderingContext | WebGL2RenderingContext | null = null,
   ): Promise<Float32Array[]> {
     /**
      * Converts a list of solarIrradiance objects to a flat Float32Array containing only
@@ -376,7 +378,14 @@ export class ShadingScene {
     // Convert the existing array to a flat Float32Array
     const { skysegmentDirections, skysegmentRadiation } = convertSolarIrradianceToFloat32Array(irradiance);
 
-    const shadedMaskScenes = await rayTracingWebGL(midpoints, normals, meshArray, skysegmentDirections, progressCallback);
+    const shadedMaskScenes = await rayTracingWebGLWrapper(
+      midpoints,
+      normals,
+      meshArray,
+      skysegmentDirections,
+      progressCallback,
+      gl,
+    );
     if (shadedMaskScenes === null) {
       throw new Error('Error occured when running the Raytracing in WebGL.');
     }

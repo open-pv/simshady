@@ -12,6 +12,7 @@ import { timeoutForLoop } from './utils';
  * @param trianglesArray flattened Mx9 array with M the number of shading triangles
  * @param skysegmentDirectionArray flattened Sx3 array with S being the number of sky segments (normalized!)
  * @param progressCallback flattened Callback indicating the progress
+ * @param gl a WebGL2 context that shall be used.
  * @returns shadedMaskScenes: NxS array containing the dot product of the direction vector of the skysegment and the normal of the midpoint
  */
 export async function rayTracingWebGL(
@@ -20,14 +21,17 @@ export async function rayTracingWebGL(
   trianglesArray: TypedArray,
   skysegmentDirectionArray: Float32Array,
   progressCallback: (progress: number, total: number) => void,
+  gl?: WebGL2RenderingContext | null,
 ): Promise<Float32Array[] | null> {
   const N_TRIANGLES = trianglesArray.length / 9;
   const width = midpointsArray.length / 3; // Change this to the number of horizontal points in the grid
   const N_POINTS = width;
 
-  const gl = document.createElement('canvas').getContext('webgl2');
   if (!gl) {
-    throw new Error('Browser does not support WebGL2');
+    gl = document.createElement('canvas').getContext('webgl2');
+  }
+  if (!gl) {
+    throw new Error('WebGL2 is not supported');
   }
 
   // Vertex shader code
