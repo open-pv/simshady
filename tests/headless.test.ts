@@ -4,6 +4,7 @@ import { rayTracingWebGLWrapper } from '../src/rayTracingWebGLWrapper';
 import { createHeadlessGL } from '../src/headless/createHeadlessGL';
 import { solarData } from './data';
 import { BufferGeometry, Float32BufferAttribute } from 'three';
+import { runShadingSceneHeadlessChromium } from '../src';
 
 describe('Headless WebGL Context Creation', () => {
   test('createHeadlessGL creates a WebGL context with default options', async () => {
@@ -74,5 +75,15 @@ describe('Headless Shading Scene Functionality', () => {
     const result = await scene.calculate();
     scene.dispose();
     expect(result).toBeDefined;
+  });
+});
+
+describe('Headless Browser', () => {
+  test('check browser functionality', async () => {
+    const sim = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]);
+    const shade = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]);
+
+    const result = await runShadingSceneHeadlessChromium(sim, shade, solarData);
+    expect(result).toBeDefined();
   });
 });
