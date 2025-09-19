@@ -1,15 +1,27 @@
+import type { SolarIrradianceData } from '../utils';
+export interface RunHeadlessChromiumOptions {
+  returnColors?: boolean;
+  launchArgs?: string[];
+  executablePath?: string;
+  dist_dirname?: string;
+}
+
+export interface RunHeadlessChromiumResult {
+  intensities: number[];
+  colors?: number[];
+}
+
 /**
  * Run ShadingScene in headless Chromium with WebGL2 enabled.
  */
 export async function runShadingSceneHeadlessChromium(
-  simulationPositions,
-  shadingPositions,
-  solarIrradiance,
-  solarToElectricityConversionEfficiency,
-  maxYieldPerSquareMeter,
-  options = {},
-) {
-  const { default: a } = await require('puppeteer');
+  simulationPositions: Float32Array | number[],
+  shadingPositions: Float32Array | number[],
+  solarIrradiance: SolarIrradianceData | SolarIrradianceData[],
+  solarToElectricityConversionEfficiency?: number,
+  maxYieldPerSquareMeter?: number,
+  options: RunHeadlessChromiumOptions = {},
+): Promise<RunHeadlessChromiumResult> {
   const { default: puppeteer } = await import('puppeteer');
   const fs = await import('fs');
   const path = await import('path');
@@ -46,7 +58,7 @@ export async function runShadingSceneHeadlessChromium(
               <body></body>`.trim(),
         { waitUntil: 'domcontentloaded', timeout: 30000 },
       );
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Failed to set page content: ${error.message}`);
     }
 
@@ -81,7 +93,7 @@ export async function runShadingSceneHeadlessChromium(
             const { ShadingScene } = await dynamicImport(url);
             const { BufferGeometry, Float32BufferAttribute } = await dynamicImport('three');
 
-            function fromArrays(pos) {
+            function fromArrays(pos: number[]) {
               const positions = new Float32Array(pos);
               if (positions.length % 9 !== 0) throw new Error('Triangle array length must be divisible by 9.');
               const geom = new BufferGeometry();
@@ -99,16 +111,16 @@ export async function runShadingSceneHeadlessChromium(
             const mesh = await scene.calculate({ solarToElectricityConversionEfficiency, maxYieldPerSquareMeter });
 
             const intensitiesAttr = mesh.geometry.getAttribute('intensities');
-            const intensities = Array.from(intensitiesAttr.array);
-            const out = { intensities };
+            const intensities: number[] = Array.from(intensitiesAttr.array);
+            let colors: number[] | undefined;
             if (wantColors) {
               const colorAttr = mesh.geometry.getAttribute('color');
               if (colorAttr) {
-                out.colors = Array.from(colorAttr.array);
+                colors = Array.from(colorAttr.array);
               }
             }
-            return out;
-          } catch (error) {
+            return { intensities, colors };
+          } catch (error: any) {
             // return error here so it can get handled outside the browser context
             return { error: error.message, stack: error.stack };
           }
@@ -127,7 +139,7 @@ export async function runShadingSceneHeadlessChromium(
       if (result && typeof result === 'object' && 'error' in result) {
         throw new Error(`Error in browser evaluation: ${result.error}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Failed to execute shading calculation in browser: ${error.message}`);
     }
     return result;
