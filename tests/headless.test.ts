@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { solarData } from './data';
-import { runShadingSceneHeadlessChromium } from '../src';
+import { runShadingSceneHeadlessChromium } from '../src/headless/headlessBrowser';
 
 describe('Headless Browser', () => {
   test('check browser functionality', async () => {
