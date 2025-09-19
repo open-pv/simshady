@@ -1,4 +1,10 @@
+// Top level imports are only possible for classes and functions which do not get injected into the empty puppeteer page
 import type { SolarIrradianceData } from '../utils';
+import { ShadingScene as ShadingSceneType } from '../main';
+import path from 'path';
+import puppeteer from 'puppeteer';
+import fs from 'fs';
+
 export interface RunHeadlessChromiumOptions {
   returnColors?: boolean;
   launchArgs?: string[];
@@ -7,8 +13,9 @@ export interface RunHeadlessChromiumOptions {
 }
 
 export interface RunHeadlessChromiumResult {
-  intensities: number[];
+  intensities?: number[];
   colors?: number[];
+  outSimGeom?: number[];
 }
 
 /**
@@ -22,10 +29,6 @@ export async function runShadingSceneHeadlessChromium(
   maxYieldPerSquareMeter?: number,
   options: RunHeadlessChromiumOptions = {},
 ): Promise<RunHeadlessChromiumResult> {
-  const { default: puppeteer } = await import('puppeteer');
-  const fs = await import('fs');
-  const path = await import('path');
-
   // extremely ugly approach. Cli wrapper has to provide dist directory while test runs get resolved automatically
   const dirname = options.dist_dirname ?? path.resolve(__dirname, '../../dist/');
   const bundlePath = path.resolve(dirname, './index.js');
@@ -42,6 +45,29 @@ export async function runShadingSceneHeadlessChromium(
     });
   try {
     const page = await browser.newPage();
+    // Capture console logs from the page
+    page.on('console', (msg) => {
+      console.log('BROWSER CONSOLE:', msg.text());
+    });
+
+    // Expose functions to transfer data without serialization overhead
+    await page.exposeFunction('getSimulationData', () => {
+      return { positions: Array.from(simulationPositions) };
+    });
+
+    await page.exposeFunction('getShadingData', () => {
+      return { positions: Array.from(shadingPositions) };
+    });
+
+    await page.exposeFunction('getIrradianceData', () => {
+      return solarIrradiance;
+    });
+
+    let result: RunHeadlessChromiumResult = {};
+    await page.exposeFunction('setResultData', (res: RunHeadlessChromiumResult) => {
+      result = res;
+    });
+
     try {
       await page.setContent(
         `
@@ -71,18 +97,10 @@ export async function runShadingSceneHeadlessChromium(
       throw new Error(`Bundle not found at ${bundlePath}. Please run 'yarn build' first.`);
     }
     const simshadyBundle = fs.readFileSync(bundlePath, 'utf8');
-    let result;
+
     try {
-      result = await page.evaluate(
-        async ({
-          simshadyBundle,
-          sim,
-          shade,
-          irr,
-          solarToElectricityConversionEfficiency,
-          maxYieldPerSquareMeter,
-          wantColors,
-        }) => {
+      await page.evaluate(
+        async ({ simshadyBundle, solarToElectricityConversionEfficiency, maxYieldPerSquareMeter, wantColors }) => {
           try {
             const blob = new Blob([simshadyBundle], { type: 'text/javascript' });
             const url = URL.createObjectURL(blob);
@@ -93,6 +111,10 @@ export async function runShadingSceneHeadlessChromium(
             const { ShadingScene } = await dynamicImport(url);
             const { BufferGeometry, Float32BufferAttribute } = await dynamicImport('three');
 
+            const simData = await (window as any).getSimulationData();
+            const shadeData = await (window as any).getShadingData();
+            const irrData = await (window as any).getIrradianceData();
+
             function fromArrays(pos: number[]) {
               const positions = new Float32Array(pos);
               if (positions.length % 9 !== 0) throw new Error('Triangle array length must be divisible by 9.');
@@ -101,12 +123,12 @@ export async function runShadingSceneHeadlessChromium(
               return geom;
             }
 
-            const simGeom = fromArrays(sim);
-            const shadeGeom = fromArrays(shade);
-            const scene = new ShadingScene();
+            const simGeom = fromArrays(simData.positions);
+            const shadeGeom = fromArrays(shadeData.positions);
+            const scene: ShadingSceneType = new ShadingScene();
             scene.addSimulationGeometry(simGeom);
             scene.addShadingGeometry(shadeGeom);
-            scene.addSolarIrradiance(irr);
+            scene.addSolarIrradiance(irrData);
 
             const mesh = await scene.calculate({ solarToElectricityConversionEfficiency, maxYieldPerSquareMeter });
 
@@ -119,19 +141,19 @@ export async function runShadingSceneHeadlessChromium(
                 colors = Array.from(colorAttr.array);
               }
             }
-            return { intensities, colors };
+
+            const simGeomAttr = scene.simulationGeometry?.getAttribute('position');
+            const outSimGeom: number[] = Array.from(simGeomAttr?.array ?? []);
+            (window as any).setResultData({ intensities, colors, outSimGeom });
           } catch (error: any) {
-            // return error here so it can get handled outside the browser context
-            return { error: error.message, stack: error.stack };
+            // set error here so it can get handled outside the browser context
+            (window as any).setResultData({ error: error.message, stack: error.stack });
           }
         },
         {
           simshadyBundle: simshadyBundle,
-          sim: Array.from(simulationPositions),
-          shade: Array.from(shadingPositions),
           solarToElectricityConversionEfficiency,
           maxYieldPerSquareMeter,
-          irr: solarIrradiance,
           wantColors: returnColors,
         },
       );
