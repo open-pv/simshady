@@ -5,14 +5,14 @@ import path from 'path';
 import puppeteer from 'puppeteer';
 import fs from 'fs';
 
-export interface RunHeadlessChromiumOptions {
+export interface RunHeadlessChromeOptions {
   returnColors?: boolean;
   launchArgs?: string[];
   executablePath?: string;
   dist_dirname?: string;
 }
 
-export interface RunHeadlessChromiumResult {
+export interface RunHeadlessChrome {
   intensities?: number[];
   colors?: number[];
   outSimGeom?: number[];
@@ -21,14 +21,14 @@ export interface RunHeadlessChromiumResult {
 /**
  * Run ShadingScene in headless Chromium with WebGL2 enabled.
  */
-export async function runShadingSceneHeadlessChromium(
+export async function runShadingSceneHeadlessChrome(
   simulationPositions: Float32Array | number[],
   shadingPositions: Float32Array | number[],
   solarIrradiance: SolarIrradianceData | SolarIrradianceData[],
   solarToElectricityConversionEfficiency?: number,
   maxYieldPerSquareMeter?: number,
-  options: RunHeadlessChromiumOptions = {},
-): Promise<RunHeadlessChromiumResult> {
+  options: RunHeadlessChromeOptions = {},
+): Promise<RunHeadlessChrome> {
   // extremely ugly approach. Cli wrapper has to provide dist directory while test runs get resolved automatically
   const dirname = options.dist_dirname ?? path.resolve(__dirname, '../../dist/');
   const bundlePath = path.resolve(dirname, './index.js');
@@ -63,8 +63,8 @@ export async function runShadingSceneHeadlessChromium(
       return solarIrradiance;
     });
 
-    let result: RunHeadlessChromiumResult = {};
-    await page.exposeFunction('setResultData', (res: RunHeadlessChromiumResult) => {
+    let result: RunHeadlessChrome = {};
+    await page.exposeFunction('setResultData', (res: RunHeadlessChrome) => {
       result = res;
     });
 
@@ -90,7 +90,7 @@ export async function runShadingSceneHeadlessChromium(
 
     const hasWebGL2 = await page.evaluate(() => !!document.createElement('canvas').getContext('webgl2'));
     if (!hasWebGL2) {
-      throw new Error('WebGL2 not available in headless Chromium.');
+      throw new Error('WebGL2 not available in headless Chrome.');
     }
 
     if (!fs.existsSync(bundlePath)) {
@@ -100,7 +100,7 @@ export async function runShadingSceneHeadlessChromium(
 
     try {
       await page.evaluate(
-        async ({ simshadyBundle, solarToElectricityConversionEfficiency, maxYieldPerSquareMeter, wantColors }) => {
+        async ({ simshadyBundle, solarToElectricityConversionEfficiency, maxYieldPerSquareMeter, returnColors }) => {
           try {
             const blob = new Blob([simshadyBundle], { type: 'text/javascript' });
             const url = URL.createObjectURL(blob);
@@ -117,7 +117,9 @@ export async function runShadingSceneHeadlessChromium(
 
             function fromArrays(pos: number[]) {
               const positions = new Float32Array(pos);
-              if (positions.length % 9 !== 0) throw new Error('Triangle array length must be divisible by 9.');
+              if (positions.length % 9 !== 0) {
+                throw new Error('Triangle array length must be divisible by 9.');
+              }
               const geom = new BufferGeometry();
               geom.setAttribute('position', new Float32BufferAttribute(positions, 3));
               return geom;
@@ -135,7 +137,7 @@ export async function runShadingSceneHeadlessChromium(
             const intensitiesAttr = mesh.geometry.getAttribute('intensities');
             const intensities: number[] = Array.from(intensitiesAttr.array);
             let colors: number[] | undefined;
-            if (wantColors) {
+            if (returnColors) {
               const colorAttr = mesh.geometry.getAttribute('color');
               if (colorAttr) {
                 colors = Array.from(colorAttr.array);
@@ -151,10 +153,10 @@ export async function runShadingSceneHeadlessChromium(
           }
         },
         {
-          simshadyBundle: simshadyBundle,
+          simshadyBundle,
           solarToElectricityConversionEfficiency,
           maxYieldPerSquareMeter,
-          wantColors: returnColors,
+          returnColors,
         },
       );
       // Check if there was an error in the page evaluation

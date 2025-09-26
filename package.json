@@ -61,7 +61,11 @@
     "three": "^0.175.0"
   },
   "optionalDependencies": {
+    "commander": "^14.0.1",
     "puppeteer": "^24.20.0"
+  },
+  "bin": {
+    "simshady": "dist/cli.cjs"
   },
   "lint-staged": {
     "*.js": [
