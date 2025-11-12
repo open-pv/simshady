@@ -196,7 +196,7 @@ export class ShadingScene {
     const {
       solarToElectricityConversionEfficiency = 0.15,
       maxYieldPerSquareMeter = 1400 * 0.15,
-      progressCallback = (progress, total) => console.log(`Progress: ${((progress - 1) * 100) / total}%`),
+      progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}`),
     } = params;
 
     // Validate class parameters
@@ -233,7 +233,7 @@ export class ShadingScene {
       normalsArray,
       meshArray,
       this.solarIrradiance!, // Non-null assertion
-      (i, total) => progressCallback(i + total, total),
+      (i, total) => progressCallback(i, total),
     );
 
     const pvYield = sun.calculatePVYield(

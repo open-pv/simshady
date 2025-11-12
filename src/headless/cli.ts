@@ -1,24 +1,7 @@
 import { Command } from 'commander';
-import fs from 'fs/promises';
-import path from 'path';
 import { runShadingSceneHeadlessChrome } from './headlessBrowser';
-import { SolarIrradianceData } from '../utils';
-
-async function readJsonFile<T = unknown>(filePath: string): Promise<T> {
-  const data = await fs.readFile(filePath, 'utf8');
-  return JSON.parse(data) as T;
-}
-
-function concatFloat32(arrays: Float32Array[]): Float32Array {
-  const total = arrays.reduce((sum, a) => sum + a.length, 0);
-  const out = new Float32Array(total);
-  let offset = 0;
-  for (const a of arrays) {
-    out.set(a, offset);
-    offset += a.length;
-  }
-  return out;
-}
+import { DataLoader } from './dataLoader';
+import { CLIOptions } from '../types/CLIOptions';
 
 // Turn file names into array
 function fileArray(input: string | string[] | undefined): string[] {
@@ -26,42 +9,28 @@ function fileArray(input: string | string[] | undefined): string[] {
   return Array.isArray(input) ? input : [input];
 }
 
-type GeometryFile = { positions: number[] };
-
-async function loadPositionsArrays(files: string[]): Promise<Float32Array> {
-  const arrays: Float32Array[] = [];
-  for (const f of files) {
-    const data = await readJsonFile<GeometryFile>(f);
-    if (!data || !Array.isArray((data as any).positions)) {
-      throw new Error(`Invalid geometry file format: ${f}. Expected { positions: number[] }`);
-    }
-    arrays.push(new Float32Array(data.positions));
-  }
-  return concatFloat32(arrays);
-}
-
-type CLIOptions = {
-  simulationGeometry?: string | string[];
-  shadingGeometry?: string | string[];
-  irradianceData?: string;
-  efficiency?: number;
-  maximumYield?: number;
-  outputFile?: string;
-  returnColors?: boolean;
-  chromeArgs?: string[];
-};
-
+/**
+ * The CLI program that defines the input and output parameters, provides explanations, and converts the
+ * parameters into the appropriate formats for the headless program.
+ */
 async function main(argv: string[]) {
+  const startTime = new Date().toISOString();
   const program = new Command();
-  program.name('simshady').description("Run simshady's shading simulation and PV yield estimation in a headless environment");
+  program.name('simshady').description("Run simshady's shading simulation and PV yield estimation in a headless environment.");
 
-  const run = program.command('run').description('Run a shading simulation');
+  const run = program.command('run').description('Run a shading simulation.');
 
   run
-    .option('--simulation-geometry <file...>', 'Simulation geometry JSON file(s). JSON format: { positions: number[] }')
-    .option('--shading-geometry <file...>', 'Shading geometry JSON file(s). JSON format: { positions: number[] }')
-    .option('--irradiance-data <file>', 'Solar irradiance JSON file. JSON format: SolarIrradianceData or SolarIrradianceData[]')
-    .option('--efficiency <number>', 'Efficiency of the conversion from solar energy to electricity. Value in [0,1]', (v) =>
+    .option(
+      '--simulation-geometry <file...>',
+      'Simulation geometry file(s) or directory. Supports JSON format: { positions: number[] } and OBJ files.',
+    )
+    .option(
+      '--shading-geometry <file...>',
+      'Shading geometry file(s) or directory. Supports JSON format: { positions: number[] } and OBJ files.',
+    )
+    .option('--irradiance-data <file>', 'Solar irradiance JSON file. JSON format: SolarIrradianceData or SolarIrradianceData[].')
+    .option('--efficiency <number>', 'Efficiency of the conversion from solar energy to electricity. Value in [0,1].', (v) =>
       parseFloat(v),
     )
     .option(
@@ -69,50 +38,40 @@ async function main(argv: string[]) {
       'Upper boundary of annual yield in kWh/m2/year.This value is used to normalize the color of the returned three.js mesh.',
       (v) => parseFloat(v),
     )
-    .option('--output-file <file>', 'Output file location')
-    .option('--return-colors', 'Flag indicating if intensity color values should get returned', false)
-    .option('--chrome-args <arg...>', 'Additional Chrome launch argument(s)')
+    .option('--chrome-args <arg...>', 'Additional Chrome launch argument(s).')
+    .option(
+      '--max-old-space-size',
+      "Sets the max memory size of V8's old memory section in the browser (in MiB) (default: 16384).",
+      '16384',
+    )
+    .option('--silent', 'Mute verbose output (default: false).', false)
+    // artifact options
+    .option('--output-dir <ul>', 'The directory where output artifacts should get stored in.')
+    .option('--summary', 'Flag indicating if per-time-step and total summaries should get stored (default: true).', true)
+    .option('--no-summary', 'No json summary.')
+    .option('--snapshot-topdown', 'Flag indicating if an orthographic top-down snapshot should get stored (default: true).', true)
+    .option('--no-snapshot-topdown', 'No topdown snapshot.')
+    .option('--topdown-size <WxH>', 'Snapshot size as "width x height", e.g. "4096x4096" (default: "4096x4096").', '4096x4096')
+    .option('--obj', 'Flag indicating if an OBJ file should get stored (default: true).', true)
+    .option('--no-obj', 'No .obj output.')
 
     .action(async (cliOptions) => {
       try {
         const options: CLIOptions = cliOptions;
+        const dataLoader = new DataLoader();
 
         const simFiles = fileArray(options.simulationGeometry);
-        if (simFiles.length === 0) {
-          throw new Error('Missing required --simulation-geometry');
-        }
-        const simPos = await loadPositionsArrays(simFiles);
+        if (simFiles.length === 0) throw new Error('Missing required --simulation-geometry');
+        const simPos = await dataLoader.loadPositionsArrays(simFiles, options.silent ?? false);
 
         const irrFile = options.irradianceData;
-        if (irrFile === undefined) {
-          throw new Error('Missing required --irradiance-data');
-        }
-        const irradianceData = await readJsonFile<SolarIrradianceData | SolarIrradianceData[]>(irrFile);
+        if (irrFile === undefined) throw new Error('Missing required --irradiance-data');
+        const irradianceData = await dataLoader.loadIrradianceData(irrFile);
 
         const shadeFiles = fileArray(options.shadingGeometry);
-        const shadePos = (await loadPositionsArrays(shadeFiles)) ?? new Float32Array();
+        const shadePos = (await dataLoader.loadPositionsArrays(shadeFiles, options.silent ?? false)) ?? new Float32Array();
 
-        const result = await runShadingSceneHeadlessChrome(
-          simPos,
-          shadePos,
-          irradianceData,
-          options.efficiency,
-          options.maximumYield,
-          {
-            returnColors: !!options.returnColors,
-            launchArgs: options.chromeArgs,
-            dist_dirname: __dirname,
-          },
-        );
-
-        const outStr = JSON.stringify(result);
-
-        if (options.outputFile) {
-          await fs.mkdir(path.dirname(options.outputFile), { recursive: true });
-          await fs.writeFile(options.outputFile, outStr, 'utf8');
-        } else {
-          process.stdout.write(outStr);
-        }
+        await runShadingSceneHeadlessChrome(simPos, shadePos, irradianceData, startTime, __dirname, options);
       } catch (error: any) {
         process.stderr.write(`Error: ${error?.message ?? String(error)}\n`);
       }
@@ -125,5 +84,3 @@ async function main(argv: string[]) {
 if (require.main === module) {
   main(process.argv);
 }
-
-export default main;

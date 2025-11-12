@@ -39,6 +39,8 @@ export async function rayTracingWebGL(
         uniform sampler2D u_triangles;
         uniform vec3 u_sun_direction;
         uniform int textureWidth;
+        uniform int u_triangleStart;
+        uniform int u_triangleCount;
 
         in vec3 a_position;
         in vec3 a_normal;
@@ -85,17 +87,20 @@ export async function rayTracingWebGL(
             float t = INFINITY;
             bool is_shadowed = false;
             for (int i = 0; i < ${N_TRIANGLES}; i++) {
-                int index = i * 3;
+                if (i >= u_triangleCount) { break; }
+                int tri = u_triangleStart + i;
+
+                int index = tri * 3;
                 int x = index % textureWidth;
                 int y = index / textureWidth;
                 vec3 v0 = texelFetch(u_triangles, ivec2(x, y), 0).rgb;
 
-                index = i * 3 + 1;
+                index = tri * 3 + 1;
                 x = index % textureWidth;
                 y = index / textureWidth;
                 vec3 v1 = texelFetch(u_triangles, ivec2(x, y), 0).rgb;
 
-                index = i * 3 + 2;
+                index = tri * 3 + 2;
                 x = index % textureWidth;
                 y = index / textureWidth;
                 vec3 v2 = texelFetch(u_triangles, ivec2(x, y), 0).rgb;
@@ -135,7 +140,7 @@ export async function rayTracingWebGL(
 
   var maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
 
-  var textureWidth = Math.min(3 * N_TRIANGLES, Math.floor(maxTextureSize / 9) * 9);
+  var textureWidth = Math.min(3 * N_TRIANGLES, maxTextureSize);
   var textureHeight = Math.ceil((3 * N_TRIANGLES) / textureWidth);
 
   const colorBuffer = makeBuffer(gl, N_POINTS * 16);
@@ -189,6 +194,12 @@ export async function rayTracingWebGL(
   // each element of this shadedIrradianceScenes represents the shading
   // caused by one ray of the irradiance list
 
+  // Chunking approach; reduce number of triangles per pass
+  const MAX_TRIANGLES_PER_PASS = 4096; // 4k triangles per pass. Currently hardcoded
+  const passCount = Math.max(1, Math.ceil(N_TRIANGLES / MAX_TRIANGLES_PER_PASS));
+  const u_triangleStartLocation = gl.getUniformLocation(program, 'u_triangleStart');
+  const u_triangleCountLocation = gl.getUniformLocation(program, 'u_triangleCount');
+
   await timeoutForLoop(
     0,
     skysegmentDirectionArray.length,
@@ -218,11 +229,28 @@ export async function rayTracingWebGL(
       let sunDirectionUniformLocation = gl.getUniformLocation(program, 'u_sun_direction');
       gl.uniform3fv(sunDirectionUniformLocation, [x, y, z]);
 
-      drawArraysWithTransformFeedback(gl, tf, gl.POINTS, N_POINTS);
-      let colorCodedArray = getResults(gl, colorBuffer, N_POINTS);
-
+      // Nested loop for better GPU handling
+      let shadedMaskScene: Float32Array | null = null;
+      for (let pass = 0; pass < passCount; pass++) {
+        const start = pass * MAX_TRIANGLES_PER_PASS;
+        const count = Math.min(MAX_TRIANGLES_PER_PASS, N_TRIANGLES - start);
+        gl.uniform1i(u_triangleStartLocation, start);
+        gl.uniform1i(u_triangleCountLocation, count);
+        drawArraysWithTransformFeedback(gl, tf, gl.POINTS, N_POINTS);
+        let colorCodedArray = getResults(gl, colorBuffer, N_POINTS);
+        // Apply maximum shadowing (min. intensity) to triangle
+        let intensities = colorCodedArray.filter((_, index) => (index + 1) % 4 === 0);
+        if (shadedMaskScene === null) {
+          shadedMaskScene = intensities;
+        } else {
+          for (let k = 0; k < shadedMaskScene.length; k++) {
+            // Apply minimal found intensity
+            shadedMaskScene[k] = Math.min(shadedMaskScene[k], intensities[k]);
+          }
+        }
+      }
       // Store the result at the correct index in shadedMaskScenes (i/3 for the vector index)
-      shadedMaskScenes[Math.floor(i / 3)] = colorCodedArray.filter((_, index) => (index + 1) % 4 === 0);
+      shadedMaskScenes[Math.floor(i / 3)] = shadedMaskScene as Float32Array;
     },
     3,
   ); // Add step parameter of 3 for the loop
