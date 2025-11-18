@@ -4,6 +4,7 @@ export type CLIOptions = {
   irradianceData?: string;
   efficiency?: number;
   maximumYield?: number;
+  minSunAngle?: number;
   returnColors?: boolean;
   chromeArgs?: string[];
   maxOldSpaceSize?: number;
