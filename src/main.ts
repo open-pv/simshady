@@ -196,7 +196,14 @@ export class ShadingScene {
     const {
       solarToElectricityConversionEfficiency = 0.15,
       maxYieldPerSquareMeter = 1400 * 0.15,
-      progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}`),
+      progressCallback = (progress, total, elapsed, remaining) => {
+        const format = (s: number) => {
+          const min = Math.floor(s / 60);
+          const sec = Math.floor(s % 60);
+          return min > 0 ? `${min}m ${sec}s` : `${sec}s`;
+        };
+        console.log(`Progress: ${progress}/${total} | Elapsed: ${format(elapsed)} | Est. remaining: ${format(remaining)}`);
+      },
     } = params;
 
     // Validate class parameters
@@ -227,13 +234,25 @@ export class ShadingScene {
     logNaNCount('midpoints', midpointsArray);
     logNaNCount('mesh', meshArray);
 
+    // Wrap progress callback with timing
+    const startTime = Date.now();
+    const wrappedCallback = (progress: number, total: number) => {
+      if (progress === 0) {
+        return;
+      }
+      const elapsed = (Date.now() - startTime) / 1000;
+      const average = elapsed / progress;
+      const remaining = Math.max(0, (total - progress) * average);
+      progressCallback(progress, total, elapsed, remaining);
+    };
+
     // Perform ray tracing to calculate intensities
     const shadedScene = await this.rayTrace(
       midpointsArray,
       normalsArray,
       meshArray,
       this.solarIrradiance!, // Non-null assertion
-      (i, total) => progressCallback(i, total),
+      wrappedCallback,
     );
 
     const pvYield = sun.calculatePVYield(
