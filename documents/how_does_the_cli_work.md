@@ -1,42 +1,90 @@
-# How the simshady CLI works
+---
+title: simshady on the server
+---
+
+# The simshady CLI
+
+You can use simshady in two ways, either as a package for client side simulation **in the browser**, or as a Command Line Interface (CLI) Tool to run the simulation **on a server**. This section will introduce the functionality of the CLI tool.
 
 ### Installation
 
 To use the simshady CLI, the simshady module must first be built, then the CLI can be executed.
 
+```bash
     # move into simshady directory
     cd /path/to/simshady
 
-    # build module 
+    # build module
     npx tsup or tsup
-    
+
     # optional: link simshady cli
     npm link
-    
+
     # run cli
     # if linked
     simshady run --simulation-geometry ...
     # else (must be executed inside simshady directory)
     npm simshady run --simulation-geometry ...
-    
+```
 
 ### Example Usage
 
+```bash
     simshady run \
     --simulation-geometry /path/to/sim_file.obj \
     --shading-geometry /path/to/shade_file.obj \
     --irradiance-data /path/to/irr.json \
     --output-dir /path/to/output
+```
+
+Details about all parameters can be found [here](/simshady/functions/headless_cli.main.html) or by running `simshady --help`.
+
+### Artifacts
+
+After successful simulation, artifacts can be created. These can be used to analyze the simulation or serve as an intermediate
+result for further work. The CLI parameters can be used to control which artifacts are to be created. The artifacts get stored in the following way:
+
+- output_directory/
+
+  - mesh/
+
+    - colors.bin
+    - intensities.bin
+    - positions.bin
+
+    Contains the Float32Array data in binary format. The data can get loaded using a buffer and simple constructor:
+
+        const buffer = await fs.readFile(filePath)
+        new Float32Array(buffer.buffer, buffer.byteOffset, buffer.byteLength / 4)
+
+  - mesh.obj
+
+    OBJ File in format: v x y z r g b
+
+  - snapshot_topdown.png
+
+    An orthographic snapshot of the simulation geometry from the bird’s perspective. The snapshot is being captured directly in the browser environment.
+
+  - summary.json
+
+    JSON file which stores the sum, the mean, and the theoretical maximum yield, as
+    well as the total area and the active area for each timestep. For all the per timestep fields there is an aggregated
+    version at the end of the file.
+
+  - metadata.json
+
+    A collection of metadata which contains all information describing the run.
 
 ### Technical Overview
-**tl;dr** The CLI wraps the original functionality of simshady using a headless browser to run simshady without a visible browser window.
+
+**tl;dr** The [`CLI`](/simshady/functions/headless_cli.main.html) wraps the original functionality of simshady using a headless browser to run simshady without a visible browser window.
 
 The technical architecture looks as follows:
 
-The CLI _**cli.ts**_ is responsible for parsing the arguments and then validates that all necessary parameters exist.
+The [`CLI`](/simshady/functions/headless_cli.main.html) is responsible for parsing the arguments and then validates that all necessary parameters exist.
 The data parameters are then passed to the DataLoader class _**dataloader.ts**_.
 
-The DataLoader loads the data depending on the file and path type, i.e., single file, multiple files, or a directory. 
+The DataLoader loads the data depending on the file and path type, i.e., single file, multiple files, or a directory.
 The simulation and shading geometries can be loaded either from JSON in the format _{ positions: number[] }_ or from an OBJ file.
 For irradiance data, a file with JSON in the format SolarIrradianceData is required. The smallest possible parameterization
 for a run is _**--simulation-geometry**_ and _**--irradiance-data**_. After the data has been loaded, it is transferred
@@ -71,11 +119,9 @@ well as the total area and the active area are stored for each timestep. In addi
 of the vertices and colors in the format (v x y z r g b). Although this is not the standard OBJ format, many 3D rendering
 programs, such as Blender, can work with this format without any problems.
 
-
-
 ### CLI parameters
 
-Mittels Parametern kann der Input, der Output, sowie weitere Run Spezifikationen definiert werden. Die minimale 
+Mittels Parametern kann der Input, der Output, sowie weitere Run Spezifikationen definiert werden. Die minimale
 Konfiguration beinhaltet nur simulation geometry und irradiance data.
 
 Required parameters:
@@ -103,32 +149,3 @@ Other parameters are:
 - _**--chrome-args**_: Additional Chrome launch argument(s). They will get applied to the headless browser session before launch.
 - _**--max-old-space-size**_: Sets the max memory size of V8's old memory section in the browser (in MiB). It might be
 - necessary to increase the V8’s old memory outside the browser as well.
-
-### Artifacts
-After successful simulation, artifacts can be created. These can be used to analyze the simulation or serve as an intermediate
-result for further work. The CLI parameters can be used to control which artifacts are to be created. The artifacts get stored in the following way:
-- output_directory/
-  - mesh/ 
-    - colors.bin 
-    - intensities.bin 
-    - positions.bin 
-
-    Contains the Float32Array data in binary format. The data can get loaded using a buffer and simple constructor:
-        
-        const buffer = await fs.readFile(filePath)
-        new Float32Array(buffer.buffer, buffer.byteOffset, buffer.byteLength / 4)
-  - mesh.obj
-  
-    OBJ File in format: v x y z r g b
-  - snapshot_topdown.png 
-  
-    An orthographic snapshot of the simulation geometry from the bird’s perspective. The snapshot is being captured directly in the browser environment. 
-  - summary.json 
-
-    JSON file which stores the sum, the mean, and the theoretical maximum yield, as
-    well as the total area and the active area for each timestep. For all the per timestep fields there is an aggregated
-    version at the end of the file.
-  - metadata.json 
-  
-    A collection of metadata which contains all information describing the run.
-
