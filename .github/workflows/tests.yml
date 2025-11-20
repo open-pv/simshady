@@ -25,5 +25,8 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      - name: Build CLI package
+        run: yarn build
+
       - name: Run Vitest
         run: yarn test
