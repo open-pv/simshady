@@ -1,7 +1,7 @@
 import { Command } from 'commander';
-import { runShadingSceneHeadlessChrome } from './headlessBrowser';
-import { DataLoader } from './dataLoader';
 import { CLIOptions } from '../types/CLIOptions';
+import { DataLoader } from './dataLoader';
+import { runShadingSceneHeadlessChrome } from './headlessBrowser';
 
 // Turn file names into array
 function fileArray(input: string | string[] | undefined): string[] {
@@ -13,7 +13,7 @@ function fileArray(input: string | string[] | undefined): string[] {
  * The CLI program that defines the input and output parameters, provides explanations, and converts the
  * parameters into the appropriate formats for the headless program.
  */
-async function main(argv: string[]) {
+export async function main(argv: string[]) {
   const startTime = new Date().toISOString();
   const program = new Command();
   program.name('simshady').description("Run simshady's shading simulation and PV yield estimation in a headless environment.");
