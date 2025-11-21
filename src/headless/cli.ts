@@ -12,6 +12,34 @@ function fileArray(input: string | string[] | undefined): string[] {
 /**
  * The CLI program that defines the input and output parameters, provides explanations, and converts the
  * parameters into the appropriate formats for the headless program.
+ * The minimum configuration includes only simulation geometry and irradiance data. Below is a list of all existing CLI
+ * parameters.
+ *
+ * Required parameters:
+ *
+ * - _**--simulation-geometry**_: Simulation geometry file(s) or directory. Supports JSON format: _{ positions: number[] }_ and OBJ files.
+ * - _**--irradiance-data**_: Solar irradiance JSON file. JSON format: SolarIrradianceData or SolarIrradianceData[].
+ *
+ * Optional parameters for the calculation:
+ *
+ * - _**--shading-geometry**_: Shading geometry file(s) or directory. Supports JSON format: _{ positions: number[] }_ and OBJ files
+ * - _**--efficiency**_: Efficiency of the conversion from solar energy to electricity. Value in [0,1]
+ * - _**--maximum-yield**_: Upper boundary of annual yield in kWh/m2/year.This value is used to normalize the color of the returned three.js mesh.
+ *
+ * To generate artifacts, at least _**--output-dir**_ must be used. Parameters that affect the output or artifact generation are:
+ *
+ * - _**--output-dir**_: The directory where output artifacts should get stored in.
+ * - _**--summary/--no-summary**_: Flag indicating if per-time-step and total summaries should get stored. (default: true)
+ * - _**--snapshot-topdown/--no-snapshot-topdown**_: Flag indicating if an orthographic top-down snapshot should get stored (default: true)
+ * - _**--topdown-size**_: Snapshot size defines as width x height, e.g. "4096x4096" (default: "4096x4096")
+ * - _**--obj/--no-obj**_: Flag indicating if a .obj file should get stored (default: true)
+ *
+ * Other parameters are:
+ *
+ * - _**--silent**_: Mute verbose output (default: false)
+ * - _**--chrome-args**_: Additional Chrome launch argument(s). They will get applied to the headless browser session before launch.
+ * - _**--max-old-space-size**_: Sets the max memory size of V8's old memory section in the browser (in MiB) (default: 16384).
+ * It might be necessary to increase the V8’s old memory outside the browser as well.
  */
 export async function main(argv: string[]) {
   const startTime = new Date().toISOString();

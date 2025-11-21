@@ -118,34 +118,3 @@ context can be created. Finally, a JSON file is created in which the sum, the me
 well as the total area and the active area are stored for each timestep. In addition, an OBJ file can be created consisting
 of the vertices and colors in the format (v x y z r g b). Although this is not the standard OBJ format, many 3D rendering
 programs, such as Blender, can work with this format without any problems.
-
-### CLI parameters
-
-Mittels Parametern kann der Input, der Output, sowie weitere Run Spezifikationen definiert werden. Die minimale
-Konfiguration beinhaltet nur simulation geometry und irradiance data.
-
-Required parameters:
-
-- _**--simulation-geometry**_: Simulation geometry file(s) or directory. Supports JSON format: _{ positions: number[] }_ and OBJ files.
-- _**--irradiance-data**_: Solar irradiance JSON file. JSON format: SolarIrradianceData or SolarIrradianceData[].
-
-Optional parameters for the calculation:
-
-- _**--shading-geometry**_: Shading geometry file(s) or directory. Supports JSON format: _{ positions: number[] }_ and OBJ files
-- _**--efficiency**_: Efficiency of the conversion from solar energy to electricity. Value in [0,1]
-- _**--maximum-yield**_: Upper boundary of annual yield in kWh/m2/year.This value is used to normalize the color of the returned three.js mesh.
-
-To generate artifacts, at least _**--output-dir**_ must be used. Parameters that affect the output or artifact generation are:
-
-- _**--output-dir**_: The directory where output artifacts should get stored in.
-- _**--summary/--no-summary**_: Flag indicating if per-time-step and total summaries should get stored.
-- _**--snapshot-topdown/--no-snapshot-topdown**_: Flag indicating if a orthographic top-down snapshot should get stored
-- _**--topdown-size**_: Snapshot size defines as width x height, e.g. "4096x4096"
-- _**--obj/--no-obj**_: Flag indicating if a .obj file should get stored
-
-Other parameters are:
-
-- _**--silent**_: Mute verbose output
-- _**--chrome-args**_: Additional Chrome launch argument(s). They will get applied to the headless browser session before launch.
-- _**--max-old-space-size**_: Sets the max memory size of V8's old memory section in the browser (in MiB). It might be
-- necessary to increase the V8’s old memory outside the browser as well.
