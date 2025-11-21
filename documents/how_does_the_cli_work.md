@@ -39,6 +39,8 @@ To use the simshady CLI, the simshady module must first be built, then the CLI c
 
 Details about all parameters can be found [here](/simshady/functions/headless_cli.main.html) or by running `simshady --help`.
 
+You can test out the CLI by running the test in _cli.test.ts_
+
 ### Artifacts
 
 After successful simulation, artifacts can be created. These can be used to analyze the simulation or serve as an intermediate
