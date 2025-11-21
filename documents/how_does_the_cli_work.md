@@ -60,6 +60,11 @@ result for further work. The CLI parameters can be used to control which artifac
   - mesh.obj
 
     OBJ File in format: v x y z r g b
+  
+    This format although not officially supported, can be imported into 3D rendering tools like Blender. To visualize the 
+    result, import the mesh.obj into Blender then switch to "Vertex Paint" mode. The mesh does not get centered, so it might
+    be necessary to "Frame All" via the View options. Also, the dimensions of the mesh can be quite large, so there might occur
+    view distance clipping. This can be fixed by increasing the clip "End" distance via the View Tab on the side. 
 
   - snapshot_topdown.png
 
