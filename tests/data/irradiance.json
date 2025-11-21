@@ -1,0 +1,7 @@
+{
+  "data": [
+    { "altitude_deg": 45, "azimuth_deg": 45, "average_radiance_W_m2_sr": 10 },
+    { "altitude_deg": 45, "azimuth_deg": 315, "average_radiance_W_m2_sr": 20 }
+  ],
+  "metadata": { "latitude": 48.2, "longitude": 11.6, "total_timesteps_in_period": 8760, "valid_timesteps_for_aggregation": 8760 }
+}
