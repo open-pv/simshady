@@ -15,7 +15,12 @@ describe('CLI integration test', () => {
     if (!cliExists) {
       execSync('npm run build');
     }
-
+    if (fs.existsSync(outputDir)) {
+      try {
+        // @ts-ignore
+        fs.rm(outputDir, { recursive: true, force: true });
+      } catch (_) {}
+    }
     try {
       execSync(
         `node dist/cli.cjs run ` +
