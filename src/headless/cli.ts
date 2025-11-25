@@ -3,7 +3,11 @@ import { CLIOptions } from '../types/CLIOptions';
 import { DataLoader } from './dataLoader';
 import { runShadingSceneHeadlessChrome } from './headlessBrowser';
 
-// Turn file names into array
+/**
+ * Turns file names into an array. Either as a single comma separated string or as an array already.
+ * Returns an empty array if the input is undefined.
+ * @param input The file names to turn into an array of file names
+ */
 function fileArray(input: string | string[] | undefined): string[] {
   if (!input) return [];
   return Array.isArray(input) ? input : [input];

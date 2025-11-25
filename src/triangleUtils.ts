@@ -40,6 +40,16 @@ export function area(positions: ArrayType, startIndex: number): number {
   return normalAndArea(positions, startIndex)[1];
 }
 
+/**
+ *
+ * Takes an array of triangles and subdivides one triangle into smaller triangles. The algorithm finds the longest edge of the
+ * triangle and splits it at its center, creating two new triangles. This process continues until none of the edges of
+ * the resulting triangles are longer then the threshold.
+ *
+ * @param positions Array containing the triangles vertex positions.
+ * @param startIndex The starting index in the positions array where the triangle begins.
+ * @param threshold The maximum allowed edge length.
+ */
 export function subdivide(positions: ArrayType, startIndex: number, threshold: number): number[] {
   const result: number[] = [];
   const stack: number[][] = [];
