@@ -1,9 +1,15 @@
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test } from 'vitest';
 import { execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 
 describe('CLI integration test', () => {
+  afterEach(() => {
+    const outputDir = path.join(__dirname, 'cli/');
+    if (fs.existsSync(outputDir)) {
+      fs.rmSync(outputDir, { recursive: true, force: true });
+    }
+  });
   test('run CLI as subprocess', () => {
     const outputDir = path.join(__dirname, 'cli', 'results');
 
@@ -14,12 +20,6 @@ describe('CLI integration test', () => {
     const cliExists = fs.existsSync(path.join(__dirname, '/dist/cli.cjs'));
     if (!cliExists) {
       execSync('npm run build');
-    }
-    if (fs.existsSync(outputDir)) {
-      try {
-        // @ts-ignore
-        fs.rm(outputDir, { recursive: true, force: true });
-      } catch (_) {}
     }
     try {
       execSync(

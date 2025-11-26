@@ -14,7 +14,7 @@ export class SnapshotExporter {
     try {
       const topdownString = options.topdownSize?.split('x');
       if (topdownString == undefined || topdownString.length !== 2) {
-        console.warn('Provided --topdown-size was provided in wrong format. Use width x height e.g. "2048x20248".');
+        console.warn('Provided --topdown-size was provided in wrong format. Use width x height e.g. "2048x2048".');
         console.warn('Snapshot generation skipped.');
       } else {
         const width = parseInt(topdownString[0]);
@@ -41,7 +41,7 @@ export class SnapshotExporter {
     const imageData = await page.evaluate(
       async ({ w, h }) => {
         const { mesh } = (window as any).__simshady__;
-        const { Scene, WebGLRenderer, OrthographicCamera, DirectionalLight, AmbientLight, Box3, Vector3 } = await import('three');
+        const { Scene, WebGLRenderer, OrthographicCamera, DirectionalLight, AmbientLight, Box3, Vector3 } = (window as any).THREE;
 
         // Create scene
         const scene = new Scene();

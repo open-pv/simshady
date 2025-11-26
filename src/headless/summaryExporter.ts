@@ -8,9 +8,9 @@ import * as triangleUtils from '../triangleUtils';
  */
 type PerStepSummary = {
   t: number;
-  sum_yield: number;
-  mean_yield: number;
-  theoretical_max_yield: number;
+  sum_yield_in_kWh: number;
+  mean_yield_in_kWh: number;
+  theoretical_max_yield_in_kWh: number;
   total_area: number;
   active_area: number;
 };
@@ -19,8 +19,8 @@ type PerStepSummary = {
  * Contains all fields which get stored as part of the accumulated simulation results.
  */
 type TotalSummary = {
-  sum_yield_total: number;
-  mean_yield_total: number;
+  sum_yield_total_in_kWh: number;
+  mean_yield_total_in_kWh: number;
   total_area: number;
   active_area_mean: number;
   active_area_ever: number;
@@ -88,9 +88,9 @@ export class SummaryExporter {
       const mean_yield_t = A_sum > 0 ? sum_yield_t / A_sum : 0;
       perStep.push({
         t,
-        sum_yield: sum_yield_t,
-        mean_yield: mean_yield_t,
-        theoretical_max_yield: max_yield_t,
+        sum_yield_in_kWh: sum_yield_t,
+        mean_yield_in_kWh: mean_yield_t,
+        theoretical_max_yield_in_kWh: max_yield_t,
         total_area: A_sum,
         active_area: active_area_t,
       });
@@ -104,8 +104,8 @@ export class SummaryExporter {
     for (let i = 0; i < N; i++) if (everActive[i]) active_area_ever += areas[i];
 
     const total: TotalSummary = {
-      sum_yield_total,
-      mean_yield_total,
+      sum_yield_total_in_kWh: sum_yield_total,
+      mean_yield_total_in_kWh: mean_yield_total,
       total_area: A_sum,
       active_area_mean: T > 0 ? active_area_sum / T : 0,
       active_area_ever,

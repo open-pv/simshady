@@ -1,0 +1,468 @@
+{
+  "data": [
+    {
+      "altitude_deg": 78.28,
+      "azimuth_deg": 45.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 78.28,
+      "azimuth_deg": 315.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 78.28,
+      "azimuth_deg": 225.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 78.28,
+      "azimuth_deg": 135.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 66.44,
+      "azimuth_deg": 67.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 66.44,
+      "azimuth_deg": 22.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 66.44,
+      "azimuth_deg": 337.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 66.44,
+      "azimuth_deg": 292.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 66.44,
+      "azimuth_deg": 247.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 66.44,
+      "azimuth_deg": 202.5,
+      "average_radiance_W_m2_sr": 45.1226404109589
+    },
+    {
+      "altitude_deg": 66.44,
+      "azimuth_deg": 157.5,
+      "average_radiance_W_m2_sr": 42.981244292237434
+    },
+    {
+      "altitude_deg": 66.44,
+      "azimuth_deg": 112.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 75.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 45.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 15.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 345.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 315.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 285.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 255.0,
+      "average_radiance_W_m2_sr": 36.864210844748854
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 225.0,
+      "average_radiance_W_m2_sr": 97.68650456621003
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 195.0,
+      "average_radiance_W_m2_sr": 118.99518470319634
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 165.0,
+      "average_radiance_W_m2_sr": 91.75294634703195
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 135.0,
+      "average_radiance_W_m2_sr": 99.68735559360731
+    },
+    {
+      "altitude_deg": 54.34,
+      "azimuth_deg": 105.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 78.75,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 56.25,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 33.75,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 11.25,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 348.75,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 326.25,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 303.75,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 281.25,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 258.75,
+      "average_radiance_W_m2_sr": 68.27987180365297
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 236.25,
+      "average_radiance_W_m2_sr": 71.61820102739726
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 213.75,
+      "average_radiance_W_m2_sr": 63.18702876712328
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 191.25,
+      "average_radiance_W_m2_sr": 66.35823710045662
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 168.75,
+      "average_radiance_W_m2_sr": 54.317866894977165
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 146.25,
+      "average_radiance_W_m2_sr": 64.04000970319635
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 123.75,
+      "average_radiance_W_m2_sr": 118.44067043378995
+    },
+    {
+      "altitude_deg": 41.81,
+      "azimuth_deg": 101.25,
+      "average_radiance_W_m2_sr": 78.43642671232875
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 90.0,
+      "average_radiance_W_m2_sr": 85.28378356164383
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 67.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 45.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 22.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 0.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 337.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 315.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 292.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 270.0,
+      "average_radiance_W_m2_sr": 82.8699855022831
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 247.5,
+      "average_radiance_W_m2_sr": 70.47084200913241
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 225.0,
+      "average_radiance_W_m2_sr": 57.9510852739726
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 202.5,
+      "average_radiance_W_m2_sr": 57.516673173515976
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 180.0,
+      "average_radiance_W_m2_sr": 73.05738276255708
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 157.5,
+      "average_radiance_W_m2_sr": 55.600149200913236
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 135.0,
+      "average_radiance_W_m2_sr": 57.190608561643835
+    },
+    {
+      "altitude_deg": 30.0,
+      "azimuth_deg": 112.5,
+      "average_radiance_W_m2_sr": 71.20167648401826
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 78.75,
+      "average_radiance_W_m2_sr": 79.74426267123286
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 56.25,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 33.75,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 11.25,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 348.75,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 326.25,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 303.75,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 281.25,
+      "average_radiance_W_m2_sr": 55.25466381278538
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 258.75,
+      "average_radiance_W_m2_sr": 48.26420650684931
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 236.25,
+      "average_radiance_W_m2_sr": 51.1471696347032
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 213.75,
+      "average_radiance_W_m2_sr": 49.05074794520547
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 191.25,
+      "average_radiance_W_m2_sr": 38.716339611872144
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 168.75,
+      "average_radiance_W_m2_sr": 37.444789840182644
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 146.25,
+      "average_radiance_W_m2_sr": 53.30492009132419
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 123.75,
+      "average_radiance_W_m2_sr": 51.25705034246575
+    },
+    {
+      "altitude_deg": 19.47,
+      "azimuth_deg": 101.25,
+      "average_radiance_W_m2_sr": 54.39657214611872
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 90.0,
+      "average_radiance_W_m2_sr": 45.501345547945206
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 67.5,
+      "average_radiance_W_m2_sr": 63.46454143835616
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 45.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 22.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 0.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 337.5,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 315.0,
+      "average_radiance_W_m2_sr": 16.48363938356164
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 292.5,
+      "average_radiance_W_m2_sr": 19.582786415525113
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 270.0,
+      "average_radiance_W_m2_sr": 26.45160833333333
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 247.5,
+      "average_radiance_W_m2_sr": 27.133379794520547
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 225.0,
+      "average_radiance_W_m2_sr": 22.480059589041094
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 202.5,
+      "average_radiance_W_m2_sr": 34.24956107305936
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 180.0,
+      "average_radiance_W_m2_sr": 21.487555707762553
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 157.5,
+      "average_radiance_W_m2_sr": 28.31804714611872
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 135.0,
+      "average_radiance_W_m2_sr": 48.345978196347026
+    },
+    {
+      "altitude_deg": 9.59,
+      "azimuth_deg": 112.5,
+      "average_radiance_W_m2_sr": 43.5270703196347
+    }
+  ],
+  "metadata": {
+    "nside": 4,
+    "latitude": 52.00000000000007,
+    "longitude": 11.000000000000005,
+    "total_timesteps_in_period": 8760,
+    "valid_timesteps_for_aggregation": 8760,
+    "daylight_timesteps_processed": 4477,
+    "total_ghi_period": 1046519,
+    "average_ghi_daylight": 233.75452311815948,
+    "average_dhi_daylight": 101.32588787134242,
+    "average_dni_daylight": 249.91020772838954,
+    "average_poa_daylight": 258.52052075571896,
+    "max_average_radiance": 232.8339056412875,
+    "pixel_solid_angle": 0.06544984694978735,
+    "surface_tilt_deg": 30.0,
+    "surface_azimuth_deg": 180.0,
+    "albedo": 0.2,
+    "location_id": 657484,
+    "period": "yearly",
+    "start_date": "2017-12-31T23:30:00+00:00",
+    "end_date": "2018-12-31T22:30:00+00:00",
+    "original_source": "657484_2018_yearly.json",
+    "nn_distance_km": 10.15115366982008
+  }
+}
