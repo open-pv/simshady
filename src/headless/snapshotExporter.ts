@@ -41,7 +41,9 @@ export class SnapshotExporter {
     const imageData = await page.evaluate(
       async ({ w, h }) => {
         const { mesh } = (window as any).__simshady__;
-        const { Scene, WebGLRenderer, OrthographicCamera, DirectionalLight, AmbientLight, Box3, Vector3 } = (window as any).THREE;
+        const dynamicImport = eval.call(null, 'u => import(u)');
+        const { Scene, WebGLRenderer, OrthographicCamera, DirectionalLight, AmbientLight, Box3, Vector3 } =
+          await dynamicImport('three');
 
         // Create scene
         const scene = new Scene();

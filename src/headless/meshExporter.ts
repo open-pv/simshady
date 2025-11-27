@@ -70,7 +70,8 @@ export class MeshExporter {
     const metadata = await page.evaluate(async () => {
       const finishedAt = new Date().toISOString();
       const { mesh } = (window as any).__simshady__;
-      const { Box3, Vector3 } = await import('three');
+      const dynamicImport = eval.call(null, 'u => import(u)');
+      const { Box3, Vector3 } = await dynamicImport('three');
 
       const posAttr = mesh.geometry.getAttribute('position');
       const colorAttr = mesh.geometry.getAttribute('color');

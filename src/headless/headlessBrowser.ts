@@ -13,6 +13,13 @@ import { ObjExporter } from './objExporter';
 
 /**
  * Run ShadingScene in headless Chromium with WebGL2 enabled.
+ * Currently, the simshady CLI requires the built bundle, which is dynamically imported in the browser.
+ * Since three.js isn't bundled with simshady, it's loaded from unpkg.
+ *
+ * If it is not possible to load from unpkg, one can bundle three.js within simshady by exporting it in the index,
+ * adjusting the tsup config and updating the three.js imports. This would allow direct imports instead of loading from unpkg.
+ * @link https://github.com/open-pv/simshady/pull/68
+ * @link https://github.com/open-pv/simshady/pull/68#discussion_r2564949596
  */
 export async function runShadingSceneHeadlessChrome(
   simulationPositions: Float32Array,
