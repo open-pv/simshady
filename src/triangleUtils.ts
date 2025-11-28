@@ -40,58 +40,79 @@ export function area(positions: ArrayType, startIndex: number): number {
   return normalAndArea(positions, startIndex)[1];
 }
 
+/**
+ *
+ * Takes an array of triangles and subdivides one triangle into smaller triangles. The algorithm finds the longest edge of the
+ * triangle and splits it at its center, creating two new triangles. This process continues until none of the edges of
+ * the resulting triangles are longer then the threshold.
+ *
+ * @param positions Array containing the triangles vertex positions.
+ * @param startIndex The starting index in the positions array where the triangle begins.
+ * @param threshold The maximum allowed edge length.
+ */
 export function subdivide(positions: ArrayType, startIndex: number, threshold: number): number[] {
-  const triangle = positions.slice(startIndex, startIndex + 9);
-  const [x0, y0, z0, x1, y1, z1, x2, y2, z2] = triangle;
+  const result: number[] = [];
+  const stack: number[][] = [];
 
-  const d01x = x1 - x0;
-  const d01y = y1 - y0;
-  const d01z = z1 - z0;
-  const d02x = x2 - x0;
-  const d02y = y2 - y0;
-  const d02z = z2 - z0;
-  const d12x = x2 - x1;
-  const d12y = y2 - y1;
-  const d12z = z2 - z1;
+  const initialTriangle = Array.from(positions.slice(startIndex, startIndex + 9));
+  stack.push(initialTriangle);
 
-  const l01 = d01x * d01x + d01y * d01y + d01z * d01z;
-  const l02 = d02x * d02x + d02y * d02y + d02z * d02z;
-  const l12 = d12x * d12x + d12y * d12y + d12z * d12z;
+  while (stack.length > 0) {
+    const triangle = stack.pop()!;
+    const [x0, y0, z0, x1, y1, z1, x2, y2, z2] = triangle;
 
-  const longest = Math.max(l01, l02, l12);
-  if (longest <= threshold * threshold) {
-    return Array.from(triangle);
+    const d01x = x1 - x0;
+    const d01y = y1 - y0;
+    const d01z = z1 - z0;
+    const d02x = x2 - x0;
+    const d02y = y2 - y0;
+    const d02z = z2 - z0;
+    const d12x = x2 - x1;
+    const d12y = y2 - y1;
+    const d12z = z2 - z1;
+
+    const l01 = d01x * d01x + d01y * d01y + d01z * d01z;
+    const l02 = d02x * d02x + d02y * d02y + d02z * d02z;
+    const l12 = d12x * d12x + d12y * d12y + d12z * d12z;
+
+    const longest = Math.max(l01, l02, l12);
+    if (longest <= threshold * threshold) {
+      result.push(...triangle);
+      continue;
+    }
+
+    if (l01 === longest) {
+      const xm = (x0 + x1) / 2;
+      const ym = (y0 + y1) / 2;
+      const zm = (z0 + z1) / 2;
+
+      const tri1 = [x0, y0, z0, xm, ym, zm, x2, y2, z2];
+      const tri2 = [x1, y1, z1, x2, y2, z2, xm, ym, zm];
+
+      stack.push(tri1, tri2);
+    } else if (l02 === longest) {
+      const xm = (x0 + x2) / 2;
+      const ym = (y0 + y2) / 2;
+      const zm = (z0 + z2) / 2;
+
+      const tri1 = [x0, y0, z0, x1, y1, z1, xm, ym, zm];
+      const tri2 = [x1, y1, z1, x2, y2, z2, xm, ym, zm];
+
+      stack.push(tri1, tri2);
+    } else if (l12 === longest) {
+      const xm = (x1 + x2) / 2;
+      const ym = (y1 + y2) / 2;
+      const zm = (z1 + z2) / 2;
+
+      const tri1 = [x0, y0, z0, x1, y1, z1, xm, ym, zm];
+      const tri2 = [x2, y2, z2, x0, y0, z0, xm, ym, zm];
+
+      stack.push(tri1, tri2);
+    } else {
+      throw new Error("No edge is longest, this shouldn't happen");
+    }
   }
-  if (l01 == longest) {
-    const xm = (x0 + x1) / 2;
-    const ym = (y0 + y1) / 2;
-    const zm = (z0 + z1) / 2;
-
-    const tri1 = [x0, y0, z0, xm, ym, zm, x2, y2, z2];
-    const tri2 = [x1, y1, z1, x2, y2, z2, xm, ym, zm];
-
-    return subdivide(tri1, 0, threshold).concat(subdivide(tri2, 0, threshold));
-  } else if (l02 == longest) {
-    const xm = (x0 + x2) / 2;
-    const ym = (y0 + y2) / 2;
-    const zm = (z0 + z2) / 2;
-
-    const tri1 = [x0, y0, z0, x1, y1, z1, xm, ym, zm];
-    const tri2 = [x1, y1, z1, x2, y2, z2, xm, ym, zm];
-
-    return subdivide(tri1, 0, threshold).concat(subdivide(tri2, 0, threshold));
-  } else if (l12 == longest) {
-    const xm = (x1 + x2) / 2;
-    const ym = (y1 + y2) / 2;
-    const zm = (z1 + z2) / 2;
-
-    const tri1 = [x0, y0, z0, x1, y1, z1, xm, ym, zm];
-    const tri2 = [x2, y2, z2, x0, y0, z0, xm, ym, zm];
-
-    return subdivide(tri1, 0, threshold).concat(subdivide(tri2, 0, threshold));
-  } else {
-    throw new Error("No edge is longest, this shouldn't happen");
-  }
+  return result;
 }
 
 export function midpoint(positions: ArrayType, startIndex: number): [number, number, number] {

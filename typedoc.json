@@ -1,6 +1,6 @@
 {
   "projectDocuments": ["documents/*.md"],
-  "entryPoints": ["./src/index.ts", "./src/utils.ts"],
+  "entryPoints": ["./src/index.ts", "./src/utils.ts", "./src/headless/cli.ts"],
   "out": "docs",
   // this plugin was used before, but I think it is not necessary
   //"plugin": ["typedoc-plugin-rename-defaults"],

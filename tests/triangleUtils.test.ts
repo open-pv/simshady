@@ -5,7 +5,18 @@ import { triangleArray } from './data.js';
 const firstTriangle: triangleUtils.Triangle = [0, 0, 0, 1, 0, 0, 0, 1, 0];
 const secondTriangle: triangleUtils.Triangle = [1, 1, 1, 1, 3, 1, 1, 3, 6];
 
-const subdivisionFirstTriangle = [0, 0, 0, 1, 0, 0, 0.5, 0.5, 0, 0, 1, 0, 0, 0, 0, 0.5, 0.5, 0];
+const subdivisionFirstTriangle = [
+  //triangle 1
+  0, 0, 0, 1, 0, 0, 0.5, 0.5, 0,
+  //triangle 2
+  0, 1, 0, 0, 0, 0, 0.5, 0.5, 0,
+];
+const subdivisionFirstTriangleNew = [
+  //triangle 2
+  0, 1, 0, 0, 0, 0, 0.5, 0.5, 0,
+  // triangle 1
+  0, 0, 0, 1, 0, 0, 0.5, 0.5, 0,
+];
 
 describe('Triangle Util functions: ', () => {
   test('Calculate area of triangles', () => {
@@ -17,7 +28,7 @@ describe('Triangle Util functions: ', () => {
     expect(triangleUtils.normal(triangleArray, 9)).toStrictEqual([1, 0, 0]);
   });
   test('Subdivide triangles', () => {
-    expect(triangleUtils.subdivide(firstTriangle, 0, 1)).toStrictEqual(subdivisionFirstTriangle);
+    expect(triangleUtils.subdivide(firstTriangle, 0, 1)).toStrictEqual(subdivisionFirstTriangleNew);
   });
   test('Calculate midpoint of triangles', () => {
     expect(triangleUtils.midpoint(firstTriangle, 0)[0]).to.be.closeTo(1 / 3, 0.01);

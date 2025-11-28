@@ -155,22 +155,22 @@ export class ShadingScene {
   refineMesh(mesh: BufferGeometry, maxLength: number): BufferGeometry {
     const positions = mesh.attributes.position.array.slice();
 
-    let newTriangles: number[] = [];
-    let newNormals: number[] = [];
+    const newTriangles: number[] = [];
+    const newNormals: number[] = [];
     // Iterate over triangles
     for (let i = 0; i < positions.length; i += 9) {
-      let normal = triangleUtils.normal(positions, i);
+      const normal = triangleUtils.normal(positions, i);
       if (normal[2] < -0.9) {
         // Triangle is facing down, we can skip this
         continue;
       }
-      let triangles = triangleUtils.subdivide(positions, i, maxLength);
-      newTriangles = newTriangles.concat(triangles);
+      const triangles = triangleUtils.subdivide(positions, i, maxLength);
+      newTriangles.push(...triangles);
       // copy normal for each subdivided triangle
-      newNormals = newNormals.concat(triangles.map((_, i) => normal[i % 3]));
+      newNormals.push(...triangles.map((_, i) => normal[i % 3]));
     }
 
-    let geometry = new BufferGeometry();
+    const geometry = new BufferGeometry();
     const normalsArray = new Float32Array(newNormals);
     const positionArray = new Float32Array(newTriangles);
     geometry.setAttribute('position', new BufferAttribute(positionArray, 3));
@@ -196,7 +196,7 @@ export class ShadingScene {
     const {
       solarToElectricityConversionEfficiency = 0.15,
       maxYieldPerSquareMeter = 1400 * 0.15,
-      progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}%`),
+      progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}`),
     } = params;
 
     // Validate class parameters
@@ -233,7 +233,7 @@ export class ShadingScene {
       normalsArray,
       meshArray,
       this.solarIrradiance!, // Non-null assertion
-      (i, total) => progressCallback(i + total, total),
+      (i, total) => progressCallback(i, total),
     );
 
     const pvYield = sun.calculatePVYield(
