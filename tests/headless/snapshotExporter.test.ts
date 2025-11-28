@@ -3,7 +3,6 @@ import { SnapshotExporter } from '../../src/headless/snapshotExporter';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import puppeteer from 'puppeteer';
 
 describe('SnapshotExporter', () => {
   let tempDir: string;
@@ -18,10 +17,8 @@ describe('SnapshotExporter', () => {
 
   describe('startTopDownGeneration', () => {
     test('normal generation', async () => {
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
-
-      const res = await SnapshotExporter.startTopDownGeneration(page, {
+      const mockPage = {} as any;
+      const res = await SnapshotExporter.startTopDownGeneration(mockPage, {
         outputDir: tempDir,
         topdownSize: '1024x1024',
       });
@@ -30,11 +27,10 @@ describe('SnapshotExporter', () => {
     });
 
     test('skip generation for invalid topdownSize', async () => {
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
+      const mockPage = {} as any;
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      await SnapshotExporter.startTopDownGeneration(page, {
+      await SnapshotExporter.startTopDownGeneration(mockPage, {
         outputDir: tempDir,
         topdownSize: '2048',
       });
