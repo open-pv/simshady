@@ -1,5 +1,5 @@
 ---
-title: simshady on the server
+title: CLI
 ---
 
 # The simshady CLI
@@ -11,8 +11,8 @@ You can use simshady in two ways, either as a package for client side simulation
 ```bash
     # install simshady temporarly and execute it directly
     npx @openpv/simshady run --simulation-geometry ...
-    
-    # or install simshady globally with 
+
+    # or install simshady globally with
     npm install -g @openpv/simshady
 
     # then run the cli
@@ -54,11 +54,11 @@ result for further work. The CLI parameters can be used to control which artifac
   - mesh.obj
 
     OBJ File in format: v x y z r g b
-  
-    This format although not officially supported, can be imported into 3D rendering tools like Blender. To visualize the 
+
+    This format although not officially supported, can be imported into 3D rendering tools like Blender. To visualize the
     result, import the mesh.obj into Blender then switch to "Vertex Paint" mode. The mesh does not get centered, so it might
     be necessary to "Frame All" via the View options. Also, the dimensions of the mesh can be quite large, so there might occur
-    view distance clipping. This can be fixed by increasing the clip "End" distance via the View Tab on the side. 
+    view distance clipping. This can be fixed by increasing the clip "End" distance via the View Tab on the side.
 
   - snapshot_topdown.png
 
@@ -81,10 +81,12 @@ result for further work. The CLI parameters can be used to control which artifac
 The technical architecture looks as follows:
 
 #### 1. CLI-Wrapper
+
 The [`CLI`](/simshady/functions/headless_cli.main.html) is responsible for parsing the arguments and then validates that all necessary parameters exist.
 The data parameters are then passed to the DataLoader class _**dataloader.ts**_.
 
 #### 2. Data loading
+
 The DataLoader loads the data depending on the file and path type, i.e., single file, multiple files, or a directory.
 The simulation and shading geometries can be loaded either from JSON in the format _{ positions: number[] }_ or from an OBJ file.
 For irradiance data, a JSON file in the format of _SolarIrradianceData_ is required. The smallest possible parameterization
@@ -92,6 +94,7 @@ for a run is _**--simulation-geometry**_ and _**--irradiance-data**_. After the 
 to the headless Chrome runner _**headlessBrowser.ts**_ together with the CLI parameters.
 
 #### 3. Headless browser
+
 Here, a headless Chrome browser is launched using the Puppeteer package. Puppeteer is one of the most widely used packages
 for browser automation, CI, and testing. To ensure successful calculation, it is first verified that the browser is running with WebGL2.
 Then the browser is launched. The built simshady package and the three.js dependency are dynamically loaded into the browser
@@ -102,6 +105,7 @@ limits are significantly smaller than the limits for number arrays, which is why
 would cause problems. After all dependencies and data have been loaded into the browser, the actual simshady simulation is executed.
 
 #### 4. Ray tracing
+
 The logic of the ray tracing algorithm has not changed compared to before the CLI PR. Before the changes of this work, the
 intensity for all simulation triangles was calculated at once for each skysegment direction. The parallelization of the actual
 work was left to the GPU. However, during development, it became apparent that errors occur when shading is calculated for
@@ -113,6 +117,7 @@ nested loop breaks down the entire shading geometry into 4096 triangles each and
 triangles. The shading mask is then composed of the minimum intensity values from all shading iterations.
 
 #### 5. Artifact generation
+
 After the simshady simulation has finished, the new mesh data (positions, colors and intensities) is loaded chunkwise from
 the browser context. Then, if active, artifact generation is started. Depending on the configuration, different artifacts
 are generated. First, a metadata file is created that records the run configuration used, the key data of the simulation
