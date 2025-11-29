@@ -22,7 +22,9 @@ function fileArray(input: string | string[] | undefined): string[] {
  * Required parameters:
  *
  * - _**--simulation-geometry**_: Simulation geometry file(s) or directory. Supports JSON format: _{ positions: number[] }_ and OBJ files.
- * - _**--irradiance-data**_: Solar irradiance JSON file. JSON format: SolarIrradianceData or SolarIrradianceData[].
+ *    Example file in https://github.com/open-pv/simshady/tree/main/tests/headless/data
+ * - _**--irradiance-data**_: Solar irradiance JSON file. JSON format: {@link utils.SolarIrradianceData} or SolarIrradianceData[].
+ *    Example file in https://github.com/open-pv/simshady/tree/main/tests/headless/data
  *
  * Optional parameters for the calculation:
  *
