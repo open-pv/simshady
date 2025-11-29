@@ -50,7 +50,6 @@
     "ts-node": "^10.9.2",
     "tsup": "^8.0.1",
     "typedoc": "^0.28.2",
-    "typedoc-plugin-coverage": "^3.4.1",
     "typedoc-plugin-mdn-links": "^5.0.1",
     "typedoc-plugin-rename-defaults": "^0.7.3",
     "typescript": "^5.8.3",

@@ -4136,11 +4136,6 @@ typed-query-selector@^2.12.0:
   resolved "https://registry.yarnpkg.com/typed-query-selector/-/typed-query-selector-2.12.0.tgz#92b65dbc0a42655fccf4aeb1a08b1dddce8af5f2"
   integrity sha512-SbklCd1F0EiZOyPiW192rrHZzZ5sBijB6xM+cpmrwDqObvdtunOHHIk9fCGsoK5JVIYXoyEp4iEdE3upFH3PAg==
 
-typedoc-plugin-coverage@^3.4.1:
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-coverage/-/typedoc-plugin-coverage-3.4.1.tgz#13b445cecb674845945e218c4560bbd91299af83"
-  integrity sha512-V23DAwinAMpGMGcL1R1s8Snr26hrjfIdwGf+4jR/65ZdmeAN+yRX0onfx5JlembTQhR6AePQ/parfQNS0AZ64A==
-
 typedoc-plugin-mdn-links@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/typedoc-plugin-mdn-links/-/typedoc-plugin-mdn-links-5.0.1.tgz#2ff23f997e71a2c77cd43590455754e29e4875f0"
