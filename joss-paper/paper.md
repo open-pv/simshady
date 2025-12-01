@@ -15,20 +15,26 @@ authors:
   - name: Konrad Heidler
     orcid: 0000-0001-8226-0727
     corresponding: false
-    affiliation: 1 # (Multiple affiliations must be quoted)
+    affiliation: 1
   - name: Martin Großhauser
     orcid: 0000-0003-2637-3828
     corresponding: false
-    affiliation: 1 # (Multiple affiliations must be quoted)
+    affiliation: 1
+  - name: Mino Estrella
+    orcid: 0009-0009-7372-4548
+    corresponding: false
+    affiliation: 3
   - name: Korbinian Pöppel
     orcid: 0009-0002-4734-1040
     corresponding: false
-    affiliation: 1 # (Multiple affiliations must be quoted)
+    affiliation: 1
 affiliations:
-  - name: OpenPV GbR, c/o Martin Großhauser, Arnulfstrasse 138, 80634 München, Germany
+  - name: OpenPV GbR, Munich, Germany
     index: 1
   - name: OFFIS Institute for Information Technology, Escherweg 2, 26121 Oldenburg, Germany
     index: 2
+  - name: Chair of Renewable and Sustainable Energy Systems, Technical University of Munich, Germany
+    index: 3
 
 date: 01 November 2024
 bibliography: paper.bib
@@ -37,7 +43,7 @@ bibliography: paper.bib
 
 # Summary
 
-openpv/simshady is a JavaScript package for simulating photovoltaic (PV) energy yields. It integrates local climate data and 3D objects into its shading simulation, utilizing Three.js meshes for geometric modeling. The package performs shading analysis using a WebGL-parallelized implementation of the Möller-Trumbore intersection algorithm @Möller01011997], producing color-coded Three.js meshes that represent the expected PV yield.
+openpv/simshady is a JavaScript package for simulating photovoltaic (PV) energy yields. It integrates local climate data and 3D objects into its shading simulation, utilizing Three.js meshes for geometric modeling. The package performs shading analysis using a WebGL-parallelized implementation of the Möller-Trumbore intersection algorithm [@Möller01011997], producing color-coded Three.js meshes that represent the expected PV yield. Simshady provides both a package for web development, as well as a Command-line interface (CLI) tool for simulations on your machine.
 
 # Statement of need
 
@@ -59,9 +65,15 @@ The package finally returns a color coded `Three.js` mesh, as shown in \autoref{
 
 ![A simulated building with its solar yield, where dark purple represents low yields and light yellow represents high yields. The simulated shading from neighboring buildings is clearly visible. \label{fig:threejs-mesh}](screenshot-simulation-geometry.jpg){ width=90% }
 
+## The CLI tool
+
+The `simshady` CLI is a thin wrapper around the core WebGL‑based simulation engine that enables batch processing of photovoltaic‑yield analyses on a headless server. It first parses a small set of required arguments (the simulation geometry and the irradiance data). The supplied geometry files, either JSON objects or Wavefront OBJ files, are handed to a headless Chromium instance launched via Puppeteer [@puppeteer].
+
+Inside the browser context the full simshady package is injected, the scene is reconstructed, and the GPU‑accelerated Möller‑Trumbore ray‑tracing routine is executed. When the calculation finishes, the CLI extracts the mesh data from the browser, writes binary artefacts (positions.bin, colors.bin, intensities.bin), a colour‑coded OBJ file, a top‑down snapshot, and the simulation results into the user‑specified output directory.
+
 # Conclusion
 
-The `openpv/simshady` package serves two primary purposes: it provides a solution for scientific calculations of PV yield, while also facilitating science communication through interactive and user-friendly simulations that can be run directly within a web browser. This eliminates the need for specialized software or programming knowledge, making it accessible to a broader range of users. Furthermore, by implementing the main algorithm in WebGL, the package achieves higher performance than a pure Javascript implementation, and it offers a JavaScript wrapper around PV simulation in WebGL. This is particularly beneficial because WebGL is a language that is not widely known among scientists, and thus can be challenging for them to implement their own code, making the `openpv/simshady` package a valuable tool for simplifying this process.
+The `openpv/simshady` package serves two primary purposes: it provides a solution for scientific calculations of PV yield, while also facilitating science communication through interactive and user-friendly simulations. This eliminates the need for specialized software or programming knowledge, making it accessible to a broader range of users. Furthermore, by implementing the main algorithm in WebGL, the package achieves higher performance than a pure Javascript implementation, and it offers a JavaScript wrapper around PV simulation in WebGL. This is particularly beneficial because WebGL is a language that is not widely known among scientists, and thus can be challenging for them to implement their own code, making the `openpv/simshady` package a valuable tool for simplifying this process.
 
 # Credit Authorship Statement
 
@@ -70,6 +82,8 @@ FK: Conceptualization, Software, Funding acquisition, Writing – original draft
 MG: Conceptualization, Software, Funding acquisition, Writing – review & editing
 
 KH: Conceptualization, Software, Funding acquisition, Writing – review & editing
+
+ME: Software, Writing – review & editing
 
 KP: Conceptualization, Software, Funding acquisition, Writing – review & editing
 
