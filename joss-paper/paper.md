@@ -21,7 +21,7 @@ authors:
     corresponding: false
     affiliation: 1
   - name: Mino Estrella
-    orcid:
+    orcid: 0009-0009-7372-4548
     corresponding: false
     affiliation: 3
   - name: Korbinian Pöppel
@@ -33,7 +33,7 @@ affiliations:
     index: 1
   - name: OFFIS Institute for Information Technology, Escherweg 2, 26121 Oldenburg, Germany
     index: 2
-  - name: Chair of Renewable and Sustainable Energy Systems, Technical University Munich, Germany
+  - name: Chair of Renewable and Sustainable Energy Systems, Technical University of Munich, Germany
     index: 3
 
 date: 01 November 2024
