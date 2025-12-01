@@ -6,6 +6,19 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v0.2.0 - The CLI 2025-12-01
+
+### Changes
+
+- Repair links #58 by @FlorianK13 in https://github.com/open-pv/simshady/pull/59
+- Add simshady to docs links #60 by @FlorianK13 in https://github.com/open-pv/simshady/pull/61
+- Create a joss publication by @FlorianK13 in https://github.com/open-pv/simshady/pull/62
+- Add acknowledgement statement. by @kpoeppel in https://github.com/open-pv/simshady/pull/63
+- Bump vite from 6.3.4 to 6.3.6 by @dependabot[bot] in https://github.com/open-pv/simshady/pull/65
+- 64 puppeteer only approach by @mestr01 in https://github.com/open-pv/simshady/pull/68
+- Bump vite from 6.3.6 to 6.4.1 by @dependabot[bot] in https://github.com/open-pv/simshady/pull/69
+- Updates for joss publication by @FlorianK13 in https://github.com/open-pv/simshady/pull/72
+
 ## v0.1.0 - 2025-04-21
 
 ### Changes
