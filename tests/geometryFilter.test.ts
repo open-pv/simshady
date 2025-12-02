@@ -4,7 +4,9 @@ import {
   calculateMinimumHeight,
   getTriangleHorizontalDistance,
   filterShadingGeometry,
+  getMinSunAngleFromIrradiance,
 } from '../src/headless/geometryFilter';
+import { SolarIrradianceData } from '../src/utils';
 
 describe('geometryFilter', () => {
   describe('calculateBoundingBox', () => {
@@ -64,6 +66,55 @@ describe('geometryFilter', () => {
 
       const filtered = filterShadingGeometry(simPos, shadePos, 10, true);
       expect(filtered.length).toBe(0);
+    });
+  });
+
+  describe('getMinSunAngleFromIrradiance', () => {
+    it('return minimum angle from irradiance data', () => {
+      const irradiance: SolarIrradianceData = {
+        metadata: { latitude: 48.2, longitude: 11.6, valid_timesteps_for_aggregation: 8760 },
+        data: [
+          { altitude_deg: 5, azimuth_deg: 90, average_radiance_W_m2_sr: 10 },
+          { altitude_deg: 25, azimuth_deg: 90, average_radiance_W_m2_sr: 10 },
+        ],
+      };
+      expect(getMinSunAngleFromIrradiance(irradiance)).toBe(5);
+    });
+
+    it('return minimum angle from array of irradiance data', () => {
+      const irradiance = [
+        {
+          metadata: { latitude: 48.2, longitude: 11.6, valid_timesteps_for_aggregation: 8760 },
+          data: [{ altitude_deg: 5, azimuth_deg: 90, average_radiance_W_m2_sr: 10 }],
+        },
+        {
+          metadata: { latitude: 48.2, longitude: 11.6, valid_timesteps_for_aggregation: 8760 },
+          data: [{ altitude_deg: 25, azimuth_deg: 90, average_radiance_W_m2_sr: 10 }],
+        },
+      ];
+      expect(getMinSunAngleFromIrradiance(irradiance)).toBe(5);
+    });
+
+    it('ignore zero-irradiance data point', () => {
+      const irradiance: SolarIrradianceData = {
+        metadata: { latitude: 48.2, longitude: 11.6, valid_timesteps_for_aggregation: 8760 },
+        data: [
+          { altitude_deg: 5, azimuth_deg: 90, average_radiance_W_m2_sr: 0 },
+          { altitude_deg: 25, azimuth_deg: 90, average_radiance_W_m2_sr: 10 },
+        ],
+      };
+      expect(getMinSunAngleFromIrradiance(irradiance)).toBe(25);
+    });
+
+    it('return 0 when all irradiances data is zero', () => {
+      const irradiance: SolarIrradianceData = {
+        metadata: { latitude: 48.2, longitude: 11.6, valid_timesteps_for_aggregation: 8760 },
+        data: [
+          { altitude_deg: 5, azimuth_deg: 90, average_radiance_W_m2_sr: 0 },
+          { altitude_deg: 25, azimuth_deg: 90, average_radiance_W_m2_sr: 0 },
+        ],
+      };
+      expect(getMinSunAngleFromIrradiance(irradiance)).toBe(0);
     });
   });
 });

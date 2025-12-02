@@ -1,7 +1,33 @@
+import { SolarIrradianceData } from '../utils';
+
 type BoundingBox = {
   min: { x: number; y: number; z: number };
   max: { x: number; y: number; z: number };
 };
+
+/**
+ * Computes the minimum sun altitude angle from irradiance data.
+ * This is the lowest altitude_deg value across all sky segments with non-zero radiance.
+ * @param irradiance Solar irradiance data (single or array)
+ * @returns Minimum altitude angle in degrees, or 0 if no valid data
+ */
+export function getMinSunAngleFromIrradiance(irradiance: SolarIrradianceData | SolarIrradianceData[]): number {
+  const irradianceArray = Array.isArray(irradiance) ? irradiance : [irradiance];
+
+  let minAltitude = Infinity;
+
+  for (const entry of irradianceArray) {
+    for (const point of entry.data) {
+      // Only points with non-zero radiance
+      if (point.average_radiance_W_m2_sr > 0) {
+        minAltitude = Math.min(minAltitude, point.altitude_deg);
+      }
+    }
+  }
+
+  // If all radiance values are 0 or no data is available, return 0 (no filtering)
+  return minAltitude === Infinity ? 0 : minAltitude;
+}
 
 /**
  * Calculate the bounding box of from a given positions array

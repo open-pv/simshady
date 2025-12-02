@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { CLIOptions } from '../types/CLIOptions';
 import { DataLoader } from './dataLoader';
 import { runShadingSceneHeadlessChrome } from './headlessBrowser';
-import { filterShadingGeometry } from './geometryFilter';
+import { filterShadingGeometry, getMinSunAngleFromIrradiance } from './geometryFilter';
 
 /**
  * Turns file names into an array. Either as a single comma separated string or as an array already.
@@ -75,9 +75,9 @@ export async function main(argv: string[]) {
     )
     .option(
       '--min-sun-angle <number>',
-      'Minimum sun altitude angle in degrees for filtering the shading geometry. Geometry below the threshold cannot cast a shadow (default: 9.59).',
+      'Minimum sun altitude angle in degrees for filtering the shading geometry. If not provided, the lowest angle ' +
+        'will automatically be computed from the irradiance data. (default: undefined)',
       (v) => parseFloat(v),
-      9.59,
     )
     .option('--chrome-args <arg...>', 'Additional Chrome launch argument(s).')
     .option(
@@ -111,8 +111,10 @@ export async function main(argv: string[]) {
 
         const shadeFiles = fileArray(options.shadingGeometry);
         let shadePos = (await dataLoader.loadPositionsArrays(shadeFiles, options.silent ?? false)) ?? new Float32Array();
+
         // filter the shading geometry before moving it into browser context
-        shadePos = filterShadingGeometry(simPos, shadePos, options.minSunAngle, options.silent ?? false);
+        const minSunAngle = options.minSunAngle ?? getMinSunAngleFromIrradiance(irradianceData);
+        shadePos = filterShadingGeometry(simPos, shadePos, minSunAngle, options.silent ?? false);
 
         await runShadingSceneHeadlessChrome(simPos, shadePos, irradianceData, startTime, __dirname, options);
       } catch (error: any) {
