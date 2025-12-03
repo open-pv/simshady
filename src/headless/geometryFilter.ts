@@ -8,8 +8,8 @@ type BoundingBox = {
 /**
  * Computes the minimum sun altitude angle from irradiance data.
  * This is the lowest altitude_deg value across all sky segments with non-zero radiance.
- * @param irradiance Solar irradiance data (single or array)
- * @returns Minimum altitude angle in degrees, or 0 if no valid data
+ * @param irradiance Solar irradiance data
+ * @returns Minimum altitude angle in degrees, or 0 if no valid data exists
  */
 export function getMinSunAngleFromIrradiance(irradiance: SolarIrradianceData | SolarIrradianceData[]): number {
   const irradianceArray = Array.isArray(irradiance) ? irradiance : [irradiance];
@@ -50,7 +50,7 @@ export function calculateBoundingBox(positions: Float32Array): BoundingBox {
     maxY = -Infinity,
     maxZ = -Infinity;
 
-  // Iterate through all vertices (every 3 values is one vertex)
+  // Iterate through all vertices
   for (let i = 0; i < positions.length; i += 3) {
     const x = positions[i];
     const y = positions[i + 1];
@@ -153,7 +153,7 @@ export function shouldKeepTriangle(
 
 /**
  * Filter shading geometry based on minimum sun angle. Remove triangles that are too low to cast shadows given the
- * minimum sun altitude angle.
+ * minimum sun angle.
  * @param simPos Simulation geometry positions
  * @param shadePos Shading geometry positions
  * @param minSunAngle Minimum sun altitude angle in degrees
@@ -163,7 +163,7 @@ export function shouldKeepTriangle(
 export function filterShadingGeometry(
   simPos: Float32Array,
   shadePos: Float32Array,
-  minSunAngle: number = 9.59,
+  minSunAngle: number,
   silent: boolean = false,
 ): Float32Array {
   if (shadePos.length === 0) {

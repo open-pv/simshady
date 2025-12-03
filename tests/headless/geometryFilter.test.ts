@@ -5,8 +5,8 @@ import {
   getTriangleHorizontalDistance,
   filterShadingGeometry,
   getMinSunAngleFromIrradiance,
-} from '../src/headless/geometryFilter';
-import { SolarIrradianceData } from '../src/utils';
+} from '../../src/headless/geometryFilter';
+import { SolarIrradianceData } from '../../src/utils';
 
 describe('geometryFilter', () => {
   describe('calculateBoundingBox', () => {
