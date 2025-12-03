@@ -9,7 +9,7 @@ You can use simshady in two ways, either as a package for client side simulation
 ### Installation
 
 ```bash
-    # install simshady temporarly and execute it directly
+    # install simshady temporarily and execute it directly
     npx @openpv/simshady run --simulation-geometry ...
 
     # or install simshady globally with
@@ -90,8 +90,18 @@ The data parameters are then passed to the DataLoader class _**dataloader.ts**_.
 The DataLoader loads the data depending on the file and path type, i.e., single file, multiple files, or a directory.
 The simulation and shading geometries can be loaded either from JSON in the format _{ positions: number[] }_ or from an OBJ file.
 For irradiance data, a JSON file in the format of _SolarIrradianceData_ is required. The smallest possible parameterization
-for a run is _**--simulation-geometry**_ and _**--irradiance-data**_. After the data has been loaded, it is transferred
-to the headless Chrome runner _**headlessBrowser.ts**_ together with the CLI parameters.
+for a run is _**--simulation-geometry**_ and _**--irradiance-data**_. 
+
+Before the data gets moved into the browser memory, 
+the _**--shading-geometry**_ gets filtered. The value of _**--min-sun-angle**_ is used if it is set, otherwise the minimum
+angle of the _SolarIrradianceData_ is used. The shading geometry is filtered based on the simulation geometry bounding box
+and the minimum radiance angle. For this purpose, the distance from the bounding box and the height required with the minimum
+angle are calculated. If at least one vertex of a triangle is above this height, the triangle continues to be used for the 
+shading geometry, otherwise it is removed. In simple terms, if at least one corner of a triangle can block radiation from 
+the simulation geometry, it remains part of the shading geometry.
+
+After the data has been loaded and filtered, it is transferred to the headless Chrome runner _**headlessBrowser.ts**_ together
+with the CLI parameters.
 
 #### 3. Headless browser
 
@@ -103,6 +113,7 @@ the maximum string size of node.js. During transfer to the browser, all variable
 In the browser context itself, the data is then processed in the correct original data format. However, the maximum string
 limits are significantly smaller than the limits for number arrays, which is why moving them directly to the browser context
 would cause problems. After all dependencies and data have been loaded into the browser, the actual simshady simulation is executed.
+There is a progress indicator which shows the overall progress, the elapsed time, and an estimate of the remaining duration.
 
 #### 4. Ray tracing
 
