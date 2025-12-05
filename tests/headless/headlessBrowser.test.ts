@@ -68,7 +68,7 @@ describe('Calibration - verify kWh unit', () => {
 
     await runShadingSceneHeadlessChrome(positions, positions, irradianceData, new Date().toISOString(), undefined, {
       outputDir: tempDir,
-      silent: false,
+      silent: true,
       summary: true,
       efficiency: 1.0, // set to 1.0 so the calculated yield doesn't get reduced
     });
