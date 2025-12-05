@@ -105,9 +105,11 @@ export interface CalculateParams {
    * Callback function to indicate the progress of the simulation.
    * @param progress Number indicating the current progress.
    * @param total Number indicating the final number that progress needs to reach.
+   * @param elapsed Elapsed time in seconds since simulation start.
+   * @param remaining Estimated remaining time in seconds.
    * @returns
    */
-  progressCallback?: (progress: number, total: number) => void;
+  progressCallback?: (progress: number, total: number, elapsed: number, remaining: number) => void;
 }
 
 /**

@@ -9,6 +9,7 @@ import { CalculateParams, CartesianPoint, ColorMap, SolarIrradianceData, logNaNC
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
+import { filterShadingBufferGeometry, filterShadingGeometry, getMinSunAngleFromIrradiance } from './geometryFilter';
 
 /**
  * This class holds all information about the scene that is simulated.
@@ -32,6 +33,12 @@ export class ShadingScene {
    * see {@link ShadingScene.addShadingGeometry}
    */
   public shadingGeometry: BufferGeometry | undefined;
+  /**
+   * The minimum radiance angle which gets used during raytracing.
+   * It is being used for filtering out shading geometry which
+   * physically cannot shade the simulation geometry. See {@link filterShadingGeometry}
+   */
+  public minSunAngle: number | undefined;
   /**
    * A Raster (2D Matrix) holding rasterized data of the terrain,
    * see {@link ShadingScene.addElevationRaster}
@@ -89,8 +96,14 @@ export class ShadingScene {
    * @param geometry [BufferGeometry](https://threejs.org/docs/#api/en/core/BufferGeometry) of a Three.js geometry, where three
    * consecutive numbers of the array represent one 3D point and nine consecutive
    * numbers represent one triangle.
+   * @param minSunAngle The minimum radiance angle which gets used during raytracing. It is being used for filtering out
+   * shading geometry which physically cannot shade the simulation geometry. If none is provided the min. angle of the
+   * provided irradiance data will be used.
    */
-  addShadingGeometry(geometry: BufferGeometry) {
+  addShadingGeometry(geometry: BufferGeometry, minSunAngle?: number) {
+    if (minSunAngle !== undefined) {
+      this.minSunAngle = minSunAngle;
+    }
     geometry = geometry.toNonIndexed();
     if (!this.shadingGeometry) {
       this.shadingGeometry = geometry;
@@ -196,7 +209,14 @@ export class ShadingScene {
     const {
       solarToElectricityConversionEfficiency = 0.15,
       maxYieldPerSquareMeter = 1400 * 0.15,
-      progressCallback = (progress, total) => console.log(`Progress: ${progress}/${total}`),
+      progressCallback = (progress, total, elapsed, remaining) => {
+        const format = (s: number) => {
+          const min = Math.floor(s / 60);
+          const sec = Math.floor(s % 60);
+          return min > 0 ? `${min}m ${sec}s` : `${sec}s`;
+        };
+        console.log(`Progress: ${progress}/${total} | Elapsed: ${format(elapsed)} | Est. remaining: ${format(remaining)}`);
+      },
     } = params;
 
     // Validate class parameters
@@ -206,8 +226,11 @@ export class ShadingScene {
       );
     }
 
-    // Merge geometries
+    //Filter out irrelevant shading geometry
+    const minSunAngle = this.minSunAngle ?? getMinSunAngleFromIrradiance(this.solarIrradiance);
+    this.shadingGeometry = filterShadingBufferGeometry(this.simulationGeometry, this.shadingGeometry, minSunAngle);
 
+    // Merge geometries
     this.simulationGeometry = this.refineMesh(this.simulationGeometry, 1.0);
 
     // Extract and validate geometry attributes
@@ -227,13 +250,25 @@ export class ShadingScene {
     logNaNCount('midpoints', midpointsArray);
     logNaNCount('mesh', meshArray);
 
+    // Wrap progress callback with timing
+    const startTime = Date.now();
+    const wrappedCallback = (progress: number, total: number) => {
+      if (progress === 0) {
+        return;
+      }
+      const elapsed = (Date.now() - startTime) / 1000;
+      const average = elapsed / progress;
+      const remaining = Math.max(0, (total - progress) * average);
+      progressCallback(progress, total, elapsed, remaining);
+    };
+
     // Perform ray tracing to calculate intensities
     const shadedScene = await this.rayTrace(
       midpointsArray,
       normalsArray,
       meshArray,
       this.solarIrradiance!, // Non-null assertion
-      (i, total) => progressCallback(i, total),
+      wrappedCallback,
     );
 
     const pvYield = sun.calculatePVYield(

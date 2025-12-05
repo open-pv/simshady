@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { CLIOptions } from '../types/CLIOptions';
 import { DataLoader } from './dataLoader';
 import { runShadingSceneHeadlessChrome } from './headlessBrowser';
+import { filterShadingGeometry, getMinSunAngleFromIrradiance } from '../geometryFilter';
 
 /**
  * Turns file names into an array. Either as a single comma separated string or as an array already.
@@ -72,6 +73,12 @@ export async function main(argv: string[]) {
       'Upper boundary of annual yield in kWh/m2/year.This value is used to normalize the color of the returned three.js mesh.',
       (v) => parseFloat(v),
     )
+    .option(
+      '--min-sun-angle <number>',
+      'Minimum sun altitude angle in degrees for filtering the shading geometry. If not provided, the lowest angle ' +
+        'will automatically be computed from the irradiance data. (default: undefined)',
+      (v) => parseFloat(v),
+    )
     .option('--chrome-args <arg...>', 'Additional Chrome launch argument(s).')
     .option(
       '--max-old-space-size',
@@ -103,7 +110,11 @@ export async function main(argv: string[]) {
         const irradianceData = await dataLoader.loadIrradianceData(irrFile);
 
         const shadeFiles = fileArray(options.shadingGeometry);
-        const shadePos = (await dataLoader.loadPositionsArrays(shadeFiles, options.silent ?? false)) ?? new Float32Array();
+        let shadePos = (await dataLoader.loadPositionsArrays(shadeFiles, options.silent ?? false)) ?? new Float32Array();
+
+        // filter the shading geometry before moving it into browser context
+        const minSunAngle = options.minSunAngle ?? getMinSunAngleFromIrradiance(irradianceData);
+        shadePos = filterShadingGeometry(simPos, shadePos, minSunAngle, options.silent ?? false);
 
         await runShadingSceneHeadlessChrome(simPos, shadePos, irradianceData, startTime, __dirname, options);
       } catch (error: any) {
