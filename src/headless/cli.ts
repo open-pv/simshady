@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { CLIOptions } from '../types/CLIOptions';
 import { DataLoader } from './dataLoader';
 import { runShadingSceneHeadlessChrome } from './headlessBrowser';
-import { filterShadingGeometry, getMinSunAngleFromIrradiance } from './geometryFilter';
+import { filterShadingGeometry, getMinSunAngleFromIrradiance } from '../geometryFilter';
 
 /**
  * Turns file names into an array. Either as a single comma separated string or as an array already.

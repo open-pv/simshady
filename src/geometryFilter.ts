@@ -1,4 +1,5 @@
-import { SolarIrradianceData } from '../utils';
+import { SolarIrradianceData } from './utils';
+import { BufferGeometry, Float32BufferAttribute } from 'three';
 
 type BoundingBox = {
   min: { x: number; y: number; z: number };
@@ -219,4 +220,22 @@ export function filterShadingGeometry(
   }
 
   return filteredArray;
+}
+
+/**
+ * A slim wrapper to apply {@link filterShadingGeometry} to {@link BufferGeometry}
+ * @param simulationGeometry Simulation geometry
+ * @param shadingGeometry Shading geometry
+ * @param minSunAngle Minimum sun altitude angle in degrees
+ */
+export function filterShadingBufferGeometry(
+  simulationGeometry: BufferGeometry,
+  shadingGeometry: BufferGeometry,
+  minSunAngle: number,
+): BufferGeometry {
+  const simPos = new Float32Array(simulationGeometry?.getAttribute('position').array);
+  const shadePos = new Float32Array(shadingGeometry?.getAttribute('position').array);
+  const filteredPos = filterShadingGeometry(simPos, shadePos, minSunAngle);
+  shadingGeometry.setAttribute('position', new Float32BufferAttribute(filteredPos, 3));
+  return shadingGeometry;
 }

@@ -9,6 +9,7 @@ import { CalculateParams, CartesianPoint, ColorMap, SolarIrradianceData, logNaNC
 
 // @ts-ignore
 import { rayTracingWebGL } from './rayTracingWebGL.js';
+import { filterShadingBufferGeometry, filterShadingGeometry, getMinSunAngleFromIrradiance } from './geometryFilter';
 
 /**
  * This class holds all information about the scene that is simulated.
@@ -32,6 +33,12 @@ export class ShadingScene {
    * see {@link ShadingScene.addShadingGeometry}
    */
   public shadingGeometry: BufferGeometry | undefined;
+  /**
+   * The minimum radiance angle which gets used during raytracing.
+   * It is being used for filtering out shading geometry which
+   * physically cannot shade the simulation geometry. See {@link filterShadingGeometry}
+   */
+  public minSunAngle: number | undefined;
   /**
    * A Raster (2D Matrix) holding rasterized data of the terrain,
    * see {@link ShadingScene.addElevationRaster}
@@ -89,8 +96,14 @@ export class ShadingScene {
    * @param geometry [BufferGeometry](https://threejs.org/docs/#api/en/core/BufferGeometry) of a Three.js geometry, where three
    * consecutive numbers of the array represent one 3D point and nine consecutive
    * numbers represent one triangle.
+   * @param minSunAngle The minimum radiance angle which gets used during raytracing. It is being used for filtering out
+   * shading geometry which physically cannot shade the simulation geometry. If none is provided the min. angle of the
+   * provided irradiance data will be used.
    */
-  addShadingGeometry(geometry: BufferGeometry) {
+  addShadingGeometry(geometry: BufferGeometry, minSunAngle?: number) {
+    if (minSunAngle !== undefined) {
+      this.minSunAngle = minSunAngle;
+    }
     geometry = geometry.toNonIndexed();
     if (!this.shadingGeometry) {
       this.shadingGeometry = geometry;
@@ -213,8 +226,11 @@ export class ShadingScene {
       );
     }
 
-    // Merge geometries
+    //Filter out irrelevant shading geometry
+    const minSunAngle = this.minSunAngle ?? getMinSunAngleFromIrradiance(this.solarIrradiance);
+    this.shadingGeometry = filterShadingBufferGeometry(this.simulationGeometry, this.shadingGeometry, minSunAngle);
 
+    // Merge geometries
     this.simulationGeometry = this.refineMesh(this.simulationGeometry, 1.0);
 
     // Extract and validate geometry attributes
