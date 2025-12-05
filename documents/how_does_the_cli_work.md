@@ -92,13 +92,14 @@ The simulation and shading geometries can be loaded either from JSON in the form
 For irradiance data, a JSON file in the format of _SolarIrradianceData_ is required. The smallest possible parameterization
 for a run is _**--simulation-geometry**_ and _**--irradiance-data**_. 
 
-Before the data gets moved into the browser memory, 
-the _**--shading-geometry**_ gets filtered. The value of _**--min-sun-angle**_ is used if it is set, otherwise the minimum
-angle of the _SolarIrradianceData_ is used. The shading geometry is filtered based on the simulation geometry bounding box
-and the minimum radiance angle. For this purpose, the distance from the bounding box and the height required with the minimum
-angle are calculated. If at least one vertex of a triangle is above this height, the triangle continues to be used for the 
-shading geometry, otherwise it is removed. In simple terms, if at least one corner of a triangle can block radiation from 
-the simulation geometry, it remains part of the shading geometry.
+Objects of the _**--shading-geometry**_ that are far away do not shade our _simulation geometry_, hence they can be neglected. 
+Therefore, the irrelevant triangles of the _shading geometry_ get filtered out before the data gets moved into the 
+browser memory. The value of _**--min-sun-angle**_ is used if it is set, otherwise the minimum angle of the 
+_SolarIrradianceData_ is used. The shading geometry is filtered based on the simulation geometry bounding box and the 
+minimum radiance angle. For this purpose, the distance from the bounding box and the height required with the minimum 
+angle are calculated. If at least one vertex of a triangle is above this height, the triangle continues to be used for 
+the shading geometry, otherwise it is removed. In simple terms, if at least one corner of a triangle can block radiation
+from the simulation geometry, it remains part of the shading geometry.
 
 After the data has been loaded and filtered, it is transferred to the headless Chrome runner _**headlessBrowser.ts**_ together
 with the CLI parameters.
