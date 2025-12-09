@@ -19,7 +19,7 @@ If you want to use `simshady` in your web development, run
 npm i @openpv/simshady
 ```
 
-If you want to use the simshady [CLI tool](https://open-pv.github.io/simshady/documents/cli.html) for simulations on your machine, run
+If you want to use the simshady [CLI tool](https://open-pv.github.io/simshady/documents/CLI.html) for simulations on your machine, run
 
 ```bash
 npm install -g @openpv/simshady
