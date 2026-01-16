@@ -32,7 +32,7 @@ sudo apt-get install libasound2
 # depending on which configuration you are planning on running you might need to install graphics libraries as well.
 sudo apt-get install -y libx11-xcb1 libgl1-mesa-dri libgbm1 libdrm2 libxcb-dri3-0 libxshmfence1 libegl1 libgles2
 ```
-It was also necessary to set following Chrome arguments in order to use the GPU for WebGL2:
+For our setup we ran using Vulkan. It was therefore necessary to set the following Chrome arguments in order to use the GPU for WebGL2:
 ```bash
     simshady run --simulation-geometry ... --irradiance-data ... \
     --chrome-args "--use-gl=angle --use-angle=vulkan --enable-features=Vulkan --ignore-gpu-blocklist --disable-gpu-sandbox"
