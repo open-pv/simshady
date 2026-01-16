@@ -32,7 +32,7 @@ export async function runShadingSceneHeadlessChrome(
   const dirname = dist_dirname ?? path.resolve(__dirname, '../../dist/');
   const bundlePath = path.resolve(dirname, './index.js');
 
-  const launchArgs = options.chromeArgs ?? [];
+  const launchArgs = (options.chromeArgs ?? []).flatMap((arg) => arg.split(/\s+/).filter(Boolean));
   const browser = await puppeteer
     .launch({
       args: [
