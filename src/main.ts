@@ -178,9 +178,11 @@ export class ShadingScene {
         continue;
       }
       const triangles = triangleUtils.subdivide(positions, i, maxLength);
-      newTriangles.push(...triangles);
-      // copy normal for each subdivided triangle
-      newNormals.push(...triangles.map((_, i) => normal[i % 3]));
+      for (let j = 0; j < triangles.length; j++) {
+        newTriangles.push(triangles[j]);
+        // copy normal for each subdivided triangle
+        newNormals.push(normal[j % 3]);
+      }
     }
 
     const geometry = new BufferGeometry();

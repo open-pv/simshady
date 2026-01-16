@@ -204,7 +204,9 @@ export function filterShadingGeometry(
     ];
 
     if (shouldKeepTriangle(triangleVertices, boundingBox, groundLevel, minSunAngle)) {
-      keptTriangles.push(...triangleVertices);
+      for (let j = 0; j < 9; j++) {
+        keptTriangles.push(triangleVertices[j]);
+      }
     }
   }
 
