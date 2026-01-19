@@ -55,21 +55,30 @@ For these reasons, a variety of software tools for simulating photovoltaic syste
 
 Web-based tools for solar panel simulations, such as PVGIS, PVWatts, and RETScreen, provide an accessible means for non-technical individuals to estimate energy yields based on geographic location and building geometry [@psomopoulos2015comparative]. However, these tools lack the capability to perform shading simulations using 3D geometries.
 
-# Package description
+# Software design
 
-`openpv/simshady` simulates the yield of photovoltaic (PV) systems by considering weather/climate data and shading from local 3D geometry. The model represents the environment through a 3D scene setup, comprising primary objects for simulation (e.g., PV panels or target buildings) and surrounding objects that may cast shadows (e.g., neighboring buildings, trees). Weather and climate data are integrated using Global Horizontal Irradiance (GHI) and Direct Normal Irradiance (DNI) datasets, which are reconstructed to include directional irradiance information using the HEALPix framework [@Górski_2005; @zonca2019healpy].
+`openpv/simshady` simulates the yield of photovoltaic (PV) systems by considering weather/climate data and shading from local 3D geometry. It is build around three core principles: (1) To run the core simulation code efficiently on the GPU, (2) to expose two different interfaces for both browser-based applications and server-based simulation, and (3) to integrate standardized data models, namely from `Three.js` and from the Wavefront OBJ file format.
+
+In simshady, a 3D scene is built that represents the environment, comprising primary objects for simulation (e.g., PV panels or target buildings) and surrounding objects that may cast shadows (e.g., neighboring buildings, trees). Weather and climate data are integrated using Global Horizontal Irradiance (GHI) and Direct Normal Irradiance (DNI) datasets, which are reconstructed to include directional irradiance information using the HEALPix framework [@Górski_2005; @zonca2019healpy].
 
 The simulation utilizes the Möller-Trumbore intersection algorithm [@Möller01011997] to determine if any shading objects obstruct the view between a sky pixel and the main simulation geometry. For each triangle in the simulation geometry, a shading mask is generated, indicating whether an object blocks the line of sight from the sky pixel to the triangle. The shading mask values range from 0 to 1, where 0 indicates that an object shades the triangle, 1 signifies that there is no obstruction and the line of sight is perpendicular to the triangle, and values between 0 and 1 represent cases where there is no obstruction but the angle of incidence is not perpendicular. The aggregated radiance values from all sky dome pixels are then multiplied by the corresponding shading mask values and summed to calculate the total energy received by each triangle. This computation is fully parallelizable and has been implemented using WebGL, allowing for GPU acceleration.
 
-The package finally returns a color coded `Three.js` mesh, as shown in \autoref{fig:threejs-mesh}. Additionally, each triangle of the simulated buildings has its annual solar yield assigned as an attribute for further processing.
+## Simshady in the browser
 
-![A simulated building with its solar yield, where dark purple represents low yields and light yellow represents high yields. The simulated shading from neighboring buildings is clearly visible. \label{fig:threejs-mesh}](screenshot-simulation-geometry.jpg){ width=90% }
+Simshady reuses the data model and objects of `Three.js`, a common package for 3D web applications. The package processes `Three.js` meshes and adds the simulated PV yield as a color to the mesh, as shown in \autoref{fig:threejs-mesh}. Additionally, each triangle of the simulated buildings has its solar yield assigned as an attribute for further processing.
 
-## The CLI tool
+![A simulated building with its solar yield, where dark purple represents low yields and light yellow represents high yields. The simulated shading from neighboring buildings is visualized through darker colors. Screenshot taken from [@openpv] \label{fig:threejs-mesh}](screenshot-simulation-geometry.jpg){ width=90% }
 
-The `simshady` CLI is a thin wrapper around the core WebGL‑based simulation engine that enables batch processing of photovoltaic‑yield analyses on a headless server. It first parses a small set of required arguments (the simulation geometry and the irradiance data). The supplied geometry files, either JSON objects or Wavefront OBJ files, are handed to a headless Chromium instance launched via Puppeteer [@puppeteer].
+## Simshady in the terminal
+
+The `simshady` CLI is a wrapper around the core WebGL‑based simulation engine that enables batch processing of photovoltaic‑yield analyses on a server. It first parses a small set of required arguments (the simulation geometry and the irradiance data). The supplied geometry files, either JSON objects or Wavefront OBJ files, are handed to a headless Chromium instance launched via Puppeteer [@puppeteer].
 
 Inside the browser context the full simshady package is injected, the scene is reconstructed, and the GPU‑accelerated Möller‑Trumbore ray‑tracing routine is executed. When the calculation finishes, the CLI extracts the mesh data from the browser, writes binary artefacts (positions.bin, colors.bin, intensities.bin), a colour‑coded OBJ file, a top‑down snapshot, and the simulation results into the user‑specified output directory.
+
+# Research impact statement
+
+- First open source, free software of its kind
+- Multi usage approach: Server and Client
 
 # Conclusion
 
@@ -86,6 +95,10 @@ KH: Conceptualization, Software, Funding acquisition, Writing – review & editi
 ME: Software, Writing – review & editing
 
 KP: Conceptualization, Software, Funding acquisition, Writing – review & editing
+
+# AI usage disclosure
+
+After designing the software architecture and writing core functionalities, both open-weight and properitarian LLM-based chatbots where used to implement or debug some of the methods in simshady. Generative agentic AI tools that can write and edit code autonomously were not used. The open-weight models gpt-oss:120b and deepseek-r1:70b were used for reviewing the written text of this paper.
 
 # Acknowledgements
 
