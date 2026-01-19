@@ -19,7 +19,7 @@ You can use simshady in two ways, either as a package for client side simulation
     simshady run --simulation-geometry ...
 ```
 #### Setting up a server
-A couple of preparation steps might be necessary for running the simshady CLI on a server. The following setup was done on a fresh install of an Ubuntu 22.04 VM with a NVIDIA GPU.
+On a server, there is typically no User Interface Software like browsers and their typical dependencies preinstalled. Hence, when using the CLI of simshady on a server instead of your local machine, a couple of preparation steps might be necessary. The following setup was done on a fresh install of an Ubuntu 22.04 VM with a NVIDIA GPU.
 ```bash
 # install npm
 apt-get update && apt-get install npm
