@@ -335,8 +335,8 @@ function makeTransformFeedback(gl: WebGL2RenderingContext, buffer: WebGLBuffer |
   return tf;
 }
 
-function makeBufferAndSetAttribute(gl: WebGL2RenderingContext, data: ArrayBuffer, loc: number): WebGLBuffer | null {
-  const buf = makeBuffer(gl, data);
+function makeBufferAndSetAttribute(gl: WebGL2RenderingContext, data: TypedArray, loc: number): WebGLBuffer | null {
+  const buf = makeBuffer(gl, data as BufferSource);
   // setup our attributes to tell WebGL how to pull
   // the data from the buffer above to the attribute
   gl.enableVertexAttribArray(loc);
