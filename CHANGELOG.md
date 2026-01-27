@@ -6,6 +6,14 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v0.2.1 - 2026-01-27
+
+### Changes
+
+- Shading geometry filtering and runtime estimation by @mestr01 in https://github.com/open-pv/simshady/pull/74
+- Fix broken link #75 by @FlorianK13 in https://github.com/open-pv/simshady/pull/76
+- Fix cli bugs by @mestr01 in https://github.com/open-pv/simshady/pull/77
+
 ## v0.2.0 - The CLI 2025-12-01
 
 ### Changes
