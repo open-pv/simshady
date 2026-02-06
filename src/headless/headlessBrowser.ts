@@ -40,7 +40,7 @@ export async function runShadingSceneHeadlessChrome(
         '--enable-webgl2',
         '--no-sandbox',
         '--disable-dev-shm-usage', // Overcome limited resource problems
-        `--max_old_space_size=${options.maxOldSpaceSize}`, // Increase V8 heap size
+        `--js-flags=--max_old_space_size=${options.maxOldSpaceSize}`, // Increase V8 heap size
         ...launchArgs,
       ],
       protocolTimeout: 24 * 60 * 60 * 1_000,
