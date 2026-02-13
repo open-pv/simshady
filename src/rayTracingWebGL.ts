@@ -34,7 +34,8 @@ export async function rayTracingWebGL(
   const vertexShaderSource = `#version 300 es
         #define INFINITY         1000000.0
         precision highp float;
-
+        precision highp int;
+        precision highp sampler2D;
 
         uniform sampler2D u_triangles;
         uniform vec3 u_sun_direction;
