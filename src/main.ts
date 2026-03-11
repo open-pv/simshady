@@ -8,8 +8,8 @@ import * as triangleUtils from './triangleUtils.js';
 import { CalculateParams, CartesianPoint, ColorMap, SolarIrradianceData, logNaNCount } from './utils.js';
 
 // @ts-ignore
-import { rayTracingWebGL } from './rayTracingWebGL.js';
 import { filterShadingBufferGeometry, filterShadingGeometry, getMinSunAngleFromIrradiance } from './geometryFilter';
+import { rayTracingWebGL } from './rayTracingWebGL.js';
 
 /**
  * This class holds all information about the scene that is simulated.
@@ -36,7 +36,7 @@ export class ShadingScene {
   /**
    * The minimum radiance angle which gets used during raytracing.
    * It is being used for filtering out shading geometry which
-   * physically cannot shade the simulation geometry. See {@link filterShadingGeometry}
+   * physically cannot shade the simulation geometry.
    */
   public minSunAngle: number | undefined;
   /**
