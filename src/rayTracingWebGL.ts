@@ -34,7 +34,8 @@ export async function rayTracingWebGL(
   const vertexShaderSource = `#version 300 es
         #define INFINITY         1000000.0
         precision highp float;
-
+        precision highp int;
+        precision highp sampler2D;
 
         uniform sampler2D u_triangles;
         uniform vec3 u_sun_direction;
@@ -335,8 +336,8 @@ function makeTransformFeedback(gl: WebGL2RenderingContext, buffer: WebGLBuffer |
   return tf;
 }
 
-function makeBufferAndSetAttribute(gl: WebGL2RenderingContext, data: ArrayBuffer, loc: number): WebGLBuffer | null {
-  const buf = makeBuffer(gl, data);
+function makeBufferAndSetAttribute(gl: WebGL2RenderingContext, data: TypedArray, loc: number): WebGLBuffer | null {
+  const buf = makeBuffer(gl, data as BufferSource);
   // setup our attributes to tell WebGL how to pull
   // the data from the buffer above to the attribute
   gl.enableVertexAttribArray(loc);

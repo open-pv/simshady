@@ -8,8 +8,8 @@ import * as triangleUtils from './triangleUtils.js';
 import { CalculateParams, CartesianPoint, ColorMap, SolarIrradianceData, logNaNCount } from './utils.js';
 
 // @ts-ignore
-import { rayTracingWebGL } from './rayTracingWebGL.js';
 import { filterShadingBufferGeometry, filterShadingGeometry, getMinSunAngleFromIrradiance } from './geometryFilter';
+import { rayTracingWebGL } from './rayTracingWebGL.js';
 
 /**
  * This class holds all information about the scene that is simulated.
@@ -36,7 +36,7 @@ export class ShadingScene {
   /**
    * The minimum radiance angle which gets used during raytracing.
    * It is being used for filtering out shading geometry which
-   * physically cannot shade the simulation geometry. See {@link filterShadingGeometry}
+   * physically cannot shade the simulation geometry.
    */
   public minSunAngle: number | undefined;
   /**
@@ -178,9 +178,11 @@ export class ShadingScene {
         continue;
       }
       const triangles = triangleUtils.subdivide(positions, i, maxLength);
-      newTriangles.push(...triangles);
-      // copy normal for each subdivided triangle
-      newNormals.push(...triangles.map((_, i) => normal[i % 3]));
+      for (let j = 0; j < triangles.length; j++) {
+        newTriangles.push(triangles[j]);
+        // copy normal for each subdivided triangle
+        newNormals.push(normal[j % 3]);
+      }
     }
 
     const geometry = new BufferGeometry();
@@ -230,6 +232,24 @@ export class ShadingScene {
     const minSunAngle = this.minSunAngle ?? getMinSunAngleFromIrradiance(this.solarIrradiance);
     this.shadingGeometry = filterShadingBufferGeometry(this.simulationGeometry, this.shadingGeometry, minSunAngle);
 
+    // Move geometry coordinates to the coordinate system origin
+    const simPoints = this.simulationGeometry.attributes.position.array;
+    const xShift = simPoints[0];
+    const yShift = simPoints[1];
+    const zShift = simPoints[2];
+
+    for (let i = 0; i < simPoints.length; i += 3) {
+      simPoints[i] -= xShift;
+      simPoints[i + 1] -= yShift;
+      simPoints[i + 2] -= zShift;
+    }
+    const shadingPoints = this.shadingGeometry.attributes.position.array;
+    for (let i = 0; i < shadingPoints.length; i += 3) {
+      shadingPoints[i] -= xShift;
+      shadingPoints[i + 1] -= yShift;
+      shadingPoints[i + 2] -= zShift;
+    }
+
     // Merge geometries
     this.simulationGeometry = this.refineMesh(this.simulationGeometry, 1.0);
 
@@ -276,6 +296,14 @@ export class ShadingScene {
       solarToElectricityConversionEfficiency,
       this.solarIrradiance[0].metadata.valid_timesteps_for_aggregation,
     );
+
+    // Restore original coordinates before creating the output mesh
+    const simResultPoints = this.simulationGeometry.attributes.position.array;
+    for (let i = 0; i < simResultPoints.length; i += 3) {
+      simResultPoints[i] += xShift;
+      simResultPoints[i + 1] += yShift;
+      simResultPoints[i + 2] += zShift;
+    }
 
     return this.createMesh(this.simulationGeometry, pvYield, maxYieldPerSquareMeter);
   }

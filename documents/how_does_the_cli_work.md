@@ -18,6 +18,25 @@ You can use simshady in two ways, either as a package for client side simulation
     # then run the cli
     simshady run --simulation-geometry ...
 ```
+#### Setting up a server
+On a server, there is typically no User Interface Software like browsers and their typical dependencies preinstalled. Hence, when using the CLI of simshady on a server instead of your local machine, a couple of preparation steps might be necessary. The following setup was done on a fresh install of an Ubuntu 22.04 VM with a NVIDIA GPU.
+```bash
+# install npm
+apt-get update && apt-get install npm
+
+# install adequate node version e.g. v24.13.0.
+#...
+
+# sound library required by chrome
+sudo apt-get install libasound2
+# depending on which configuration you are planning on running you might need to install graphics libraries as well.
+sudo apt-get install -y libx11-xcb1 libgl1-mesa-dri libgbm1 libdrm2 libxcb-dri3-0 libxshmfence1 libegl1 libgles2
+```
+In our setup we used Vulkan. It was therefore necessary to set the following Chrome arguments in order to use the GPU for WebGL2:
+```bash
+    simshady run --simulation-geometry ... --irradiance-data ... \
+    --chrome-args "--use-gl=angle --use-angle=vulkan --enable-features=Vulkan --ignore-gpu-blocklist --disable-gpu-sandbox"
+```
 
 ### Example Usage
 

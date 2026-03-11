@@ -81,7 +81,7 @@ export async function main(argv: string[]) {
     )
     .option('--chrome-args <arg...>', 'Additional Chrome launch argument(s).')
     .option(
-      '--max-old-space-size',
+      '--max-old-space-size  <number>',
       "Sets the max memory size of V8's old memory section in the browser (in MiB) (default: 16384).",
       '16384',
     )
