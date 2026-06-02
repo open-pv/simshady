@@ -23,13 +23,16 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
+        # Use the runner's preinstalled Google Chrome instead of having
+        # puppeteer download its own.
         run: yarn install
-
-      - name: Install Puppeteer Chrome
-        run: node node_modules/puppeteer/install.mjs
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
 
       - name: Build CLI package
         run: yarn build
 
       - name: Run Vitest
         run: yarn test
+        env:
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome
