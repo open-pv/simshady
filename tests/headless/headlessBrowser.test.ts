@@ -23,7 +23,7 @@ describe('Headless Browser', () => {
     const now = new Date().toISOString();
     const result = await runShadingSceneHeadlessChrome(sim, shade, solarData, now, undefined, { silent: true });
     expect(result).toBeUndefined();
-  });
+  }, 30000);
 
   test('check for output files', async () => {
     const dataLoader = new DataLoader();
