@@ -44,13 +44,13 @@ In _Figure 1_, the difference between the two types of geometries is shown. The 
 
 _Figure 1: Screenshot from openpv.de showing both simulation geometries (colored) and shading geometries (grey-brown)._
 
-These geometries need to be [Three.js Buffer Geometries](https://threejs.org/docs/#api/en/core/BufferGeometry). You can use a variety of [Three.js Loaders](https://threejs.org/manual/#en/loading-3d-models) to load different 3D file formats into BufferGeometries.
+These geometries need to be [Three.js Buffer Geometries](https://threejs.org/docs/#api/en/core/BufferGeometry). You can use a variety of [Three.js Loaders](https://threejs.org/manual/#en/loading-3d-models) to load different 3D file formats into BufferGeometries. For example input files see [building.obj](https://github.com/open-pv/simshady/blob/main/tests/headless/data/building.obj) or [geometry.json](https://github.com/open-pv/simshady/blob/main/tests/headless/data/geometry.json) in our test folder.
 <br/>
 <br/>
 
 ### **3. Add Solar Irradiance Data**
 
-Include irradiance data in the [required format](/simshady/types/utils.SolarIrradianceData.html) via [`addSolarIrradiance`](/simshady/classes/index.ShadingScene.html#addsolarirradiance). This data should contain time series for both direct and diffuse irradiance:
+Include irradiance data in the [required format](/simshady/types/utils.SolarIrradianceData.html) via [`addSolarIrradiance`](/simshady/classes/index.ShadingScene.html#addsolarirradiance). This data should contain time series for both direct and diffuse irradiance. See [irradiance_munich_2018.json](https://github.com/open-pv/simshady/blob/main/tests/headless/data/irradiance_munich_2018.json) for an example:
 
 ```javascript
 scene.addSolarIrradiance(someSolarIrradianceData);
