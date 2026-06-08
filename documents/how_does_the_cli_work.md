@@ -50,6 +50,10 @@ In our setup we used Vulkan. It was therefore necessary to set the following Chr
 
 Details about all parameters can be found [here](/simshady/functions/headless_cli.main.html) or by running `simshady --help`.
 
+Example input files are available in our test folder:
+- Geometry: [building.obj](https://github.com/open-pv/simshady/blob/main/tests/headless/data/building.obj), [geometry.json](https://github.com/open-pv/simshady/blob/main/tests/headless/data/geometry.json)
+- Irradiance: [irradiance_munich_2018.json](https://github.com/open-pv/simshady/blob/main/tests/headless/data/irradiance_munich_2018.json)
+
 You can test out the CLI by running the test in _cli.test.ts_
 
 ### Artifacts
@@ -107,8 +111,8 @@ The data parameters are then passed to the DataLoader class _**dataloader.ts**_.
 #### 2. Data loading
 
 The DataLoader loads the data depending on the file and path type, i.e., single file, multiple files, or a directory.
-The simulation and shading geometries can be loaded either from JSON in the format _{ positions: number[] }_ or from an OBJ file.
-For irradiance data, a JSON file in the format of _SolarIrradianceData_ is required. The smallest possible parameterization
+The simulation and shading geometries can be loaded either from JSON in the format _{ positions: number[] }_ (see [geometry.json](https://github.com/open-pv/simshady/blob/main/tests/headless/data/geometry.json)) or from an OBJ file (see [building.obj](https://github.com/open-pv/simshady/blob/main/tests/headless/data/building.obj)).
+For irradiance data, a JSON file in the format of _SolarIrradianceData_ is required (see [irradiance_munich_2018.json](https://github.com/open-pv/simshady/blob/main/tests/headless/data/irradiance_munich_2018.json)). The smallest possible parameterization
 for a run is _**--simulation-geometry**_ and _**--irradiance-data**_. 
 
 Objects of the _**--shading-geometry**_ that are far away do not shade our _simulation geometry_, hence they can be neglected. 
