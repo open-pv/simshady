@@ -6,6 +6,14 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v0.2.2 - 2026-06-11
+
+### Changes
+
+- Fix shading bugs on Linux systems by @mestr01 in https://github.com/open-pv/simshady/pull/82
+- Change parameter types by @FlorianK13 in https://github.com/open-pv/simshady/pull/81
+- add examples from test to docs #100 by @FlorianK13 in https://github.com/open-pv/simshady/pull/101
+
 ## v0.2.1 - 2026-01-27
 
 ### Changes
