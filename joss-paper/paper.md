@@ -43,7 +43,7 @@ bibliography: paper.bib
 
 # Summary
 
-openpv/simshady (short: `simshady`) is a JavaScript package for simulating photovoltaic (PV) energy yields. It integrates local climate data and 3D objects into its shading simulation, utilizing Three.js meshes for geometric modeling. The package performs shading analysis using a WebGL-parallelized implementation of the Möller-Trumbore intersection algorithm [@Möller01011997]. With the software, users can obtain both aggregated and spatial or temporally resolved simualted scenes of expected PV yields for further processing. `Simshady` provides both a package for web development, as well as a Command-line interface (CLI) tool for simulations on your machine.
+openpv/simshady (short: `simshady`) is a JavaScript package for simulating photovoltaic (PV) energy yields. It integrates local climate data and 3D objects into its shading simulation, utilizing Three.js meshes for geometric modeling. The package performs shading analysis using a WebGL-parallelized implementation of the Möller-Trumbore intersection algorithm [@Möller01011997]. With the software, users can obtain both aggregated and spatial or temporally resolved simualted scenes of expected PV yields for further processing. `Simshady` provides both a package for web development, as well as a Command-line interface (CLI) tool for for running simulations locally.
 
 # Statement of need
 
