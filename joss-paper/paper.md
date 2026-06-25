@@ -59,19 +59,19 @@ Among the developer libraries, the Python package pvlib [@holmgren2018pvlib; @an
 
 Table \ref{tab:tool-comparison} summarises the tools by the capabilities most relevant to urban-scale PV assessment. Two patterns emerge. First, every tool that supports detailed 3D shading is either commercial or restricted to interactive single-project use; the only freely scriptable option, PVsystCLI, is paywalled. Second, none of the open-source developer libraries can model arbitrary 3D shading, and none of the surveyed tools is designed for batch processing on a city scale.
 
-: Comparison of representative PV simulation tools by the capabilities most relevant to automated, city-scale assessment. Prices are approximate annual costs as of early 2026. \label{tab:tool-comparison}
+: Comparison of representative PV simulation tools by the capabilities most relevant to automated, city-scale assessment. In the shading column, 3D means that 3-dimensional objects are used to model shading, 2D means that the simulation only relies on 2D abstractions like the horizon contour or neighboring panels, simplified means that shading factors can be provided to the simulation. \label{tab:tool-comparison}
 
-| Tool          | Platform | Price [per year] | Open Source | 3D Shading   | Interface | Electrical Model | Comp. DB | Source                                   |
-| ------------- | -------- | ---------------- | ----------- | ------------ | --------- | ---------------- | -------- | ---------------------------------------- |
-| HelioScope    | Web      | \$1,900          | No          | Yes          | API       | Sub-module       | Yes      | [@helioscope2026]                        |
-| PV\*SOL prem. | Desktop  | €845             | No          | Yes          | No        | Sub-module       | Yes      | [@pvsol2026]                             |
-| PVsyst        | Desktop  | €758             | No          | Yes          | CLI       | Sub-module       | Yes      | [@pvsyst2026]                            |
-| SAM           | Desktop  | Free             | Yes         | Limited      | Py        | Diode model      | Yes      | [@sam2026]                               |
-| PVGIS         | Web      | Free             | No          | Horizon only | API       | Factor           | No       | [@pvgis2026]                             |
-| PVWatts       | Web      | Free             | Yes         | No           | API       | Factor           | No       | [@pvwatts2026]                           |
-| SoDeLe        | Package  | Free             | Yes         | No           | Yes       | Diode model      | Yes      | [@sodele2026]                            |
-| pvlib         | Package  | Free             | Yes         | No           | Yes       | Diode model      | Yes      | [@holmgren2018pvlib; @anderson2023pvlib] |
-| pvfactors     | Package  | Free             | Yes         | 2D only      | Yes       | None             | No       | [@pvfactors2025; @anoma_view_2017]       |
+| Tool          | Platform | Cost | Open Source | Shading    | Interface | Electrical Model | Comp. DB | Source                                   |
+| ------------- | -------- | ---- | ----------- | ---------- | --------- | ---------------- | -------- | ---------------------------------------- |
+| HelioScope    | Web      | Paid | No          | 3D         | API       | Sub-module       | Yes      | [@helioscope2026]                        |
+| PV\*SOL prem. | Desktop  | Paid | No          | 3D         | No        | Sub-module       | Yes      | [@pvsol2026]                             |
+| PVsyst        | Desktop  | Paid | No          | 3D         | CLI       | Sub-module       | Yes      | [@pvsyst2026]                            |
+| SAM           | Desktop  | Free | Yes         | simplified | Py        | Diode model      | Yes      | [@sam2026]                               |
+| PVGIS         | Web      | Free | No          | 2D         | API       | Factor           | No       | [@pvgis2026]                             |
+| PVWatts       | Web      | Free | Yes         | No         | API       | Factor           | No       | [@pvwatts2026]                           |
+| SoDeLe        | Package  | Free | Yes         | No         | Yes       | Diode model      | Yes      | [@sodele2026]                            |
+| pvlib         | Package  | Free | Yes         | 2D         | Yes       | Multiple         | Yes      | [@holmgren2018pvlib; @anderson2023pvlib] |
+| pvfactors     | Package  | Free | Yes         | 2D         | Yes       | None             | No       | [@pvfactors2025; @anoma_view_2017]       |
 
 `simshady` now fills two existing gaps: First, it is implemented in typescript and hence simultaniously enables simulations in the browser and on a local machine. And Second, it takles the calculation intensive task of raytracing for shading simulation with a performant WebGL implementation on the GPU. Since WebGL is not well known in the science community, `simshady` provides access to this simulation code via better known javascript methods.
 
