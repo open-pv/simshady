@@ -73,7 +73,7 @@ Table \ref{tab:tool-comparison} summarises the tools by the capabilities most re
 | pvlib         | Package  | Free | Yes         | 2D         | Yes       | [@holmgren2018pvlib; @anderson2023pvlib] |
 | pvfactors     | Package  | Free | Yes         | 2D         | Yes       | [@pvfactors2025; @anoma_view_2017]       |
 
-`simshady` now fills two existing gaps: First, it is implemented in typescript and hence simultaniously enables simulations in the browser and on a local machine. And Second, it tackles the calculation intensive task of raytracing for shading simulation with a performant WebGL implementation on the GPU. Since WebGL is not well known in the science community, `simshady` provides access to this simulation code via better known javascript methods.
+`simshady` now fills two existing gaps: First, it is implemented in typescript and hence simultaniously enables simulations in the browser and on a local machine. And second, it tackles the calculation intensive task of raytracing for shading simulation with a performant WebGL implementation on the GPU. Since GLSL (OpenGL Shading Language), the shader language underlying WebGL, ranks only 35th among programming languages on GitHub [@GitHub2026Innovation], most developers are not familiar with its syntax. Hence, `simshady` exposes the WebGL simulation code through the more familiar JavaScript APIs instead.
 
 # Software design
 
@@ -135,7 +135,9 @@ The complete simulation took roughly 110 hours on a single cloud GPU server runn
 
 # Conclusion
 
-The `simshady` package serves two primary purposes: it provides a solution for scientific calculations of PV yield, while also facilitating science communication through interactive and user-friendly simulations. This eliminates the need for specialized software or programming knowledge, making it accessible to a broader range of users. Furthermore, by implementing the main algorithm in WebGL, the package achieves higher performance than a pure Javascript implementation, and it offers a JavaScript wrapper around PV simulation in WebGL. This is particularly beneficial because WebGL is a language that is not widely known among scientists, and thus can be challenging for them to implement their own code, making the `simshady` package a valuable tool for simplifying this process.
+The `simshady` package serves two primary purposes: it provides a solution for scientific calculations of PV yield on local machines through the CLI, while also facilitating science communication through interactive web-based simulations. The second one eliminates the need for specialized software or programming knowledge, making it accessible to a broader range of users.
+
+Two design decisions are especially relevant: By implementing the main algorithm in WebGL, the package achieves higher performance than a pure Javascript implementation, and it offers a JavaScript wrapper around PV simulations in WebGL. Additionally, `simshady` simplifies the simulation workflow by processing standardized input formats, thereby simplifying its integration in existing workflows.
 
 # Credit Authorship Statement
 
