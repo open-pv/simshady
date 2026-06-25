@@ -73,7 +73,7 @@ Table \ref{tab:tool-comparison} summarises the tools by the capabilities most re
 | pvlib         | Package  | Free | Yes         | 2D         | Yes       | [@holmgren2018pvlib; @anderson2023pvlib] |
 | pvfactors     | Package  | Free | Yes         | 2D         | Yes       | [@pvfactors2025; @anoma_view_2017]       |
 
-`simshady` now fills two existing gaps: First, it is implemented in typescript and hence simultaniously enables simulations in the browser and on a local machine. And Second, it takles the calculation intensive task of raytracing for shading simulation with a performant WebGL implementation on the GPU. Since WebGL is not well known in the science community, `simshady` provides access to this simulation code via better known javascript methods.
+`simshady` now fills two existing gaps: First, it is implemented in typescript and hence simultaniously enables simulations in the browser and on a local machine. And Second, it tackles the calculation intensive task of raytracing for shading simulation with a performant WebGL implementation on the GPU. Since WebGL is not well known in the science community, `simshady` provides access to this simulation code via better known javascript methods.
 
 # Software design
 
