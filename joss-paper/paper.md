@@ -137,6 +137,12 @@ The `simshady` package serves two primary purposes: it provides a solution for s
 
 Two design decisions are especially relevant: By implementing the main algorithm in WebGL, the package achieves higher performance than a pure Javascript implementation, and it offers a JavaScript wrapper around PV simulations in WebGL. Additionally, `simshady` simplifies the simulation workflow by processing standardized input formats, thereby simplifying its integration in existing workflows.
 
+In the future, `simshady` can profit from various developments: First, the architectural decision of outsourcing the calculation of irradiance has a clear benefit. If averaged irradiance data is provided for a whole year, simshady calculates the averaged PV yield per year. If time series of irradiance data are provided, simshady can also simulate time series of PV yield that show the local shading influence at highly resolved times. However with this benefit comes the disadvantage that users need to provide irradiance data themselves. One useful extension would be to integrate the creation of these time series into the software.
+
+Second, the interoperability with existing standards is started in `simshady`, but not finished. Processing three.js objects or .obj files is already nice, but providing results in formats that can be reused in other software tools, like `pvlib` for example, would also be beneficial for the whole community.
+
+To extend `simshady` in the future, other researchers and developers are warmly welcome to contribute to the code or discuss new ideas within the issue section.
+
 # Credit Authorship Statement
 
 FK: Conceptualization, Software, Funding acquisition, Writing – original draft
