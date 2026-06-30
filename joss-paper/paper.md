@@ -6,6 +6,7 @@ tags:
   - Energy
   - Solar
   - Photovoltaic
+  - Shading Simulation
   - Energy System
 authors:
   - name: Florian Kotthoff
@@ -43,11 +44,11 @@ bibliography: paper.bib
 
 # Summary
 
-openpv/simshady (short: `simshady`) is a JavaScript package for simulating photovoltaic (PV) energy yields. It integrates local climate data and 3D objects into its shading simulation, utilizing Three.js meshes for geometric modeling. The package performs shading analysis using a WebGL-parallelized implementation of the Möller-Trumbore intersection algorithm [@Möller01011997]. With the software, users can obtain both aggregated and spatial or temporally resolved simualted scenes of expected PV yields for further processing. `Simshady` provides both a package for web development, as well as a Command-line interface (CLI) tool for for running simulations locally.
+openpv/simshady (short: `simshady`) is a JavaScript package for simulating photovoltaic (PV) energy yields. It integrates local climate data and 3D objects into its shading simulation, utilizing Three.js meshes for geometric modeling. The package performs shading analysis using a WebGL-parallelized implementation of the Möller-Trumbore intersection algorithm [@Möller01011997]. With the software, users can obtain both aggregated and spatial or temporally resolved simualted scenes of expected PV yields for further processing. `simshady` provides both a package for web development, as well as a Command-line interface (CLI) tool for for running simulations locally.
 
 # Statement of need
 
-To meet global climate targets, solar photovoltaic (PV) capacity must expand significantly. Tripling renewable energy capacity by 2030 is essential to limit global warming to 1.5°C [@IEA2023]. The expansion of PV plays a crucial role, and PV systems offer an additional benefit: small-scale house-mounted PV systems enable public participation and legitimize the energy transition. For calculating the yield of PV systems, various factors are important, including the location of the planned installation, local climate, surrounding objects such as houses or trees, and terrain. To provide accurate estimates of expected yields, simulation tools are essential in both research and practical PV system planning. For these reasons, a variety of software tools for simulating photovoltaic systems already exist [@holmgren2018review; @jakica2018state; @KUMARVASHISHTHA20221450]. `Simshady` fills a gap in the area of detailed 3D shading simulation for PV yield estimation.
+To meet global climate targets, solar photovoltaic (PV) capacity must expand significantly. Tripling renewable energy capacity by 2030 is essential to limit global warming to 1.5°C [@IEA2023]. The expansion of PV plays a crucial role, and PV systems offer an additional benefit: small-scale house-mounted PV systems enable public participation and legitimize the energy transition. For calculating the yield of PV systems, various factors are important, including the location of the planned installation, local climate, surrounding objects such as houses or trees, and terrain. To provide accurate estimates of expected yields, simulation tools are essential in both research and practical PV system planning. For these reasons, a variety of software tools for simulating photovoltaic systems already exist [@holmgren2018review; @jakica2018state; @KUMARVASHISHTHA20221450]. `simshady` fills a gap in the area of detailed 3D shading simulation for PV yield estimation.
 
 # State of the field
 
@@ -79,9 +80,9 @@ Table \ref{tab:tool-comparison} summarises the tools by the capabilities most re
 
 `simshady` simulates the yield of photovoltaic (PV) systems by considering weather/climate data and shading from local 3D geometry. It is built around three core principles: (1) To run the core simulation code efficiently on the GPU, (2) to expose two different interfaces for both browser-based applications and server-based simulation, and (3) to integrate standardized data models, namely from `Three.js` and from the Wavefront OBJ file format.
 
-## Scene construction and input data
+## Input data
 
-In `simshady`, a 3D scene is built that represents the environment, comprising primary objects for simulation (e.g., PV panels or target buildings) and surrounding objects that may cast shadows (e.g., neighboring buildings, trees). Weather and climate data are integrated using Global Horizontal Irradiance (GHI) and Direct Normal Irradiance (DNI) datasets, which are reconstructed to include directional irradiance information using the HEALPix framework [@Górski_2005; @zonca2019healpy].
+In `simshady`, two major types of input data need to be provided. First, a 3D scene is built that represents the environment, consisting of primary objects for simulation (e.g., PV panels or target buildings) and surrounding objects that may cast shadows (e.g., neighboring buildings, trees). Second, weather and climate data need to be provided as input data by aggregating irradiance data like Global Horizontal Irradiance (GHI) and Direct Normal Irradiance (DNI) datasets onto sky domes, for example by assigning irradiance values to each sky segment [@Górski_2005; @zonca2019healpy].
 
 ## Simulation pipeline
 
@@ -89,17 +90,17 @@ The central `ShadingScene` class orchestrates the simulation through the followi
 
 1. **Geometry pre-processing:** All geometries provided by the user are shifted to the coordinate origin to improve floating-point precision. The simulation mesh is then refined by recursively subdividing triangles whose longest edge exceeds a configurable threshold (default 1.0 m), ensuring a uniform spatial resolution for the PV yield calculation. Reducing this threshold results in a larger number of smaller triangles in the mesh, and therefore a higher resolution of the simulated shading. To improve the simulation speed, a geometry filter removes shading triangles that cannot cast shadows on the simulation geometry given the minimum solar altitude angle present in the irradiance dataset.
 
-2. **Ray tracing:** The simulation utilizes the Möller-Trumbore intersection algorithm [@Möller01011997] to determine if any shading objects obstruct the view between a sky pixel and the main simulation geometry. For each triangle in the simulation geometry, a shading mask is generated, indicating whether an object blocks the line of sight from the sky pixel to the triangle. The shading mask values range from 0 to 1, where 0 indicates that an object shades the triangle, 1 signifies that there is no obstruction and the line of sight is perpendicular to the triangle, and values between 0 and 1 represent cases where there is no obstruction but the angle of incidence is not perpendicular. This computation is fully parallelizable and has been implemented using WebGL.
+2. **Ray tracing:** The simulation utilizes the Möller-Trumbore intersection algorithm [@Möller01011997] to determine if any shading objects obstruct the view between a sky segment and the main simulation geometry (See Fig. \autoref{fig:skydome-openpv} a). For each triangle in the simulation geometry, a shading mask is generated, indicating whether an object blocks the incident irradiance beam from the sky dome surface to the triangle. The shading mask values range from 0 to 1, where 0 indicates that an object shades the triangle, 1 signifies that there is no obstruction and the line of sight is perpendicular to the triangle, and values between 0 and 1 represent cases where there is no obstruction but the angle of incidence is not perpendicular. This computation is fully parallelizable and has been implemented using WebGL.
 
-3. **Irradiance integration and yield calculation:** The radiance values from all sky segments are multiplied by their corresponding shading mask values and summed to obtain the total irradiance received by each triangle. The resulting intensities are converted to electrical yield (in kWh/m²) using a configurable solar-to-electricity conversion efficiency (default 15%). This efficiency includes the PV panel efficiency as well as the ratio of total area and area covered by PV panels.
+3. **Irradiance integration and yield calculation:** The irradiance values from all sky segments are needed as input data. They represent the irradiance in W/m² that reaches the simulation geometry from a given sky segment. They are multiplied by their corresponding shading mask values and summed to obtain the total irradiance received by each triangle. The resulting intensities are converted to electrical yield (in kWh/m²) using a configurable solar-to-electricity conversion efficiency (default 15%). This efficiency includes the PV panel efficiency as well as the ratio of total area and area covered by PV panels.
 
-4. **Visualization:** The computed yield values are normalized and mapped to RGB colors using a configurable colormap (default: viridis). The resulting Three.js mesh carries both the color attribute for visualization and per-triangle intensity attributes for further analysis or export to other formats.
+4. **Visualization:** The computed yield values are normalized and mapped to RGB colors using a configurable colormap (See Fig. \autoref{fig:skydome-openpv} b). The resulting Three.js mesh carries both the color attribute for visualization and per-triangle intensity attributes for further analysis or export to other formats.
+
+![a) Schema of the simulation setup: For each surface of the sky dome and for each triangle of the simulation geometry, it is simulated if an object blocks the incoming irradiance. b) A simulated building with its solar yield, where dark purple represents low yields and light yellow represents high yields. Screenshot taken from [@openpv] \label{fig:skydome-openpv}](combinedFigure-skydome-openpv.png){ width=90% }
 
 ## Simshady in the browser
 
-`Simshady` reuses the data model and objects of `Three.js`, a common package for 3D web applications. The package processes `Three.js` meshes and adds the simulated PV yield as a color to the mesh, as shown in \autoref{fig:threejs-mesh}. Additionally, each triangle of the simulated buildings has its solar yield assigned as an attribute for further processing.
-
-![A simulated building with its solar yield, where dark purple represents low yields and light yellow represents high yields. Screenshot taken from [@openpv] \label{fig:threejs-mesh}](screenshot-simulation-geometry.jpg){ width=90% }
+`simshady` reuses the data model and objects of `Three.js`, a common package for 3D web applications. The package processes `Three.js` meshes and adds the simulated PV yield as a color to the mesh, as shown in \autoref{fig:skydome-openpv} b). Additionally, each triangle of the simulated buildings has its solar yield assigned as an attribute for further processing.
 
 ## Simshady in the terminal
 
