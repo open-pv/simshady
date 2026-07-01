@@ -14,6 +14,13 @@ Install the package using your preferred package manager:
 npm install @openpv/simshady
 ```
 
+If you only want to use the [CLI](/simshady/documents/CLI.html), you can run it directly using npx:
+
+```bash
+    # install simshady temporarily and execute it directly
+    npx @openpv/simshady run --simulation-geometry ...
+```
+
 ## Basic Usage
 
 ### **1. Initialize the Scene**
