@@ -98,7 +98,7 @@ The central `ShadingScene` class orchestrates the simulation through the followi
 
 4. **Visualization:** The computed yield values are normalized and mapped to RGB colors using a configurable colormap (See \autoref{fig:skydome-openpv} b). The resulting mesh carries both the color attribute for visualization and per-triangle solar yield for further analysis.
 
-![a) Schema of the simulation setup: For each surface of the sky dome and for each triangle of the simulation geometry, it is simulated if an object blocks the incoming irradiance. b) A simulated building with its yearly averaged solar yield, where dark purple represents low yields and light yellow represents high yields. Screenshot taken from [@openpv] \label{fig:skydome-openpv}](combinedFigure-skydome-openpv.png){ width=90% }
+![a) Schema of the simulation setup: For each surface of the sky dome and for each triangle of the simulation geometry, it is simulated if an object blocks the incoming irradiance. b) A simulated building with its yearly averaged solar yield, where dark purple represents low yields and light yellow represents high yields. Screenshot taken from [@openpv]. \label{fig:skydome-openpv}](combinedFigure-skydome-openpv.png){ width=90% }
 
 ## Simshady in the browser
 
