@@ -32,6 +32,24 @@ The resulting irradiance on a flat surface is:
 Irradiance = DNI × sin(altitude) + Σ(Diffuse_segment × sin(altitude))
 ```
 
+## Simulation Flow
+
+The central `ShadingScene` class orchestrates the simulation through the following steps:
+
+1. **Geometry pre-processing:** First, the simulation mesh is refined by recursively subdividing triangles whose longest edge exceeds a configurable threshold (default 1.0 m), ensuring a uniform spatial resolution for the PV yield calculation. Reducing this threshold results in a larger number of smaller triangles in the mesh, and therefore a higher resolution of the simulated shading. To improve the simulation speed, a geometry filter removes shading triangles that cannot cast shadows on the simulation geometry given the minimum solar altitude angle present in the irradiance dataset.
+
+2. **Ray tracing:** The simulation utilizes the Möller-Trumbore intersection algorithm to determine if any shading objects obstruct the view between a sky segment and the main simulation geometry (See Figure 2). For each triangle in the simulation geometry, a shading mask is generated, indicating whether an object blocks the incident irradiance beam from the sky dome surface to the triangle. The shading mask values range from 0 to 1, where 0 indicates that an object shades the triangle, 1 signifies that there is no obstruction and the line of sight is perpendicular to the triangle, and values between 0 and 1 represent cases where there is no obstruction but the angle of incidence is not perpendicular.
+
+3. **Irradiance integration and yield calculation:** The irradiance values from all sky segments are needed as input data. They represent the irradiance in W/m² that reaches the simulation geometry from a given sky segment. They are multiplied by their corresponding shading mask values and summed to obtain the total irradiance received by each triangle. The resulting intensities are converted to electrical yield (in kWh/m²) using a configurable solar-to-electricity conversion efficiency (default 15%). This efficiency includes the PV panel efficiency as well as the ratio of total area and area covered by PV panels.
+
+4. **Visualization:** The computed yield values are normalized and mapped to RGB colors using a configurable colormap. The resulting mesh carries both the color attribute for visualization and per-triangle solar yield for further analysis.
+
+<p align="center">
+  <img src="./assets/skydome-scene.png" alt="Skydome and Scene" width="500">
+  <br>
+  <em>Figure 2: Schema of the simulation setup: For each surface of the sky dome and for each triangle of the simulation geometry, it is simulated if an object blocks the incoming irradiance.</em>
+</p>
+
 ## Why Skydomes?
 
 There are two key reasons for using skydomes:
