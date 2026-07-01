@@ -10,7 +10,7 @@ Simshady models the yield of photovoltaic (PV) systems by considering two primar
 
 PV system output is heavily influenced by shading from nearby objects—such as buildings, vegetation, or terrain. Simshady represents this environment through a [`ShadingScene`](/simshady/classes/index.ShadingScene.html), which is composed of `three.js` geometries.
 
-- Use `addMainGeometry()` to define the primary object for simulation (e.g., PV panels or the target building).
+- Use `addSimulationGeometry()` to define the primary object for simulation (e.g., PV panels or the target building).
 - Use `addShadingGeometry()` to add surrounding objects that may cast shadows (e.g., neighboring buildings, trees).
 
 ## Weather, Climate, and Skydomes
@@ -42,7 +42,6 @@ There are two key reasons for using skydomes:
 The process works as follows:
 
 1. For each sky segment and each triangle of the simulation geometry, Simshady uses the [Möller-Trumbore algorithm](https://doi.org/10.1080%2F10867651.1997.10487468) to check if the line of sight is obstructed by any shading geometry. The result is:
-
    - `0` if an intersection occurs.
    - The dot product between the triangle normal and the vector to the sky segment if unshaded.
 
