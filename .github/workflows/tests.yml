@@ -15,10 +15,10 @@ jobs:
         node-version: [22.x, 24.x]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -28,6 +28,37 @@ jobs:
         run: yarn install
         env:
           PUPPETEER_SKIP_DOWNLOAD: 'true'
+
+      - name: Build CLI package
+        run: yarn build
+
+      - name: Run Vitest
+        run: yarn test
+        env:
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome
+
+  # Verify the package still builds and tests pass against the lowest
+  # `three` version declared in `peerDependencies`. Runs on a single Node
+  # version to keep the matrix small.
+  three-floor:
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+
+      - name: Install dependencies
+        run: yarn install
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+
+      - name: Pin three to the peerDependencies floor
+        run: yarn add --dev three@0.160.0 @types/three@0.160.0
 
       - name: Build CLI package
         run: yarn build
