@@ -17,6 +17,10 @@ export default defineConfig([
     splitting: false,
     sourcemap: false,
     clean: false,
+    // three is a peerDependency (so library consumers dedup their own copy),
+    // but the CLI is run standalone via npx/dlx where peers may not be
+    // installed. Bundle three into the CLI so it is self-contained.
+    noExternal: [/^three($|\/)/],
     banner: { js: '#!/usr/bin/env node' },
   },
 ]);

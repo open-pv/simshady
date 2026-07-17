@@ -46,6 +46,7 @@
     "jest": "^30.2.0",
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
+    "three": "^0.181.2",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typedoc": "^0.28.15",
@@ -54,9 +55,9 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.15"
   },
-  "dependencies": {
-    "geotiff": "^2.1.4-beta.1",
-    "three": "^0.181.2"
+  "dependencies": {},
+  "peerDependencies": {
+    "three": ">=0.160.0 <1.0.0"
   },
   "optionalDependencies": {
     "commander": "^14.0.1",
