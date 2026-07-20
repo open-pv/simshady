@@ -76,7 +76,7 @@ Table \ref{tab:tool-comparison} summarises the tools by the capabilities most re
 | pvlib         | Package  | Free | Yes         | Horizon, Row, Diffuse | Yes       | [@holmgren2018pvlib; @anderson2023pvlib] |
 | pvfactors     | Package  | Free | Yes         | 2D                    | Yes       | [@pvfactors2025; @anoma_view_2017]       |
 
-`simshady` now fills two existing gaps: First, it is implemented in TypeScript and hence simultaniously enables simulations in the browser and on a local machine. And second, it tackles the calculation intensive task of raytracing for shading simulation with a performant WebGL implementation on the GPU. The shader language GLSL (OpenGL Shading Language), on which WebGL is built, is not familiar for most developers: it only ranks 35th among programming languages on GitHub [@GitHub2026Innovation]. Hence, `simshady` makes the parallelized simulation of shading more accessible by exposing the WebGL simulation code through the more familiar JavaScript APIs instead.
+`simshady` now fills two existing gaps: First, it is implemented in TypeScript and hence simultaniously enables simulations in the browser and on a local machine. Second, it tackles the calculation intensive task of raytracing for shading simulation with a performant WebGL implementation on the GPU. The shader language GLSL (OpenGL Shading Language), on which WebGL is built, is not familiar for most developers: it only ranks 35th among programming languages on GitHub [@GitHub2026Innovation]. Hence, `simshady` makes the parallelized simulation of shading more accessible by exposing the WebGL simulation code through the more familiar JavaScript APIs instead.
 
 # Software design
 
