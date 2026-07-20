@@ -84,7 +84,7 @@ Table \ref{tab:tool-comparison} summarises the tools by the capabilities most re
 
 ## Input data
 
-In `simshady`, two major types of input data need to be provided. First, a 3D scene is built that represents the environment, consisting of primary objects for simulation (e.g., PV panels or target buildings) and surrounding objects that may cast shadows (e.g., neighboring buildings, trees). These objects can be provided as Wavefront .obj files or as Three.js geometries. Second, weather and climate data need to be provided as input data in .json format by aggregating irradiance data like Global Horizontal Irradiance (GHI) and Direct Normal Irradiance (DNI) datasets onto sky domes, for example by assigning irradiance values to each sky segment [@Górski_2005; @zonca2019healpy].
+In `simshady`, two major types of input data need to be provided. First, a 3D scene is built that represents the environment, consisting of primary objects for simulation (e.g., PV panels or target buildings) and surrounding objects that may cast shadows (e.g., neighboring buildings, trees). These objects can be provided as Wavefront .obj files or as Three.js geometries. Second, weather and climate data need to be provided as input data in .json format by aggregating irradiance data such as Global Horizontal Irradiance (GHI) and Direct Normal Irradiance (DNI) datasets onto sky domes, for example by assigning irradiance values to each sky segment [@Górski_2005; @zonca2019healpy].
 
 ## Simulation pipeline
 
