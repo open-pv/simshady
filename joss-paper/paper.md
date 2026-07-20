@@ -12,7 +12,7 @@ authors:
   - name: Florian Kotthoff
     orcid: 0000-0003-3666-6122
     corresponding: true
-    affiliation: '1,2' # (Multiple affiliations must be quoted)
+    affiliation: '1,2,3' # (Multiple affiliations must be quoted)
   - name: Mino Estrella
     orcid: 0009-0009-7372-4548
     corresponding: false
@@ -32,9 +32,9 @@ authors:
 affiliations:
   - name: OpenPV GbR, Munich, Germany
     index: 1
-  - name: OFFIS Institute for Information Technology, Escherweg 2, 26121 Oldenburg, Germany
+  - name: OFFIS Institute for Information Technology, 26121 Oldenburg, Germany
     index: 2
-  - name: Chair of Renewable and Sustainable Energy Systems, Technical University of Munich, Germany
+  - name: Chair of Renewable and Sustainable Energy Systems, Technical University of Munich, 85748 Munich, Germany
     index: 3
 
 date: 11 March 2026
