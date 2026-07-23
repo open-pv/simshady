@@ -132,7 +132,7 @@ Second, the interoperability with existing standards is started in `simshady`, b
 
 To extend and maintain `simshady` in the future, other researchers and developers are warmly welcome to contribute to the codebase or discuss new ideas within the issue section.
 
-# Credit Authorship Statement
+# CRediT author statement
 
 FK: Conceptualization, Software, Funding acquisition, Writing – original draft
 
