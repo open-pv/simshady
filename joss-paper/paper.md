@@ -76,8 +76,6 @@ Among the developer libraries, the Python package pvlib [@holmgren2018pvlib; @an
 | pvlib             | Package  | Free | Yes         | Horizon, Row, Diffuse | [@holmgren2018pvlib; @anderson2023pvlib] |
 | pvfactors         | Package  | Free | Yes         | 2D                    | [@anoma_view_2017]                       |
 
-`simshady` now fills two existing gaps: First, it is implemented in TypeScript and hence simultaneously enables simulations in the browser and on a local machine. Second, it tackles the calculation intensive task of raytracing for shading simulation with a performant WebGL implementation on the GPU. The shader language GLSL (OpenGL Shading Language), on which WebGL is built, is not familiar for most developers: it only ranks 35th among programming languages on GitHub [@GitHub2026Innovation]. Hence, `simshady` makes the parallelized simulation of shading more accessible by exposing the WebGL simulation code through the more familiar JavaScript APIs instead.
-
 # Software design
 
 `simshady` simulates the yield of photovoltaic (PV) systems by considering weather/climate data and shading from local 3D geometry. It is built around three core principles: (1) To run the core simulation code efficiently on the GPU, (2) to expose two different interfaces for both browser-based applications and server-based simulation, and (3) to integrate standardized data models, namely from `Three.js` and from the Wavefront OBJ file format.
@@ -112,23 +110,11 @@ Inside the browser context the full `simshady` package is injected, the scene is
 
 # Research impact statement
 
-## Tool landscape positioning
-
-`simshady` together with its CLI occupies a position in the PV-tool landscape that previously did not exist. Two simple matrices, derived from the comparison in Table \ref{tab:tool-comparison}, highlight this.
-
-The first matrix groups tools by cost and 3D shading capability. Up to now, every tool that offered full 3D shading of arbitrary geometries was a commercial product, while every free or open-source tool either ignored 3D shading or was restricted to highly simplified geometric assumptions. \autoref{fig:comp-cost} shows this comparison.
-
-![Tool positioning by cost and 3D shading capability. Free tools historically lacked 3D shading; 3D capability required commercial licenses. simshady with its CLI is the first free tool with a full 3D shading capability. \label{fig:comp-cost}](comparison_matrix_cost_shading.png){ width=80% }
-
-The second matrix groups the same tools by simulation scale and 3D shading capability. Tools that can be applied automatically to large numbers of buildings have so far skipped 3D shading entirely; tools with accurate 3D shading have been built around interactive single-project workflows. \autoref{fig:comp-scale} shows this comparison.
-
-![Tool positioning by simulation scale and 3D shading capability. City-scale PV assessment with accurate 3D shading was not possible before simshady and its CLI. \label{fig:comp-scale}](comparison_matrix_scale_shading.png){ width=80% }
-
-In both matrices the cell that `simshady` now occupies was empty before this work. `simshady` is therefore the first free and open-source tool with full 3D shading of arbitrary geometries, and the first such tool designed to handle both single buildings or entire cities.
+Compared to the state of the field, `simshady` now fills two existing gaps: First, it is implemented in TypeScript and hence simultaneously enables simulations in the browser and on a local machine. Second, it tackles the calculation intensive task of raytracing for shading simulation with a performant WebGL implementation on the GPU. The shader language GLSL (OpenGL Shading Language), on which WebGL is built, is not familiar for most developers: it only ranks 35th among programming languages on GitHub [@GitHub2026Innovation]. Hence, `simshady` makes the parallelized simulation of shading more accessible by exposing the WebGL simulation code through the more familiar JavaScript APIs instead.
 
 ## City-scale demonstration: Munich
 
-To show that this position is more than theoretical, the CLI was used to simulate the PV yield for the entire city of Munich. The original data consists of 109 CityGML LoD2 tiles. Each tile had a size of 2x2 km². For processing, each tile was split into four tiles, one square kilometre each. The 3D data contained roughly 200 km² of building surface in total. Averaged incoming irradiance in W/m² per steradian was derived from the National Solar Radiation Database [@sengupta2018national] and projected onto a HEALPix skydome. The skydomes together with the 3D geometries were then used for the ray-tracing simulation. \autoref{fig:combinedMunich} a) shows one 3D mesh output for one tile. All tiles combined generate a simulation scene of the whole city of Munich, which is depicted in b) \autoref{fig:combinedMunich} as an orthographic top-down image.
+One existing demonstration of the research impact was the application of the `simshady` CLI to simulate the PV yield for the entire city of Munich. The original data consists of 109 CityGML LoD2 tiles. Each tile had a size of 2x2 km². For processing, each tile was split into four tiles, one square kilometre each. The 3D data contained roughly 200 km² of building surface in total. Averaged incoming irradiance in W/m² per steradian was derived from the National Solar Radiation Database [@sengupta2018national] and projected onto a HEALPix skydome. The skydomes together with the 3D geometries were then used for the ray-tracing simulation. \autoref{fig:combinedMunich} a) shows one 3D mesh output for one tile. All tiles combined generate a simulation scene of the whole city of Munich, which is depicted in b) \autoref{fig:combinedMunich} as an orthographic top-down image.
 
 ![a) 3D mesh output of the CLI for a single Munich tile, with per-triangle annual PV yield mapped onto the building geometry (dark blue = low, light yellow = high). b) Orthographic top-down snapshots generated by the CLI for all Munich tiles, combined in one image. \label{fig:combinedMunich}](combinedFigure.png){ width=80% }
 
