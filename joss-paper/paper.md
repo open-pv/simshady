@@ -1,5 +1,5 @@
 ---
-title: 'openpv/simshady: A Javascript Package for Photovoltaic Yield Estimation Based on 3D Meshes'
+title: 'openpv/simshady: A JavaScript Package for Photovoltaic Yield Estimation Based on 3D Meshes'
 tags:
   - TypeScript
   - JavaScript
@@ -44,7 +44,7 @@ bibliography: paper.bib
 
 # Summary
 
-openpv/simshady (short: `simshady`) is a JavaScript package for simulating photovoltaic (PV) energy yields. It integrates local climate data and 3D objects into its shading simulation, utilizing Three.js meshes for geometric modeling. The package performs shading analysis using a WebGL-parallelized implementation of the Möller-Trumbore intersection algorithm [@Möller01011997]. With the software, users can obtain both aggregated and spatial or temporally resolved simualted scenes of expected PV yields for further processing. `simshady` provides both a package for web development, as well as a Command-line interface (CLI) tool for for running simulations locally.
+openpv/simshady (short: `simshady`) is a JavaScript package for simulating photovoltaic (PV) energy yields. It integrates local climate data and 3D objects into its shading simulation, utilizing Three.js meshes for geometric modeling. The package performs shading analysis using a WebGL-parallelized implementation of the Möller-Trumbore intersection algorithm [@Möller01011997]. With the software, users can obtain both aggregated and spatial or temporally resolved simulated scenes of expected PV yields for further processing. `simshady` provides both a package for web development, as well as a Command-line interface (CLI) tool for running simulations locally.
 
 # Statement of need
 
@@ -56,27 +56,25 @@ To meet global climate targets, solar photovoltaic (PV) capacity must expand sig
 
 Existing software can roughly be grouped into three groups: full-suite commercial design tools, simplified yield calculators, and developer libraries.
 
-Full-suite design tools target professional PV planners and combine 3D system modeling, component databases and financial analysis behind a graphical user interface. HelioScope by Aurora Solar is a web-based design platform that approximates near shading by projecting drop shadows from 3D objects rather than performing full ray tracing, and is offered as a paid subscription [@helioscope2026]. PV\*SOL premium by Valentin Software is a Windows desktop application that performs detailed sub-module shading analysis at cell level, but is restricted to interactive single-project use, meaning it requires manual, GUI-based operation for one project at a time without automation or batch processing capabilities [@pvsol2026]. PVsyst is the industry reference for bankable yield reports and additionally provides a separately licensed command-line tool, PVsystCLI, which is the only existing software that combines accurate 3D near shading with batch automation, but at a cost of several thousand Swiss francs per year [@pvsyst2026]. The System Advisor Model (SAM) developed by the National Laboratory of the Rockies (NLR) is open source and exposes a Python wrapper (PySAM), but its 3D shading capabilities are limited compared to dedicated design tools [@sam2026].
+Full-suite design tools target professional PV planners and combine 3D system modeling, component databases and financial analysis behind a graphical user interface. HelioScope by Aurora Solar is a web-based design platform that approximates near shading by projecting drop shadows from 3D objects rather than performing full ray tracing, and is offered as a paid subscription [@helioscope2026]. PV\*SOL premium by Valentin Software is a Windows desktop application that performs detailed sub-module shading analysis at cell level, but is restricted to interactive single-project use, meaning it requires manual, GUI-based operation for one project at a time without automation or batch processing capabilities [@pvsol2026]. PVsyst is the industry reference for bankable yield reports and additionally provides a separately licensed command-line tool, PVsystCLI, which is the only existing software that combines accurate 3D near shading with batch automation, but at a cost of several thousand Swiss francs per year [@pvsyst2026]. The System Advisor Model (SAM) developed by the National Laboratory of the Rockies (NLR) is open source and exposes a Python wrapper (PySAM), but its 3D shading capabilities are limited compared to dedicated design tools [@sam2026]. Within the ecosystem of the open-source geoinformation software QGIS, the Urban Multi-scale Universal Predictor (UMEP) [@LINDBERG201870] plugin contains a tool for shading simulations on 2D digital surface models [@LINDBERG2015369] called SEBE (short for: Solar Energy on Building Envelopes).
 
-Among the developer libraries, the Python package pvlib [@holmgren2018pvlib; @anderson2023pvlib] offers a large range of functionalities. With pvlib it is possible to model shading scenarios where the whole 3D scene is not needed. Examples are the possibility to model horizon shading from far-away objects like hills, or modelling diffusive self-shading or partial module shading, to name a few. However, the topic of shading simulation with 3D objects is not included in this package. Another Python-based software that enables irradiance modeling in two dimensions is pvfactors [@pvfactors2025; @anoma_view_2017], which computes view factors between PV rows and the ground to capture row-to-row and bifacial shading, but cannot represent arbitrary 3D obstacles such as trees or buildings. SoDeLe wraps pvlib in an end-user GUI for quick residential estimates and likewise omits 3D shading [@sodele2026]. Web-based tools for solar panel simulations, such as PVGIS, PVWatts, and RETScreen, provide an accessible means for non-technical individuals to estimate energy yields based on geographic location and building geometry [@psomopoulos2015comparative]. These tools account for far-shading from the horizon or terrain, or for self-shading derived from the ground coverage ratio, but lack the capability to perform shading simulations using 3D geometries from nearby objects.
+Among the developer libraries, the Python package pvlib [@holmgren2018pvlib; @anderson2023pvlib] offers a large range of functionalities. With pvlib it is possible to model shading scenarios where the whole 3D scene is not needed. Examples are the possibility to model horizon shading from far-away objects like hills, or modeling diffusive self-shading or partial module shading, to name a few. However, the topic of shading simulation with 3D objects is not included in this package. Another Python-based software that enables irradiance modeling in two dimensions is pvfactors [@anoma_view_2017], which computes view factors between PV rows and the ground to capture row-to-row and bifacial shading, but cannot represent arbitrary 3D obstacles such as trees or buildings. SoDeLe wraps pvlib in an end-user GUI for quick residential estimates and likewise omits 3D shading [@sodele2026]. Web-based tools for solar panel simulations, such as PVGIS, PVWatts, and RETScreen, provide an accessible means for non-technical individuals to estimate energy yields based on geographic location and building geometry [@psomopoulos2015comparative]. These tools account for far-shading from the horizon or terrain, or for self-shading derived from the ground coverage ratio, but lack the capability to perform shading simulations using 3D geometries from nearby objects. RADIANCE [@RADIANCE] is a collection of tools designed for general light and shading simulation and developed in the 1990s. For solar simulation, the bifacial_radiance tool [@Ayala_Pelaez2020] exists as a Python wrapper around the original Software. In combination, these software packages offer a variety of shading methods, including detailed shading simulation in 3D. Table \ref{tab:tool-comparison} summarises the tools by the capabilities most relevant to urban-scale PV assessment.
 
-Table \ref{tab:tool-comparison} summarises the tools by the capabilities most relevant to urban-scale PV assessment. Two patterns emerge. First, every tool that supports detailed 3D shading is either commercial or restricted to interactive single-project use; the only freely scriptable option, PVsystCLI, is paywalled. Second, none of the open-source developer libraries can model arbitrary 3D shading, and none of the surveyed tools is designed for batch processing on large scales like simulating neighborhoods or whole cities.
+: Comparison of representative PV simulation tools by the capabilities most relevant to automated, city-scale assessment. In the shading column, 3D means that 3-dimensional objects are used to model shading, 3D (simplified) means a 3D scene is used but objects are abstracted as polygons, DSM means that Digital Surface Models (height maps) are used, 2D means that the simulation only relies on 2D abstractions, Horizon represents shading through the horizon contour, Row represents row-to-row self-shading without 3D objects, Diffuse represents reduction of diffuse irradiance due to the array geometry, and None means no shading modeling is provided. \label{tab:tool-comparison}
 
-: Comparison of representative PV simulation tools by the capabilities most relevant to automated, city-scale assessment. In the shading column, 3D means that 3-dimensional objects are used to model shading, 3D (simplified) means a 3D scene is used but objects are abstracted as polygons, 2D means that the simulation only relies on 2D abstractions, Horizon represents shading through the horizon contour, Row represents row-to-row self-shading without 3D objects, Diffuse represents reduction of diffuse irradiance due to the array geometry, and None means no shading modeling is provided. \label{tab:tool-comparison}
-
-| Tool          | Platform | Cost | Open Source | Shading               | Interface | Source                                   |
-| ------------- | -------- | ---- | ----------- | --------------------- | --------- | ---------------------------------------- |
-| HelioScope    | Web      | Paid | No          | 3D                    | API       | [@helioscope2026]                        |
-| PV\*SOL prem. | Desktop  | Paid | No          | 3D                    | No        | [@pvsol2026]                             |
-| PVsyst        | Desktop  | Paid | No          | 3D                    | CLI       | [@pvsyst2026]                            |
-| SAM           | Desktop  | Free | Yes         | 3D simplified         | Py        | [@sam2026]                               |
-| PVGIS         | Web      | Free | No          | Horizon               | API       | [@pvgis2026]                             |
-| PVWatts       | Web      | Free | Yes         | Row                   | API       | [@pvwatts2026]                           |
-| SoDeLe        | Package  | Free | Yes         | None                  | Yes       | [@sodele2026]                            |
-| pvlib         | Package  | Free | Yes         | Horizon, Row, Diffuse | Yes       | [@holmgren2018pvlib; @anderson2023pvlib] |
-| pvfactors     | Package  | Free | Yes         | 2D                    | Yes       | [@pvfactors2025; @anoma_view_2017]       |
-
-`simshady` now fills two existing gaps: First, it is implemented in TypeScript and hence simultaniously enables simulations in the browser and on a local machine. Second, it tackles the calculation intensive task of raytracing for shading simulation with a performant WebGL implementation on the GPU. The shader language GLSL (OpenGL Shading Language), on which WebGL is built, is not familiar for most developers: it only ranks 35th among programming languages on GitHub [@GitHub2026Innovation]. Hence, `simshady` makes the parallelized simulation of shading more accessible by exposing the WebGL simulation code through the more familiar JavaScript APIs instead.
+| Tool              | Platform | Cost | Open Source | Shading               | Source                                   |
+| ----------------- | -------- | ---- | ----------- | --------------------- | ---------------------------------------- |
+| HelioScope        | Web      | Paid | No          | 3D                    | [@helioscope2026]                        |
+| PV\*SOL prem.     | Desktop  | Paid | No          | 3D                    | [@pvsol2026]                             |
+| PVsyst            | Desktop  | Paid | No          | 3D                    | [@pvsyst2026]                            |
+| bifacial_radiance | Package  | Free | Yes         | 3D                    | [@Ayala_Pelaez2020]                      |
+| SAM               | Desktop  | Free | Yes         | 3D simplified         | [@sam2026]                               |
+| QGIS Plugin SEBE  | Desktop  | Free | Yes         | DSM                   | [@LINDBERG2015369]                       |
+| PVGIS             | Web      | Free | No          | Horizon               | [@pvgis2026]                             |
+| PVWatts           | Web      | Free | Yes         | Row                   | [@pvwatts2026]                           |
+| SoDeLe            | Package  | Free | Yes         | None                  | [@sodele2026]                            |
+| pvlib             | Package  | Free | Yes         | Horizon, Row, Diffuse | [@holmgren2018pvlib; @anderson2023pvlib] |
+| pvfactors         | Package  | Free | Yes         | 2D                    | [@anoma_view_2017]                       |
 
 # Software design
 
@@ -108,31 +106,19 @@ The central `ShadingScene` class orchestrates the simulation through the followi
 
 The `simshady` CLI is a wrapper around the core WebGL‑based simulation engine that enables batch processing of photovoltaic‑yield analyses on a server. It first parses a small set of required arguments (the simulation geometry and the irradiance data). The supplied geometry files, either JSON objects or Wavefront OBJ files, are handed to a headless Chromium instance launched via Puppeteer [@puppeteer].
 
-Inside the browser context the full `simshady` package is injected, the scene is reconstructed, and the GPU‑accelerated Möller‑Trumbore ray‑tracing routine is executed. When the calculation finishes, the CLI extracts the mesh data from the browser and writes the following artefacts into the user‑specified output directory: binary files for vertex positions, colors, and intensities; a colour‑coded Wavefront OBJ file with per-vertex RGB values; an orthographic top‑down PNG snapshot of the scene; and a JSON summary containing per-timestep and total aggregated yield statistics such as total and mean yield or surface area.
+Inside the browser context the full `simshady` package is injected, the scene is reconstructed, and the GPU‑accelerated Möller‑Trumbore ray‑tracing routine is executed. When the calculation finishes, the CLI extracts the mesh data from the browser and writes the following artefacts into the user‑specified output directory: binary files for vertex positions, colors, and intensities; a color‑coded Wavefront OBJ file with per-vertex RGB values; an orthographic top‑down PNG snapshot of the scene; and a JSON summary containing per-timestep and total aggregated yield statistics such as total and mean yield or surface area.
 
 # Research impact statement
 
-## Tool landscape positioning
-
-`simshady` together with its CLI occupies a position in the PV-tool landscape that previously did not exist. Two simple matrices, derived from the comparison in Table \ref{tab:tool-comparison}, highlight this.
-
-The first matrix groups tools by cost and 3D shading capability. Up to now, every tool that offered full 3D shading of arbitrary geometries was a commercial product, while every free or open-source tool either ignored 3D shading or was restricted to highly simplified geometric assumptions. \autoref{fig:comp-cost} shows this comparison.
-
-![Tool positioning by cost and 3D shading capability. Free tools historically lacked 3D shading; 3D capability required commercial licenses. simshady with its CLI is the first free tool with a full 3D shading capability. \label{fig:comp-cost}](comparison_matrix_cost_shading.png){ width=80% }
-
-The second matrix groups the same tools by simulation scale and 3D shading capability. Tools that can be applied automatically to large numbers of buildings have so far skipped 3D shading entirely; tools with accurate 3D shading have been built around interactive single-project workflows. \autoref{fig:comp-scale} shows this comparison.
-
-![Tool positioning by simulation scale and 3D shading capability. City-scale PV assessment with accurate 3D shading was not possible before simshady and its CLI. \label{fig:comp-scale}](comparison_matrix_scale_shading.png){ width=80% }
-
-In both matrices the cell that `simshady` now occupies was empty before this work. `simshady` is therefore the first free and open-source tool with full 3D shading of arbitrary geometries, and the first such tool designed to handle both single buildings or entire cities.
+Compared to the state of the field, `simshady` now fills two existing gaps: First, it is implemented in TypeScript and hence simultaneously enables simulations in the browser and on a local machine. Second, it tackles the calculation intensive task of raytracing for shading simulation with a performant WebGL implementation on the GPU. The shader language GLSL (OpenGL Shading Language), on which WebGL is built, is not familiar for most developers: it only ranks 35th among programming languages on GitHub [@GitHub2026Innovation]. Hence, `simshady` makes the parallelized simulation of shading more accessible by exposing the WebGL simulation code through the more familiar JavaScript APIs instead.
 
 ## City-scale demonstration: Munich
 
-To show that this position is more than theoretical, the CLI was used to simulate the PV yield for the entire city of Munich. The original data consists of 109 CityGML LoD2 tiles. Each tile had a size of 2x2 km². For processing, each tiles was split into four tiles, one square kilometre each. The 3D data contained roughly 200 km² of building surface in total. Averaged incoming irradiance in W/m² per steradian was derived from the National Solar Radiation Database [@sengupta2018national] and projected onto a HEALPix skydome. The skydomes together with the 3D geometries were then used for the ray-tracing simulation. \autoref{fig:combinedMunich} a) shows one 3D mesh output for one tile. All tiles combined generate a simulation scene of the whole city of Munich, which is depicted in b) \autoref{fig:combinedMunich} as an orthographic top-down image.
+One existing demonstration of the research impact was the application of the `simshady` CLI to simulate the PV yield for the entire city of Munich. The original data consists of 109 CityGML LoD2 tiles. Each tile had a size of 2x2 km². For processing, each tile was split into four tiles, one square kilometre each. The 3D data contained roughly 200 km² of building surface in total. Averaged incoming irradiance in W/m² per steradian was derived from the National Solar Radiation Database [@sengupta2018national] and projected onto a HEALPix skydome. The skydomes together with the 3D geometries were then used for the ray-tracing simulation. \autoref{fig:combinedMunich} a) shows one 3D mesh output for one tile. All tiles combined generate a simulation scene of the whole city of Munich, which is depicted in b) \autoref{fig:combinedMunich} as an orthographic top-down image.
 
 ![a) 3D mesh output of the CLI for a single Munich tile, with per-triangle annual PV yield mapped onto the building geometry (dark blue = low, light yellow = high). b) Orthographic top-down snapshots generated by the CLI for all Munich tiles, combined in one image. \label{fig:combinedMunich}](combinedFigure.png){ width=80% }
 
-The complete simulation took roughly 110 hours on a single cloud GPU server running four parallel CLI instances and cost less than 60 USD. The full output, including geometry, intensities, metadata and visualisation artefacts for all tiles, makes up roughly 35 GB in compressed format and is openly available as a dataset on Zenodo under CC BY 4.0 [@simshady_munich_dataset].
+The complete simulation took roughly 110 hours on a single cloud GPU server running four parallel CLI instances and cost less than 60 USD. The full output, including geometry, intensities, metadata and visualization artefacts for all tiles, makes up roughly 35 GB in compressed format and is openly available as a dataset on Zenodo under CC BY 4.0 [@simshady_munich_dataset].
 
 # Conclusion
 
@@ -146,7 +132,7 @@ Second, the interoperability with existing standards is started in `simshady`, b
 
 To extend and maintain `simshady` in the future, other researchers and developers are warmly welcome to contribute to the codebase or discuss new ideas within the issue section.
 
-# Credit Authorship Statement
+# CRediT author statement
 
 FK: Conceptualization, Software, Funding acquisition, Writing – original draft
 
@@ -160,7 +146,7 @@ KP: Conceptualization, Software, Funding acquisition, Writing – review & editi
 
 # AI usage disclosure
 
-After designing the software architecture and writing core functionalities, both open-weight and proprietary LLM-based chatbots where used to implement or debug some of the methods in `simshady`. Generative agentic AI tools that can write and edit code autonomously were not used. The open-weight models gpt-oss:120b and deepseek-r1:70b were used for reviewing the written text of this paper. Individual parts of the svg file for \autoref{fig:skydome-openpv} where created with the help of a proprietary LLM.
+After designing the software architecture and writing core functionalities, both open-weight and proprietary LLM-based chatbots were used to implement or debug some of the methods in `simshady`. Generative agentic AI tools that can write and edit code autonomously were not used. The open-weight models gpt-oss:120b and deepseek-r1:70b were used for reviewing the written text of this paper. Individual parts of the svg file for \autoref{fig:skydome-openpv} where created with the help of a proprietary LLM.
 
 # Acknowledgements
 
