@@ -137,6 +137,13 @@ export class ShadingScene {
     if (!Array.isArray(irradiance)) {
       irradiance = [irradiance];
     }
+    const solidAngle = irradiance[0]?.metadata.pixel_solid_angle;
+    if (irradiance.some((skydome) => skydome.metadata.pixel_solid_angle !== solidAngle)) {
+      console.warn(
+        'The given skydomes have different values of metadata.pixel_solid_angle. ' +
+          `Only the value of the first skydome (${solidAngle} sr) is used for the yield calculation.`,
+      );
+    }
     this.solarIrradiance = irradiance;
   }
   /**
@@ -295,6 +302,7 @@ export class ShadingScene {
       shadedScene,
       solarToElectricityConversionEfficiency,
       this.solarIrradiance[0].metadata.valid_timesteps_for_aggregation,
+      this.solarIrradiance[0].metadata.pixel_solid_angle,
     );
 
     // Restore original coordinates before creating the output mesh

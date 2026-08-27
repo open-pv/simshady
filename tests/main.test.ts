@@ -57,7 +57,13 @@ describe('Scene initialization', () => {
         { altitude_deg: 78.28, azimuth_deg: 45.0, average_radiance_W_m2_sr: 36.799 },
         { altitude_deg: 78.28, azimuth_deg: 315.0, average_radiance_W_m2_sr: 36.799 },
       ],
-      metadata: { nside: 4, latitude: 47.21, longitude: 15.86, valid_timesteps_for_aggregation: 8760 },
+      metadata: {
+        nside: 4,
+        pixel_solid_angle: 0.06544984694978735,
+        latitude: 47.21,
+        longitude: 15.86,
+        valid_timesteps_for_aggregation: 8760,
+      },
     };
 
     const solarIrradianceSecondTimeStep = {
@@ -65,7 +71,13 @@ describe('Scene initialization', () => {
         { altitude_deg: 78.28, azimuth_deg: 45.0, average_radiance_W_m2_sr: 36.799 },
         { altitude_deg: 78.28, azimuth_deg: 315.0, average_radiance_W_m2_sr: 36.799 },
       ],
-      metadata: { nside: 4, latitude: 47.21, longitude: 15.86, valid_timesteps_for_aggregation: 8760 },
+      metadata: {
+        nside: 4,
+        pixel_solid_angle: 0.06544984694978735,
+        latitude: 47.21,
+        longitude: 15.86,
+        valid_timesteps_for_aggregation: 8760,
+      },
     };
     scene.addSolarIrradiance(solarIrradiance);
     expect(Array.isArray(scene.solarIrradiance)).toBe(true);
