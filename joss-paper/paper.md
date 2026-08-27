@@ -62,19 +62,19 @@ Among the developer libraries, the Python package pvlib [@holmgren2018pvlib; @an
 
 : Comparison of representative PV simulation tools by the capabilities most relevant to automated, city-scale assessment. In the shading column, 3D means that 3-dimensional objects are used to model shading, 3D (simplified) means a 3D scene is used but objects are abstracted as polygons, DSM means that Digital Surface Models (height maps) are used, 2D means that the simulation only relies on 2D abstractions, Horizon represents shading through the horizon contour, Row represents row-to-row self-shading without 3D objects, Diffuse represents reduction of diffuse irradiance due to the array geometry, and None means no shading modeling is provided. \label{tab:tool-comparison}
 
-| Tool              | Platform | Cost | Open Source | Shading               | Source                                   |
-| ----------------- | -------- | ---- | ----------- | --------------------- | ---------------------------------------- |
-| HelioScope        | Web      | Paid | No          | 3D                    | [@helioscope2026]                        |
-| PV\*SOL prem.     | Desktop  | Paid | No          | 3D                    | [@pvsol2026]                             |
-| PVsyst            | Desktop  | Paid | No          | 3D                    | [@pvsyst2026]                            |
-| bifacial_radiance | Package  | Free | Yes         | 3D                    | [@Ayala_Pelaez2020]                      |
-| SAM               | Desktop  | Free | Yes         | 3D simplified         | [@sam2026]                               |
-| QGIS Plugin SEBE  | Desktop  | Free | Yes         | DSM                   | [@LINDBERG2015369]                       |
-| PVGIS             | Web      | Free | No          | Horizon               | [@pvgis2026]                             |
-| PVWatts           | Web      | Free | Yes         | Row                   | [@pvwatts2026]                           |
-| SoDeLe            | Package  | Free | Yes         | None                  | [@sodele2026]                            |
-| pvlib             | Package  | Free | Yes         | Horizon, Row, Diffuse | [@holmgren2018pvlib; @anderson2023pvlib] |
-| pvfactors         | Package  | Free | Yes         | 2D                    | [@anoma_view_2017]                       |
+| Tool              | Platform | Cost | Open Source | Shading       | Source                                   |
+| ----------------- | -------- | ---- | ----------- | ------------- | ---------------------------------------- |
+| HelioScope        | Web      | Paid | No          | 3D            | [@helioscope2026]                        |
+| PV\*SOL prem.     | Desktop  | Paid | No          | 3D            | [@pvsol2026]                             |
+| PVsyst            | Desktop  | Paid | No          | 3D            | [@pvsyst2026]                            |
+| bifacial_radiance | Package  | Free | Yes         | 3D            | [@Ayala_Pelaez2020]                      |
+| SAM               | Desktop  | Free | Yes         | 3D simplified | [@sam2026]                               |
+| QGIS Plugin SEBE  | Desktop  | Free | Yes         | DSM           | [@LINDBERG2015369]                       |
+| PVGIS             | Web      | Free | No          | Horizon       | [@pvgis2026]                             |
+| PVWatts           | Web      | Free | Yes         | Row           | [@pvwatts2026]                           |
+| SoDeLe            | Package  | Free | Yes         | None          | [@sodele2026]                            |
+| pvlib             | Package  | Free | Yes         | 2D, Horizon   | [@holmgren2018pvlib; @anderson2023pvlib] |
+| pvfactors         | Package  | Free | Yes         | 2D            | [@anoma_view_2017]                       |
 
 # Software design
 
