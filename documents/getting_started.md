@@ -57,7 +57,7 @@ These geometries need to be [Three.js Buffer Geometries](https://threejs.org/doc
 
 ### **3. Add Solar Irradiance Data**
 
-Include irradiance data in the [required format](/simshady/types/utils.SolarIrradianceData.html) via [`addSolarIrradiance`](/simshady/classes/index.ShadingScene.html#addsolarirradiance). This data should contain time series for both direct and diffuse irradiance. See [irradiance_munich_2018.json](https://github.com/open-pv/simshady/blob/main/tests/headless/data/irradiance_munich_2018.json) for an example:
+Include sky dome data in the [required format](/simshady/types/utils.SolarIrradianceData.html) via [`addSolarIrradiance`](/simshady/classes/index.ShadingScene.html#addsolarirradiance). Each sky segment holds a **radiance** in W/m²/sr, covering both the direct and the diffuse contribution; optionally as a time series of sky domes. See [irradiance_munich_2018.json](https://github.com/open-pv/simshady/blob/main/tests/headless/data/irradiance_munich_2018.json) for an example:
 
 ```javascript
 scene.addSolarIrradiance(someSolarIrradianceData);
