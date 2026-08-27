@@ -147,7 +147,7 @@ KP: Conceptualization, Software, Funding acquisition, Writing – review & editi
 
 # AI usage disclosure
 
-After designing the software architecture and writing core functionalities, both open-weight and proprietary LLM-based chatbots were used to implement or debug some of the methods in `simshady`. Generative agentic AI tools that can write and edit code autonomously were not used. The open-weight models gpt-oss:120b and deepseek-r1:70b were used for reviewing the written text of this paper. Individual parts of the svg file for \autoref{fig:skydome-openpv} were created with the help of a proprietary LLM.
+After designing the software architecture and writing core functionalities, both open-weight and proprietary LLM-based chatbots were used to implement or debug some of the methods in `simshady`. The open-weight models gpt-oss:120b and deepseek-r1:70b were used for reviewing the written text of this paper. Individual parts of the svg file for \autoref{fig:skydome-openpv} were created with the help of a proprietary LLM.
 
 # Acknowledgements
 
