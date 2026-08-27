@@ -3,10 +3,9 @@
  * where the irradiance data can be used. valid_timesteps_for_aggregation
  * is the number of hours of daylight in the considered timeframe. If
  * the skydome represents a whole year, this is about 8760.
- * pixel_solid_angle is the solid angle in steradian covered by one sky segment.
- * `simshady` assumes that all sky segments cover the same solid angle, which holds
- * for the equal-area HEALPix discretization but not for other discretizations like
- * Tregenza.
+ * pixel_solid_angle is the solid angle in steradian covered by one sky segment,
+ * `simshady` assumes that all sky segments cover the same solid angle which only holds
+ * for equal-area HEALPix discretization but not for other discretizations.
  *
  * `data` holds a list of
  * sky segments, where altitude_deg and azimuth_deg define the position
