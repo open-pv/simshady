@@ -6,8 +6,7 @@
  * pixel_solid_angle is the solid angle in steradian covered by one sky segment.
  * `simshady` assumes that all sky segments cover the same solid angle, which holds
  * for the equal-area HEALPix discretization but not for other discretizations like
- * Tregenza. nside is the optional HEALPix resolution parameter the data was created
- * with, for which pixel_solid_angle equals 4 * PI / (12 * nside^2).
+ * Tregenza.
  *
  * `data` holds a list of
  * sky segments, where altitude_deg and azimuth_deg define the position
@@ -39,7 +38,6 @@
         "latitude": 49.8,
         "longitude": 8.6,
         "valid_timesteps_for_aggregation": 8760,
-        "nside": 4,
         "pixel_solid_angle": 0.06544984694978735
     }
 }
