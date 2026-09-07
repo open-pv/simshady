@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: 'openpv/simshady: A JavaScript Package for Photovoltaic Yield Estimation Based on 3D Meshes'
+type: software
+authors:
+- given-names: Florian
+  family-names: Kotthoff
+  orcid: https://orcid.org/0000-0003-3666-6122
+- given-names: Mino
+  family-names: Estrella
+  orcid: https://orcid.org/0009-0009-7372-4548
+- given-names: Martin
+  family-names: Großhauser
+  orcid: https://orcid.org/0000-0003-2637-3828
+- given-names: Konrad
+  family-names: Heidler
+  orcid: https://orcid.org/0000-0001-8226-0727
+- given-names: Korbinian
+  family-names: Pöppel
+  orcid: https://orcid.org/0009-0002-4734-1040
+repository-code: https://github.com/open-pv/simshady
+license: Apache-2.0
