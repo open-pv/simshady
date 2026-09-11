@@ -58,23 +58,23 @@ Existing software can roughly be grouped into three groups: full-suite commercia
 
 Full-suite design tools target professional PV planners and combine 3D system modeling, component databases, and financial analysis behind a graphical user interface. HelioScope by Aurora Solar is a web-based design platform that approximates near shading by projecting drop shadows from 3D objects rather than performing full ray tracing, and is offered as a paid subscription [@helioscope2026]. PV\*SOL premium by Valentin Software is a Windows desktop application that performs detailed sub-module shading analysis at cell level, but is restricted to interactive single-project use, meaning it requires manual, GUI-based operation for one project at a time without automation or batch processing capabilities [@pvsol2026]. PVsyst is the industry reference for bankable yield reports and additionally provides a separately licensed command-line tool, PVsystCLI, which is the only existing software that combines accurate 3D near shading with batch automation, but at a cost of several thousand Swiss francs per year [@pvsyst2026]. The System Advisor Model (SAM) developed by the National Laboratory of the Rockies (NLR) is open source and exposes a Python wrapper (PySAM), but its 3D shading capabilities are limited compared to dedicated design tools [@sam2026]. Within the ecosystem of the open-source geoinformation software QGIS, the Urban Multi-scale Universal Predictor (UMEP) [@LINDBERG201870] plugin contains a tool for shading simulations on 2D digital surface models [@LINDBERG2015369] called SEBE (short for Solar Energy on Building Envelopes).
 
-Among the developer libraries, the Python package pvlib [@holmgren2018pvlib; @anderson2023pvlib] offers a large range of functionalities. With pvlib it is possible to model shading scenarios where the whole 3D scene is not needed. Examples are the possibility to model horizon shading from far-away objects like hills, or modeling diffusive self-shading or partial module shading, to name a few. However, the topic of shading simulation with 3D objects is not included in this package. Another Python-based software that enables irradiance modeling in two dimensions is pvfactors [@anoma_view_2017], which computes view factors between PV rows and the ground to capture row-to-row and bifacial shading, but cannot represent arbitrary 3D obstacles such as trees or buildings. SoDeLe wraps pvlib in an end-user GUI for quick residential estimates and likewise omits 3D shading [@sodele2026]. Web-based tools for solar panel simulations, such as PVGIS, PVWatts, and RETScreen, provide an accessible means for non-technical individuals to estimate energy yields based on geographic location and building geometry [@psomopoulos2015comparative]. These tools account for far-shading from the horizon or terrain, or for self-shading derived from the ground coverage ratio, but lack the capability to perform shading simulations using 3D geometries from nearby objects. RADIANCE [@RADIANCE] is a collection of tools designed for general light and shading simulation and developed in the 1990s. For solar simulation, the bifacial_radiance tool [@Ayala_Pelaez2020] exists as a Python wrapper around the original Software. In combination, these software packages offer a variety of shading methods, including detailed 3D shading simulations. Table \ref{tab:tool-comparison} summarises the tools by the capabilities most relevant to urban-scale PV assessment.
+Among the developer libraries, the Python package pvlib [@holmgren2018pvlib; @anderson2023pvlib, @Anderson2026_ants2d] offers a large range of functionalities. With pvlib it is possible to model shading scenarios where the whole 3D scene is not needed. Examples are the possibility to model horizon shading from far-away objects like hills, or modeling diffusive self-shading or partial module shading, to name a few. However, the topic of shading simulation with 3D objects is not included in this package. Another Python-based software that enables irradiance modeling in two dimensions is pvfactors [@anoma_view_2017], which computes view factors between PV rows and the ground to capture row-to-row and bifacial shading, but cannot represent arbitrary 3D obstacles such as trees or buildings. SoDeLe wraps pvlib in an end-user GUI for quick residential estimates and likewise omits 3D shading [@sodele2026]. Web-based tools for solar panel simulations, such as PVGIS, PVWatts, and RETScreen, provide an accessible means for non-technical individuals to estimate energy yields based on geographic location and building geometry [@psomopoulos2015comparative]. These tools account for far-shading from the horizon or terrain, or for self-shading derived from the ground coverage ratio, but lack the capability to perform shading simulations using 3D geometries from nearby objects. RADIANCE [@RADIANCE] is a collection of tools designed for general light and shading simulation and developed in the 1990s. For solar simulation, the bifacial_radiance tool [@Ayala_Pelaez2020] exists as a Python wrapper around the original Software. In combination, these software packages offer a variety of shading methods, including detailed 3D shading simulations. Table \ref{tab:tool-comparison} summarises the tools by the capabilities most relevant to urban-scale PV assessment.
 
 : Comparison of representative PV simulation tools by the capabilities most relevant to automated, city-scale assessment. In the shading column, 3D means that 3-dimensional objects are used to model shading, 3D (simplified) means a 3D scene is used but objects are abstracted as polygons, DSM means that Digital Surface Models (height maps) are used, 2D means that the simulation only relies on 2D abstractions, Horizon represents shading through the horizon contour, Row represents row-to-row self-shading without 3D objects, Diffuse represents reduction of diffuse irradiance due to the array geometry, and None means no shading modeling is provided. \label{tab:tool-comparison}
 
-| Tool              | Platform | Cost | Open Source | Shading       | Source                                   |
-| ----------------- | -------- | ---- | ----------- | ------------- | ---------------------------------------- |
-| HelioScope        | Web      | Paid | No          | 3D            | [@helioscope2026]                        |
-| PV\*SOL prem.     | Desktop  | Paid | No          | 3D            | [@pvsol2026]                             |
-| PVsyst            | Desktop  | Paid | No          | 3D            | [@pvsyst2026]                            |
-| bifacial_radiance | Package  | Free | Yes         | 3D            | [@Ayala_Pelaez2020]                      |
-| SAM               | Desktop  | Free | Yes         | 3D simplified | [@sam2026]                               |
-| QGIS Plugin SEBE  | Desktop  | Free | Yes         | DSM           | [@LINDBERG2015369]                       |
-| PVGIS             | Web      | Free | No          | Horizon       | [@pvgis2026]                             |
-| PVWatts           | Web      | Free | Yes         | Row           | [@pvwatts2026]                           |
-| SoDeLe            | Package  | Free | Yes         | None          | [@sodele2026]                            |
-| pvlib             | Package  | Free | Yes         | 2D, Horizon   | [@holmgren2018pvlib; @anderson2023pvlib] |
-| pvfactors         | Package  | Free | Yes         | 2D            | [@anoma_view_2017]                       |
+| Tool              | Platform | Cost | Open Source | Shading       | Source                                                         |
+| ----------------- | -------- | ---- | ----------- | ------------- | -------------------------------------------------------------- |
+| HelioScope        | Web      | Paid | No          | 3D            | [@helioscope2026]                                              |
+| PV\*SOL prem.     | Desktop  | Paid | No          | 3D            | [@pvsol2026]                                                   |
+| PVsyst            | Desktop  | Paid | No          | 3D            | [@pvsyst2026]                                                  |
+| bifacial_radiance | Package  | Free | Yes         | 3D            | [@Ayala_Pelaez2020]                                            |
+| SAM               | Desktop  | Free | Yes         | 3D simplified | [@sam2026]                                                     |
+| QGIS Plugin SEBE  | Desktop  | Free | Yes         | DSM           | [@LINDBERG2015369]                                             |
+| PVGIS             | Web      | Free | No          | Horizon       | [@pvgis2026]                                                   |
+| PVWatts           | Web      | Free | Yes         | Row           | [@pvwatts2026]                                                 |
+| SoDeLe            | Package  | Free | Yes         | None          | [@sodele2026]                                                  |
+| pvlib             | Package  | Free | Yes         | 2D, Horizon   | [@holmgren2018pvlib; @anderson2023pvlib, @Anderson2026_ants2d] |
+| pvfactors         | Package  | Free | Yes         | 2D            | [@anoma_view_2017]                                             |
 
 # Software design
 
@@ -82,8 +82,24 @@ Among the developer libraries, the Python package pvlib [@holmgren2018pvlib; @an
 
 ## Input data
 
-In `simshady`, two major types of input data need to be provided. First, a 3D scene is built that represents the environment, consisting of primary objects for the simulation (e.g., PV panels or target buildings) and surrounding objects that may cast shadows (e.g., neighboring buildings and trees). These objects can be provided as Wavefront .obj files or as Three.js geometries. Second, weather and climate data need to be provided as input data in .json format as a discretized sky dome.
-Such a .json input file can be derived as follows: For each time step, direct normal irradiance (DNI) is assigned to the segment containing the sun and diffuse horizontal irradiance (DHI) is distributed over all segments above the horizon under isotropic sky assumption [@Górski_2005; @zonca2019healpy]. These values are then normalized to radiance and averaged over time, so that each segment then contains the radiance in $\mathrm{Wm^{-2}sr^{-1}}$.
+In `simshady`, two major types of input data need to be provided. First, a 3D scene is built that represents the environment, consisting of primary objects for the simulation (e.g., PV panels or target buildings) and surrounding objects that may cast shadows (e.g., neighboring buildings and trees). These objects can be provided as Wavefront .obj files or as Three.js geometries.
+Second, weather and climate data need to be provided as input data in .json format as a discretized sky dome [@Górski_2005; @zonca2019healpy]. This data consists of an array of sky pixels where each pixel holds one radiance value, representing the cummulative direct and diffuse component of solar radiation over a specified time interval that hits the simulated object from the direction of the sky pixel (see Fig. \autoref{fig:skydome-openpv} a).
+
+Such a sky dome can be obtained, for example, by using the National Solar Radiation Database [@sengupta2018national]. Here, for each time interval, the Direct Normal Irradiance DNI (normalized with the solid angle) is assigned to the sky segment that contains the position of the sun at that specific instance of time. For the Diffuse Horizontal Irradiance DHI, the isotropic sky assumption is used, meaning that all sky segments have the same contribution to the resulting DHI.
+Since the summed portion $L$ over all sky segments on a horizontal surface results in the given DHI value and $L$ is constant, this equation can be solved to obtain the diffuse portion of radiance per sky segment
+
+$$
+\mathrm{DHI}
+= L \int_{0}^{2\pi} \int_{0}^{\pi/2} \cos\theta\,\sin\theta \,\mathrm{d}\theta\,\mathrm{d}\phi
+= L \cdot 2\pi \cdot \frac{1}{2}
+= L\,\pi,
+$$
+
+$$
+L = \frac{\mathrm{DHI}}{\pi}.
+$$
+
+Finally, averaging both direct and diffuse parts for each sky segment over the given time period gives the radiances in $\mathrm{Wm^{-2}sr^{-1}}$.
 
 ## Simulation pipeline
 
@@ -97,7 +113,7 @@ The central `ShadingScene` class orchestrates the simulation through the followi
 
 4. **Visualization:** The computed yield values are normalized and mapped to RGB colors using a configurable colormap (See \autoref{fig:skydome-openpv} b). The resulting mesh carries both the color attribute for visualization and per-triangle solar yield for further analysis.
 
-![a) Schema of the simulation setup: For each surface of the sky dome and for each triangle of the simulation geometry, it is simulated if an object blocks the incoming irradiance. b) A simulated building with its yearly averaged solar yield, where dark purple represents low yields and light yellow represents high yields. Screenshot taken from [@openpv]. \label{fig:skydome-openpv}](combinedFigure-skydome-openpv.png){ width=90% }
+![a) Schema of the simulation setup: For each segment of the sky dome and for each triangle of the simulation geometry, it is simulated if an object blocks the incoming irradiance. b) A simulated building with its yearly averaged solar yield, where dark purple represents low yields and light yellow represents high yields. Screenshot taken from [@openpv]. \label{fig:skydome-openpv}](combinedFigure-skydome-openpv.png){ width=90% }
 
 ## Simshady in the browser
 
