@@ -37,16 +37,20 @@ export function shadeIrradianceFromElevation(Irradiance: SunVector[], shadingEle
  * intensities with the solarToElectricityConversionEfficiency.
  * @param intensities
  * @param solarToElectricityConversionEfficiency
+ * @param totalHours
+ * @param pixelSolidAngle Solid angle (Raumwinkel) in steradian covered by one sky segment,
+ * taken from solarIrradiance.metadata.pixel_solid_angle. All sky segments are assumed to
+ * cover the same solid angle, which holds for the equal-area HEALPix discretization.
  * @returns
  */
 export function calculatePVYield(
   intensities: Float32Array[],
   solarToElectricityConversionEfficiency: number,
   totalHours: number,
+  pixelSolidAngle: number,
 ): Float32Array[] {
   // solarIrradiance.metadata.valid_timesteps_for_aggregation is hours over which you have to aggregate the mean intensity
-  // 0.065 is solid angle (Raumwinkel) per skypixel in the HEALpix Level 4
   // 1/1000 is Watt to kiloWatt
-  const factor = ((totalHours * 0.065) / 1000) * solarToElectricityConversionEfficiency;
+  const factor = ((totalHours * pixelSolidAngle) / 1000) * solarToElectricityConversionEfficiency;
   return intensities.map((arr) => new Float32Array(arr.map((x) => x * factor)));
 }

@@ -3,7 +3,10 @@
  * where the irradiance data can be used. valid_timesteps_for_aggregation
  * is the number of hours of daylight in the considered timeframe. If
  * the skydome represents a whole year, this is about 8760.
- * 
+ * pixel_solid_angle is the solid angle in steradian covered by one sky segment,
+ * `simshady` assumes that all sky segments cover the same solid angle which only holds
+ * for equal-area HEALPix discretization but not for other discretizations.
+ *
  * `data` holds a list of
  * sky segments, where altitude_deg and azimuth_deg define the position
  * and average_radiance_W_m2_sr defines the averaged incoming irradinace in W per m2 per sr. 
@@ -34,12 +37,19 @@
         "latitude": 49.8,
         "longitude": 8.6,
         "valid_timesteps_for_aggregation": 8760,
+        "pixel_solid_angle": 0.06544984694978735
     }
 }
   ```
  */
 export type SolarIrradianceData = {
-  metadata: { latitude: number; longitude: number; valid_timesteps_for_aggregation: number };
+  metadata: {
+    latitude: number;
+    longitude: number;
+    valid_timesteps_for_aggregation: number;
+    nside?: number;
+    pixel_solid_angle: number;
+  };
   data: Array<{ altitude_deg: number; azimuth_deg: number; average_radiance_W_m2_sr: number }>;
 };
 

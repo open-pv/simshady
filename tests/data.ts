@@ -17,6 +17,8 @@ export const solarData = {
     longitude: 11.6,
     total_timesteps_in_period: 8760,
     valid_timesteps_for_aggregation: 8760,
+    nside: 4,
+    pixel_solid_angle: 0.06544984694978735,
   },
 };
 export const skysegmentDirectionArray = new Float32Array([1, 0, 0, 0, 0, 1, 0, 1 / Math.sqrt(2), 1 / 1 / Math.sqrt(2)]);

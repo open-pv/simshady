@@ -72,7 +72,12 @@ describe('geometryFilter', () => {
   describe('getMinSunAngleFromIrradiance', () => {
     it('return minimum angle from irradiance data', () => {
       const irradiance: SolarIrradianceData = {
-        metadata: { latitude: 48.2, longitude: 11.6, valid_timesteps_for_aggregation: 8760 },
+        metadata: {
+          latitude: 48.2,
+          longitude: 11.6,
+          valid_timesteps_for_aggregation: 8760,
+          pixel_solid_angle: 0.06544984694978735,
+        },
         data: [
           { altitude_deg: 5, azimuth_deg: 90, average_radiance_W_m2_sr: 10 },
           { altitude_deg: 25, azimuth_deg: 90, average_radiance_W_m2_sr: 10 },
@@ -84,11 +89,21 @@ describe('geometryFilter', () => {
     it('return minimum angle from array of irradiance data', () => {
       const irradiance = [
         {
-          metadata: { latitude: 48.2, longitude: 11.6, valid_timesteps_for_aggregation: 8760 },
+          metadata: {
+            latitude: 48.2,
+            longitude: 11.6,
+            valid_timesteps_for_aggregation: 8760,
+            pixel_solid_angle: 0.06544984694978735,
+          },
           data: [{ altitude_deg: 5, azimuth_deg: 90, average_radiance_W_m2_sr: 10 }],
         },
         {
-          metadata: { latitude: 48.2, longitude: 11.6, valid_timesteps_for_aggregation: 8760 },
+          metadata: {
+            latitude: 48.2,
+            longitude: 11.6,
+            valid_timesteps_for_aggregation: 8760,
+            pixel_solid_angle: 0.06544984694978735,
+          },
           data: [{ altitude_deg: 25, azimuth_deg: 90, average_radiance_W_m2_sr: 10 }],
         },
       ];
@@ -97,7 +112,12 @@ describe('geometryFilter', () => {
 
     it('ignore zero-irradiance data point', () => {
       const irradiance: SolarIrradianceData = {
-        metadata: { latitude: 48.2, longitude: 11.6, valid_timesteps_for_aggregation: 8760 },
+        metadata: {
+          latitude: 48.2,
+          longitude: 11.6,
+          valid_timesteps_for_aggregation: 8760,
+          pixel_solid_angle: 0.06544984694978735,
+        },
         data: [
           { altitude_deg: 5, azimuth_deg: 90, average_radiance_W_m2_sr: 0 },
           { altitude_deg: 25, azimuth_deg: 90, average_radiance_W_m2_sr: 10 },
@@ -108,7 +128,12 @@ describe('geometryFilter', () => {
 
     it('return 0 when all irradiances data is zero', () => {
       const irradiance: SolarIrradianceData = {
-        metadata: { latitude: 48.2, longitude: 11.6, valid_timesteps_for_aggregation: 8760 },
+        metadata: {
+          latitude: 48.2,
+          longitude: 11.6,
+          valid_timesteps_for_aggregation: 8760,
+          pixel_solid_angle: 0.06544984694978735,
+        },
         data: [
           { altitude_deg: 5, azimuth_deg: 90, average_radiance_W_m2_sr: 0 },
           { altitude_deg: 25, azimuth_deg: 90, average_radiance_W_m2_sr: 0 },
