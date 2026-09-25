@@ -32,6 +32,9 @@ jobs:
       - name: Build CLI package
         run: yarn build
 
+      - name: Build docs
+        run: yarn docs
+
       - name: Run Vitest
         run: yarn test
         env:

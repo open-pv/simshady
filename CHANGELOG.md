@@ -6,6 +6,12 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v0.2.4 - 2026-09-25
+
+### Changes
+
+- Update github action versions by @FlorianK13 in https://github.com/open-pv/simshady/pull/136
+
 ## v0.2.3 - 2026-09-25
 
 ### Changes
