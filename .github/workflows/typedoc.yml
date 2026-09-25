@@ -14,13 +14,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
       - run: yarn install --frozen-lockfile
       # Generate your TypeDoc documentation
       - run: yarn docs
       # https://github.com/actions/upload-pages-artifact
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: ./docs # This should be your TypeDoc "out" path.
 
@@ -34,4 +34,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         # https://github.com/actions/deploy-pages
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
