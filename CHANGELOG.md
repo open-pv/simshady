@@ -6,6 +6,15 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v0.2.3 - 2026-09-25
+
+### Changes
+
+- Move `three` to a peer dependency and test against multiple versions by @FlorianK13 in https://github.com/open-pv/simshady/pull/108
+- Add npx install instructions to documentation by @FlorianK13 in https://github.com/open-pv/simshady/pull/105
+- Increase CLI test timeout by @FlorianK13 in https://github.com/open-pv/simshady/pull/108
+- JOSS manuscript review and editorial updates by @AdamRJensen in https://github.com/open-pv/simshady/pull/117 and https://github.com/open-pv/simshady/pull/124
+
 ## v0.2.2 - 2026-06-11
 
 ### Changes
