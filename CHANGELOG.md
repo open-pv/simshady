@@ -6,6 +6,12 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v0.2.6 - 2026-09-26
+
+### Changes
+
+- Switch whole repo from yarn to npm @FlorianK13 in https://github.com/open-pv/simshady/pull/140
+
 ## v0.2.5 - 2026-09-25
 
 ### Changes
