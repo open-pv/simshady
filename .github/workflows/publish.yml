@@ -15,13 +15,9 @@ jobs:
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v7
         with:
-          node-version: '20.x'
+          node-version: '26.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@openpv'
-      # Use npm, not yarn: setup-node writes an npm-style .npmrc with
-      # ${NODE_AUTH_TOKEN} env expansion, which yarn v1 cannot parse.
       - run: npm install
       - run: npm run build
-      - name: Update npm # Seems like trusted publishing only works with npm
-        run: npm install -g npm@latest
       - run: npm publish

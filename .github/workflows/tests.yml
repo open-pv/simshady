@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [22.x, 24.x]
+        node-version: [24.x, 26.x]
 
     steps:
       - uses: actions/checkout@v7
@@ -25,18 +25,18 @@ jobs:
       - name: Install dependencies
         # Use the runner's preinstalled Google Chrome instead of having
         # puppeteer download its own.
-        run: yarn install
+        run: npm install
         env:
           PUPPETEER_SKIP_DOWNLOAD: 'true'
 
       - name: Build CLI package
-        run: yarn build
+        run: npm run build
 
       - name: Build docs
-        run: yarn docs
+        run: npm run docs
 
       - name: Run Vitest
-        run: yarn test
+        run: npm run test
         env:
           PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome
 
@@ -50,23 +50,23 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Use Node.js 24.x
+      - name: Use Node.js 26.x
         uses: actions/setup-node@v7
         with:
-          node-version: 24.x
+          node-version: 26.x
 
       - name: Install dependencies
-        run: yarn install
+        run: npm install
         env:
           PUPPETEER_SKIP_DOWNLOAD: 'true'
 
       - name: Pin three to the peerDependencies floor
-        run: yarn add --dev three@0.160.0 @types/three@0.160.0
+        run: npm install --save-dev three@0.160.0 @types/three@0.160.0
 
       - name: Build CLI package
-        run: yarn build
+        run: npm run build
 
       - name: Run Vitest
-        run: yarn test
+        run: npm run test
         env:
           PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome

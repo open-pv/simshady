@@ -1,2 +1,2 @@
-yarn test
-yarn format
+npm run test
+npm run format
