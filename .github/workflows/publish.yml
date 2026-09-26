@@ -18,8 +18,6 @@ jobs:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@openpv'
-      # Use npm, not yarn: setup-node writes an npm-style .npmrc with
-      # ${NODE_AUTH_TOKEN} env expansion, which yarn v1 cannot parse.
       - run: npm install
       - run: npm run build
       - name: Update npm # Seems like trusted publishing only works with npm

@@ -1,15 +1,15 @@
 // Top level imports are only possible for classes and functions which do not get injected into the puppeteer page
-import type { SolarIrradianceData } from '../utils';
-import { ShadingScene as ShadingSceneType } from '../main';
+import fs from 'fs';
 import path from 'path';
 import puppeteer from 'puppeteer';
-import fs from 'fs';
 import { BufferGeometry as BufferGeometryType } from 'three';
-import { SummaryExporter } from './summaryExporter';
-import { MeshExporter } from './meshExporter';
+import { ShadingScene as ShadingSceneType } from '../main';
 import { CLIOptions } from '../types/CLIOptions';
-import { SnapshotExporter } from './snapshotExporter';
+import type { SolarIrradianceData } from '../utils';
+import { MeshExporter } from './meshExporter';
 import { ObjExporter } from './objExporter';
+import { SnapshotExporter } from './snapshotExporter';
+import { SummaryExporter } from './summaryExporter';
 
 /**
  * Run ShadingScene in headless Chromium with WebGL2 enabled.
@@ -106,7 +106,7 @@ export async function runShadingSceneHeadlessChrome(
 
     // check if simshady bundle exists
     if (!fs.existsSync(bundlePath)) {
-      throw new Error(`simshady bundle not found at ${bundlePath}. Please run 'yarn build' first.`);
+      throw new Error(`simshady bundle not found at ${bundlePath}. Please run 'npm run build' first.`);
     }
     const simshadyBundle = fs.readFileSync(bundlePath, 'utf8');
 
