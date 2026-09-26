@@ -20,6 +20,4 @@ jobs:
           scope: '@openpv'
       - run: npm install
       - run: npm run build
-      - name: Update npm # Seems like trusted publishing only works with npm
-        run: npm install -g npm@latest
       - run: npm publish
