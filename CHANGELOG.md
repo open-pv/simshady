@@ -13,6 +13,33 @@ and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/
 - Read the solid angle per sky segment from `metadata.pixel_solid_angle` instead of using a hardcoded value of 0.065 sr, which was only correct for a sky dome of 96 segments [#126](https://github.com/open-pv/simshady/issues/126)
 - **Breaking:** `SolarIrradianceData.metadata` now requires a `pixel_solid_angle` field.
 
+## v0.2.6 - 2026-09-26
+
+### Changes
+
+- Switch whole repo from yarn to npm @FlorianK13 in https://github.com/open-pv/simshady/pull/140
+
+## v0.2.5 - 2026-09-25
+
+### Changes
+
+- Use npm by @FlorianK13 in https://github.com/open-pv/simshady/pull/140
+
+## v0.2.4 - 2026-09-25
+
+### Changes
+
+- Update github action versions by @FlorianK13 in https://github.com/open-pv/simshady/pull/136
+
+## v0.2.3 - 2026-09-25
+
+### Changes
+
+- Move `three` to a peer dependency and test against multiple versions by @FlorianK13 in https://github.com/open-pv/simshady/pull/108
+- Add npx install instructions to documentation by @FlorianK13 in https://github.com/open-pv/simshady/pull/105
+- Increase CLI test timeout by @FlorianK13 in https://github.com/open-pv/simshady/pull/108
+- JOSS manuscript review and editorial updates by @AdamRJensen in https://github.com/open-pv/simshady/pull/117 and https://github.com/open-pv/simshady/pull/124
+
 ## v0.2.2 - 2026-06-11
 
 ### Changes
