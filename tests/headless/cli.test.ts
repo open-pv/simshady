@@ -15,7 +15,7 @@ describe('CLI integration test', () => {
     fs.rmSync(tempDir, { recursive: true, force: true });
   });
 
-  test('run CLI as subprocess', () => {
+  test('run CLI as subprocess', { timeout: 50000 }, () => {
     // Change working directory to base simshady directory
     process.chdir(path.join(__dirname, '../..'));
 
@@ -39,5 +39,5 @@ describe('CLI integration test', () => {
       console.error('CLI execution failed:', error.stdout, error.stderr);
       throw error;
     }
-  }, 50000);
+  });
 });

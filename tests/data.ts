@@ -17,7 +17,6 @@ export const solarData = {
     longitude: 11.6,
     total_timesteps_in_period: 8760,
     valid_timesteps_for_aggregation: 8760,
-    nside: 4,
     pixel_solid_angle: 0.06544984694978735,
   },
 };

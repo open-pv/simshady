@@ -47,7 +47,6 @@ export type SolarIrradianceData = {
     latitude: number;
     longitude: number;
     valid_timesteps_for_aggregation: number;
-    nside?: number;
     pixel_solid_angle: number;
   };
   data: Array<{ altitude_deg: number; azimuth_deg: number; average_radiance_W_m2_sr: number }>;
