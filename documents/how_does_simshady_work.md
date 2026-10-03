@@ -21,6 +21,8 @@ Simshady uses time-series data of Global Horizontal Irradiance (GHI) and Direct 
 
 _Figure 1: Sky discretization using HEALPix, from Gorski et al._
 
+Converting the radiances of the sky segments into an irradiance requires the solid angle covered by a single sky segment. Simshady reads this value from the `pixel_solid_angle` field of the irradiance metadata, so it works with any resolution of the sky discretization. Simshady assumes that **all sky segments cover the same solid angle**. This holds only for equal-area discretization like HEALPix. Other discretizations are therefore currently not supported.
+
 For each time step:
 
 - DNI is assigned to the sky segment corresponding to the sun's position.
