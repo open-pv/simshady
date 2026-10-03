@@ -138,6 +138,9 @@ export class ShadingScene {
       irradiance = [irradiance];
     }
     const solidAngle = irradiance[0]?.metadata.pixel_solid_angle;
+    if (solidAngle === undefined) {
+      throw new Error('metadata.pixel_solid_angle is required on every skydome but is missing on the first one.');
+    }
     if (irradiance.some((skydome) => skydome.metadata.pixel_solid_angle !== solidAngle)) {
       console.warn(
         'The given skydomes have different values of metadata.pixel_solid_angle. ' +
