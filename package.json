@@ -63,7 +63,7 @@
   "optionalDependencies": {
     "commander": "^15.0.0",
     "puppeteer": "25.13.0",
-    "tsup": "^8.5.1"
+    "tsup": "^9.0.0"
   },
   "bin": {
     "simshady": "dist/cli.cjs"
