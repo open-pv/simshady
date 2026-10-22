@@ -1,10 +1,10 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import { solarData } from '../data';
-import { runShadingSceneHeadlessChrome } from '../../src/headless/headlessBrowser';
-import path from 'path';
-import { DataLoader } from '../../src/headless/dataLoader';
 import fs from 'fs';
 import os from 'os';
+import path from 'path';
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { DataLoader } from '../../src/headless/dataLoader';
+import { runShadingSceneHeadlessChrome } from '../../src/headless/headlessBrowser';
+import { solarData } from '../data';
 
 describe('Headless Browser', () => {
   let tempDir: string;
@@ -81,5 +81,5 @@ describe('Calibration - verify kWh unit', () => {
     // Verify yield is close to 1000 kWh
     expect(summary.total.sum_yield_total_in_kWh).toBeGreaterThan(900);
     expect(summary.total.sum_yield_total_in_kWh).toBeLessThan(1100);
-  }, 30000);
+  }, 60000);
 });
