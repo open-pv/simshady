@@ -6,12 +6,13 @@ For each version important additions, changes and removals are listed here.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aims to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## v0.3.0 - 2026-10-22
 
 ### Changes
 
 - Read the solid angle per sky segment from `metadata.pixel_solid_angle` instead of using a hardcoded value of 0.065 sr, which was only correct for a sky dome of 96 segments [#126](https://github.com/open-pv/simshady/issues/126)
 - **Breaking:** `SolarIrradianceData.metadata` now requires a `pixel_solid_angle` field.
+- Add a city-wide demonstration for Munich to the CLI documentation [#133](https://github.com/open-pv/simshady/issues/133)
 
 ## v0.2.6 - 2026-09-26
 
