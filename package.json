@@ -62,7 +62,7 @@
   },
   "optionalDependencies": {
     "commander": "^15.0.0",
-    "puppeteer": "25.13.0",
+    "puppeteer": "25.15.0",
     "tsup": "^9.0.0"
   },
   "bin": {
