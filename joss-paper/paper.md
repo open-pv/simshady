@@ -39,7 +39,7 @@ affiliations:
 
 date: 11 March 2026
 bibliography: paper.bib
-#This paper compiles with the following command: docker run --rm --volume .:/data --user $(id -u):$(id -g) --env JOURNAL=joss openjournals/inara
+#This paper compiles with the following command: docker run --rm --volume .:/data --user $(id -u):$(id -g) --env JOURNAL=joss openjournals/inara:1.3.1
 ---
 
 # Summary
@@ -61,7 +61,7 @@ Among the developer libraries, the Python package pvlib [@holmgren2018pvlib; @an
 : Comparison of representative PV simulation tools. In the shading column, 3D means that 3-dimensional objects are used to model shading, 3D (simplified) means a 3D scene is used but objects are abstracted as polygons, DSM means that Digital Surface Models (height maps) are used, 2D means that the simulation only relies on 2D abstractions, Horizon represents shading from the horizon contour, Row represents row-to-row self-shading without 3D objects, and None means no shading modeling is provided. \label{tab:tool-comparison}
 
 | Tool              | Platform | Cost | Open Source | Shading       | Source                                                         |
-| ----------------- | -------- | ---- | ----------- | ------------- | -------------------------------------------------------------- |
+| ----------------- | -------- | ---- | ----------- | ------------- | ------------------------------- |
 | HelioScope        | Web      | Paid | No          | 3D            | [@helioscope2026]                                              |
 | PV\*SOL prem.     | Desktop  | Paid | No          | 3D            | [@pvsol2026]                                                   |
 | PVsyst            | Desktop  | Paid | No          | 3D            | [@pvsyst2026]                                                  |
