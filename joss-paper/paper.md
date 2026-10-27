@@ -62,17 +62,17 @@ Among the developer libraries, the Python package pvlib [@holmgren2018pvlib; @an
 
 | Tool              | Platform | Cost | Open Source | Shading       | Source                                                         |
 | ----------------- | -------- | ---- | ----------- | ------------- | ------------------------------- |
-| HelioScope        | Web      | Paid | No          | 3D            | [@helioscope2026]                                              |
-| PV\*SOL prem.     | Desktop  | Paid | No          | 3D            | [@pvsol2026]                                                   |
-| PVsyst            | Desktop  | Paid | No          | 3D            | [@pvsyst2026]                                                  |
-| bifacial_radiance | Package  | Free | Yes         | 3D            | [@Ayala_Pelaez2020]                                            |
-| SAM               | Desktop  | Free | Yes         | 3D simplified | [@sam2026]                                                     |
-| QGIS Plugin SEBE  | Desktop  | Free | Yes         | DSM           | [@LINDBERG2015369]                                             |
-| PVGIS             | Web      | Free | No          | Horizon       | [@pvgis2026]                                                   |
-| PVWatts           | Web      | Free | Yes         | Row           | [@pvwatts2026]                                                 |
-| SoDeLe            | Package  | Free | Yes         | None          | [@sodele2026]                                                  |
-| pvlib             | Package  | Free | Yes         | 2D, Horizon   | [@holmgren2018pvlib; @anderson2023pvlib; @Anderson2026_ants2d] |
-| pvfactors         | Package  | Free | Yes         | 2D            | [@anoma_view_2017]                                             |
+| HelioScope        | Web      | Paid | No          | 3D            | @helioscope2026  |
+| PV\*SOL prem.     | Desktop  | Paid | No          | 3D            | @pvsol2026 |
+| PVsyst            | Desktop  | Paid | No          | 3D            | @pvsyst2026  |
+| bifacial_radiance | Package  | Free | Yes         | 3D            | @Ayala_Pelaez2020  |
+| SAM               | Desktop  | Free | Yes         | 3D simplified | @sam2026 |
+| QGIS Plugin SEBE  | Desktop  | Free | Yes         | DSM           | @LINDBERG2015369 |
+| PVGIS             | Web      | Free | No          | Horizon       | @pvgis2026  |
+| PVWatts           | Web      | Free | Yes         | Row           | @pvwatts2026  |
+| SoDeLe            | Package  | Free | Yes         | None          | @sodele2026   |
+| pvlib             | Package  | Free | Yes         | 2D, Horizon   | @holmgren2018pvlib; @anderson2023pvlib; @Anderson2026_ants2d |
+| pvfactors         | Package  | Free | Yes         | 2D            | @anoma_view_2017 |
 
 # Software design
 
